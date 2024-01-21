@@ -1,0 +1,108 @@
+@ISplitAppCore_HostAddress = http://localhost:5096
+@defaultUser = CKjtmmzqBNXThrNC
+
+# @name login
+GET {{ISplitAppCore_HostAddress}}/login
+Accept: application/json
+
+###
+
+@authToken = {{login.response.body.id}}
+
+# @name get-parties
+GET {{ISplitAppCore_HostAddress}}/parties
+Accept: application/json
+X-USER-ID: {{authToken}}
+
+
+###
+
+# @name get-parties-for-default-user
+GET {{ISplitAppCore_HostAddress}}/parties
+Accept: application/json
+X-USER-ID: {{defaultUser}}
+
+###
+
+# @name create-parties-for-default-user
+POST {{ISplitAppCore_HostAddress}}/parties HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+{
+  "name": "Default Party : {{$randomInt 1 100}}",
+  "currency": "EUR",
+  "participants": [
+    { "name": "p-{{$randomInt 1 100}}" }, 
+    { "name": "p-{{$randomInt 100 200}}" }, 
+    { "name": "p-p-{{$randomInt 200 300}}" }
+  ]
+}
+
+###
+
+@defaultParty = CMBQhxSsfXzPrxJJ
+
+# @name change-default-party
+PUT {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+{
+  "name": "Part Name : {{$randomInt 1 100}}",
+  "currency": "USD",
+  "participants": [
+    { "name": "pp6" }, 
+    { "name": "p-186" }, 
+    { "name": "pp9" }
+  ]
+}
+
+###
+
+# @name get-default-party
+GET {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+
+###
+
+# @name create-expense-for-default-party
+POST {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/expenses
+Accept: application/json
+Content-Type: application/json
+
+{
+  "title": "My first expense",
+  "amount": "180",
+  "lenderId": "CMBQhxSxkmQckBmZ",
+  "date": "{{$datetime iso8601}}",
+  "borrowers": [
+    { "participantId": "CMBQhxSxRfTjfJnS" },
+    { "participantId": "CMBQhxSxkmQckBmZ" }
+  ]
+}
+
+###
+
+# @name get-expense
+GET {{ISplitAppCore_HostAddress}}/expenses/CMBQtzkNkRqJjTzp
+Accept: application/json
+Content-Type: application/json
+
+###
+GET {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/expenses
+Accept: application/json
+Content-Type: application/json
+
+
+###
+
+# @name get-balance
+GET {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/balance
+Accept: application/json
+Content-Type: application/json
