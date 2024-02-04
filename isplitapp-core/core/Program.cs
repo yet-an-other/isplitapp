@@ -5,6 +5,7 @@ using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Payloads;
 using IB.ISplitApp.Core.Expenses.Payloads.Core.Users;
 using IB.ISplitApp.Core.Utils;
+
 using LinqToDB;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
@@ -71,6 +72,18 @@ builder.Services.AddTransient<IValidator<PartyRequest>, PartyRequestValidator>()
 builder.Services.AddTransient<IValidator<ExpenseRequest>, ExpenseRequestValidator>();
 builder.Services.AddTransient<GenericValidator>();
 
+// Add Cors
+//
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy => policy
+        .SetIsOriginAllowed(origin => CorsUtil.IsValidOrigin().IsMatch(origin))
+        .AllowCredentials()
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .SetPreflightMaxAge(TimeSpan.FromDays(20)));
+});
+
 var app = builder.Build();
 
 app.MapGet("/login", UserCommand.Login).WithName("Login");
@@ -103,6 +116,8 @@ app.UseSwaggerUi();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseHttpLogging();
+
+app.UseCors();
 
 app.Run();
 
