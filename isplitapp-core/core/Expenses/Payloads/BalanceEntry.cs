@@ -1,9 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace IB.ISplitApp.Core.Expenses.Payloads;
 
 /// <summary>
 /// Balance line entry
 /// </summary>
-public record BalanceItem
+public record BalanceEntry
 {
     /// <summary>
     /// Unique participant id
@@ -18,5 +20,6 @@ public record BalanceItem
     /// <summary>
     /// Amount of money party participant has lent or borrow in total
     /// </summary>
-    public decimal Amount { get; init; }
+    [JsonPropertyName("amount")]
+    public decimal FuAmount { get; init; }
 };

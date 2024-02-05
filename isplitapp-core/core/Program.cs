@@ -130,6 +130,6 @@ app.Run();
 [JsonSerializable(typeof(ExpenseRequest[]))]
 [JsonSerializable(typeof(ExpenseResponse[]))]
 [JsonSerializable(typeof(PartyRequest[]))]
-[JsonSerializable(typeof(PartyResponse[]))]
-[JsonSerializable(typeof(BalanceItem[]))]
+[JsonSerializable(typeof(PartyInfo[]))]
+[JsonSerializable(typeof(BalanceInfo[]))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext;

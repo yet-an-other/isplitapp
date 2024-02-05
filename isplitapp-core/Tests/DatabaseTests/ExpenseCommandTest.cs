@@ -274,8 +274,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Assert
         //
-        Assert.IsType<Ok<PartyResponse>>(getResult.Result);
-        var response = (getResult.Result as Ok<PartyResponse>)!.Value;
+        Assert.IsType<Ok<PartyInfo>>(getResult.Result);
+        var response = (getResult.Result as Ok<PartyInfo>)!.Value;
         Assert.Equal(controlParty.Name, response.Name);
         Assert.Equal(controlParty.Currency, response.Currency);
         Assert.Equal(controlParty.Created, response.Created);
@@ -350,8 +350,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Check userId
         //
-        Assert.IsType<Ok<PartyResponse[]>>(getResult.Result);
-        var partyList = (getResult.Result as Ok<PartyResponse[]>)!.Value;
+        Assert.IsType<Ok<PartyInfo[]>>(getResult.Result);
+        var partyList = (getResult.Result as Ok<PartyInfo[]>)!.Value;
         
         Assert.Equal(2, partyList.Length);
         Assert.Contains(partyList, pl => pl.Id == actualParty1Id);
@@ -826,19 +826,19 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
 
         // Assert
         //
-        Assert.IsType<Ok<BalanceItem[]>>(balanceResult.Result);
-        var balance = (balanceResult.Result as Ok<BalanceItem[]>)!.Value;
+        Assert.IsType<Ok<BalanceInfo>>(balanceResult.Result);
+        var balance = (balanceResult.Result as Ok<BalanceInfo>)!.Value;
         
-        Assert.Equal(2, balance!.Length);
-        Assert.Equal(0, balance.Sum(b=>b.Amount));
+        Assert.Equal(2, balance!.Balances.Length);
+        Assert.Equal(0, balance.Balances.Sum(b=>b.FuAmount));
     }
     
 
 
-    private PartyResponse LoadParties(string partyId)
+    private PartyInfo LoadParties(string partyId)
     {
         return _db.Parties.Where(p => p.Id == partyId)
-            .Select(p => new PartyResponse
+            .Select(p => new PartyInfo
             {
                 Id = p.Id,
                 Currency = p.Currency,

@@ -132,7 +132,7 @@ public static class ExpenseCommand
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
     /// <returns>Response 200 and a Party if everything is Ok</returns>
-    public static async Task<Results<Ok<PartyResponse>, NotFound, ValidationProblem>> PartyGet(
+    public static async Task<Results<Ok<PartyInfo>, NotFound, ValidationProblem>> PartyGet(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
         string? partyId,
         GenericValidator validator,
@@ -143,7 +143,7 @@ public static class ExpenseCommand
         
         var partyQuery = from p in db.Parties
             where p.Id == partyId
-            select new PartyResponse
+            select new PartyInfo
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -155,10 +155,25 @@ public static class ExpenseCommand
                     where pp.PartyId == p.Id 
                     select new ParticipantResponse { Id = pp.Id, Name = pp.Name }).ToArray(),
                 TotalParticipants = (from pp in db.Participants where pp.PartyId == p.Id select p.Id).Count(),
-                FuTotalExpenses = (from e in db.Expenses where e.PartyId == p.Id && !e.IsReimbursement select e.MuAmount)
-                    .Sum().ToFuAmount(),
-                FuTotalReimbursement = (from e in db.Expenses where e.PartyId == p.Id && e.IsReimbursement select e.MuAmount)
-                    .Sum().ToFuAmount()
+                TotalExpenseNumber = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
+                FuTotalExpenses = (from e in db.Expenses 
+                    where e.PartyId == p.Id && !e.IsReimbursement 
+                    select e.MuAmount).Sum().ToFuAmount(),
+                FuTotalBorrow = db.Participants
+                    .Where(pp => pp.PartyId == p.Id)
+                    .Select(pp =>
+                        db.Expenses
+                            .Where(e => e.LenderId == pp.Id)
+                            .Select(e => e.MuAmount)
+                            .Sum()
+                        - db.Borrowers
+                            .Where(b => b.ParticipantId == pp.Id)
+                            .Select(b => b.MuAmount)
+                            .Sum()
+                    )
+                    .Where(a=> a > 0)
+                    .Sum()
+                    .ToFuAmount()
             };
 
         var party = await partyQuery.FirstOrDefaultAsync();
@@ -176,18 +191,18 @@ public static class ExpenseCommand
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
     /// <returns>Response 200 and parties array </returns>
-    public static async Task<Results<Ok<PartyResponse[]>, ValidationProblem>> PartyListGet(
+    public static async Task<Results<Ok<PartyInfo[]>, ValidationProblem>> PartyListGet(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
         GenericValidator validator,
         ExpenseDb db)
     {
         if (!validator.IsValid(userId, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
-        
+
         var parties = from p in db.Parties
             join up in db.UserParty on p.Id equals up.PartyId
             where up.UserId == userId
-            select new PartyResponse
+            select new PartyInfo
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -195,10 +210,26 @@ public static class ExpenseCommand
                 Created = p.Created,
                 Updated = p.Updated,
                 TotalParticipants = (from pp in db.Participants where pp.PartyId == p.Id select p.Id).Count(),
-                FuTotalExpenses = (from e in db.Expenses where e.PartyId == p.Id && !e.IsReimbursement select e.MuAmount)
-                    .Sum().ToFuAmount(),
-                FuTotalReimbursement = (from e in db.Expenses where e.PartyId == p.Id && e.IsReimbursement select e.MuAmount)
-                    .Sum().ToFuAmount()
+                TotalExpenseNumber = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
+                FuTotalExpenses = (from e in db.Expenses
+                    where e.PartyId == p.Id && !e.IsReimbursement
+                    select e.MuAmount).Sum().ToFuAmount(),
+                FuTotalBorrow = db.Participants
+                    .Where(pp => pp.PartyId == p.Id)
+                    .Select(pp =>
+                        db.Expenses
+                            .Where(e => e.LenderId == pp.Id)
+                            .Select(e => e.MuAmount)
+                            .Sum()
+                        - db.Borrowers
+                            .Where(b => b.ParticipantId == pp.Id)
+                            .Select(b => b.MuAmount)
+                            .Sum()
+                    )
+                    .Where(a=> a > 0)
+                    .Sum()
+                    .ToFuAmount()
+
             };
 
         return TypedResults.Ok(await parties.ToArrayAsync());
@@ -367,7 +398,7 @@ public static class ExpenseCommand
                     .Select(p => p.Name).Single(),
                 Borrowers = db.Borrowers
                     .Where(b => b.ExpenseId == e.Id)
-                    .Select((b, i) => new BorrowerResponse
+                    .Select(b => new BorrowerResponse
                     {
                         ParticipantId = b.ParticipantId,
                         FuAmount = b.MuAmount.ToFuAmount(),
@@ -389,7 +420,7 @@ public static class ExpenseCommand
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
     /// <returns>Returns 200 with all balance entries if everything is ok</returns>
-    public static async Task<Results<Ok<BalanceItem[]>, ValidationProblem>> PartyBalanceGet(
+    public static async Task<Results<Ok<BalanceInfo>, ValidationProblem>> PartyBalanceGet(
         string? partyId,
         GenericValidator validator,
         ExpenseDb db)
@@ -397,26 +428,34 @@ public static class ExpenseCommand
         if (!validator.IsValid(IdUtil.DefaultId, partyId, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
-        var balanceQuery = db.Participants.Where(pp => pp.PartyId == partyId)
-            .Select(pp => new BalanceItem
+        var rawEntries = await db.Participants
+            .Where(pp => pp.PartyId == partyId)
+            .Select(pp => new RawBalanceEntry
             {
                 ParticipantId = pp.Id,
                 ParticipantName = pp.Name,
-                Amount = (
+                MuAmount =
                     db.Expenses
                         .Where(e => e.LenderId == pp.Id)
                         .Select(e => e.MuAmount)
                         .Sum()
                     - db.Borrowers
-                        .Where(b=> b.ParticipantId == pp.Id)
-                        .Select(b=> b.MuAmount)
+                        .Where(b => b.ParticipantId == pp.Id)
+                        .Select(b => b.MuAmount)
                         .Sum()
-                    ).ToFuAmount()
-            });
+            }).ToArrayAsync();
 
-        return TypedResults.Ok(await balanceQuery.ToArrayAsync());
+        var balances = rawEntries.Select(b => new BalanceEntry
+        {
+            ParticipantId = b.ParticipantId,
+            ParticipantName = b.ParticipantName,
+            FuAmount = b.MuAmount.ToFuAmount()
+        }).ToArray();
+        var reimbursements = CalculateReimbursements(rawEntries);
+
+        return TypedResults.Ok(new BalanceInfo { Balances = balances, Reimbursements = reimbursements });
     }
-
+    
     /// <summary>
     /// Creates User/Party association
     /// </summary>
@@ -443,5 +482,49 @@ public static class ExpenseCommand
     {
         return loggerFactory.CreateLogger($"{typeof(ExpenseCommand)}.{methodName}");
     }    
+    
+    private class RawBalanceEntry
+    {
+        public string ParticipantId { get; set; } = default!;
+        public string ParticipantName { get; set; } = default!;
+        public long MuAmount { get; set; }
+    }
+
+    private static ReimburseEntry[] CalculateReimbursements(IEnumerable<RawBalanceEntry> rawBalances)
+    {
+        var sortedBalances = rawBalances.OrderByDescending(e => e.MuAmount).ToList();
+        var reimbursements = new List<ReimburseEntry>();
+        
+        while (sortedBalances.Count > 0)
+        {
+            var first = sortedBalances[0];
+            var last = sortedBalances[^1];
+            var reminder = first.MuAmount + last.MuAmount;
+            var entry = new ReimburseEntry
+            {
+                FromId = last.ParticipantId,
+                FromName = last.ParticipantName,
+                ToId = first.ParticipantId,
+                ToName = first.ParticipantName
+            };    
+            
+            if (reminder > 0)
+            {
+                entry.FuAmount = -last.MuAmount.ToFuAmount();
+                first.MuAmount = reminder;
+                sortedBalances.RemoveAt(sortedBalances.Count - 1);
+            }
+            else
+            {
+                entry.FuAmount = first.MuAmount.ToFuAmount();
+                last.MuAmount = reminder;
+                sortedBalances.RemoveAt(0);
+            }
+            if (entry.FuAmount != 0)
+                reimbursements.Add(entry);
+        }
+
+        return reimbursements.ToArray();
+    }
     
 }

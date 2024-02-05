@@ -1,4 +1,6 @@
 @ISplitAppCore_HostAddress = http://localhost:5096
+# http://apidev.isplit.app
+# 
 @defaultUser = CKjtmmzqBNXThrNC
 
 # @name login
@@ -42,6 +44,7 @@ X-USER-ID: {{defaultUser}}
 
 ###
 
+#@defaultParty = CMNtqKdRjTjnjcJf
 @defaultParty = CMBQhxSsfXzPrxJJ
 
 # @name change-default-party
@@ -79,23 +82,23 @@ Content-Type: application/json
 {
   "title": "My first expense",
   "amount": "180",
-  "lenderId": "CMBQhxSxkmQckBmZ",
+  "lenderId": "CMNtqSfBDHsqPskN",
   "date": "{{$datetime iso8601}}",
   "borrowers": [
-    { "participantId": "CMBQhxSxRfTjfJnS" },
-    { "participantId": "CMBQhxSxkmQckBmZ" }
+    { "participantId": "CMNtqSfBXhkskPPP" },
+    { "participantId": "CMNtqSfBDHsqPskN" }
   ]
 }
 
 ###
 
 # @name get-expense
-GET {{ISplitAppCore_HostAddress}}/expenses/CMBQtzkNkRqJjTzp
+GET {{ISplitAppCore_HostAddress}}/expenses/CMNtqzZDJzcRPKjb
 Accept: application/json
 Content-Type: application/json
 
 ###
-GET {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/expenses
+GET {{ISplitAppCore_HostAddress}}/parties/CMBQhxSsfXzPrxJJ/expenses
 Accept: application/json
 Content-Type: application/json
 
@@ -106,3 +109,58 @@ Content-Type: application/json
 GET {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/balance
 Accept: application/json
 Content-Type: application/json
+
+
+###
+
+# @name get-balance
+GET {{ISplitAppCore_HostAddress}}/parties/CMBQhxSsfXzPrxJJ/balance
+Accept: application/json
+Content-Type: application/json
+
+
+########################
+
+# @name create-parties-for-default-user
+POST {{ISplitAppCore_HostAddress}}/parties HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+{
+  "name": "unpaid test party",
+  "currency": "EUR",
+  "participants": [
+    { "name": "pa-{{$randomInt 1 100}}" }, 
+    { "name": "pb-{{$randomInt 100 200}}" }, 
+    { "name": "pc-{{$randomInt 200 300}}" }
+  ]
+}
+
+@ubparty = CMPrdJZTRmznqmdd
+###
+
+# @name get-default-party
+GET {{ISplitAppCore_HostAddress}}/parties/{{ubparty}}
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+###
+
+# @name create-expense-for-default-party
+POST {{ISplitAppCore_HostAddress}}/parties/{{ubparty}}/expenses
+Accept: application/json
+Content-Type: application/json
+
+{
+  "title": "Expense on 100",
+  "amount": "100",
+  "lenderId": "CMPrdJbTKcTCxtXf",
+  "date": "{{$datetime iso8601}}",
+  "borrowers": [
+    { "participantId": "CMPrdJbSKJjztDbH" },
+    { "participantId": "CMPrdJbTKcTCxtXf" },
+    { "participantId": "CMPrdJbTmBPqbcSR" }
+  ]
+}

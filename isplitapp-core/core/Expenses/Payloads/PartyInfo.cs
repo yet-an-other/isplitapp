@@ -6,7 +6,7 @@ namespace IB.ISplitApp.Core.Expenses.Payloads;
 /// <summary>
 /// Response with party data and additional summary 
 /// </summary>
-public record PartyResponse
+public record PartyInfo
 {
     /// <summary>
     /// Unique party ID 
@@ -40,15 +40,20 @@ public record PartyResponse
     public decimal FuTotalExpenses { get; init; } = 0;
     
     /// <summary>
-    /// How much money are returned back
-    /// </summary>
-    [JsonPropertyName("totalReimbursement")]
-    public decimal FuTotalReimbursement { get; init; } = 0;
-    
-    /// <summary>
     /// Total amount of the party members
     /// </summary>
     public int TotalParticipants { get; init; } = 0;
+
+    /// <summary>
+    /// Number of expenses
+    /// </summary>
+    public int TotalExpenseNumber { get; init; } = 0;
+
+    /// <summary>
+    /// Total unpaid balance
+    /// </summary>
+    [JsonPropertyName("totalBorrow")]
+    public decimal FuTotalBorrow { get; init; } = 0;
     
     /// <summary>
     /// List of all participants in the party
