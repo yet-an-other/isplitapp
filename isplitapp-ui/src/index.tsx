@@ -2,15 +2,27 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import CssBaseline from '@mui/material/CssBaseline';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './app/Home';
-import Topbar from './controls/Topbar';
+import TopBar from './controls/TopBar';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
-import Bottombar from './controls/Bottombar';
+import BottomBar from './controls/BottomBar';
+import { PartyList } from './app/PartyList';
+import { AlertContextProvider } from './controls/AlertProvider';
+import MainBar from './controls/MainBar';
+import PartyEdit from './app/PartyEdit';
+import Party from './app/Party';
+import ExpenseList from './app/ExpenseList';
+import Balance from './app/Balance';
+import ExpenseEdit from './app/ExpenseEdit';
+import GlobalError  from './app/GlobalError';
 
 
 let theme = createTheme({
   palette: {
+    background: {
+      paper: '#f9f9ff' //'#f7f8fa'
+    },
     primary: {
       main: '#091e6f',
     },
@@ -29,9 +41,28 @@ root.render(
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <Topbar />
-        <Home />
-        <Bottombar />
+        <MainBar>
+          <TopBar />
+          <AlertContextProvider>
+            <GlobalError>
+              <Routes>
+                <Route index element={<Home />} />
+                <Route path="groups/:partyId" element={<Party />} >
+                  <Route path="expenses" element={<ExpenseList />} />
+                  <Route path="expenses/create" element={<ExpenseEdit />} />
+                  <Route path="expenses/:expenseId/edit" element={<ExpenseEdit />} />
+                  <Route path="balance" element={<Balance />} />
+                  <Route index element={<PartyList />} />
+                </Route>
+                <Route path="/groups/create" element={<PartyEdit/>} />
+                <Route path="/groups/:partyId/edit" element={<PartyEdit/>} />
+                <Route path="/groups" element={<PartyList/>} />
+                <Route path="/" element={<Home/>} />
+              </Routes>
+            </GlobalError>
+          </AlertContextProvider>
+        </MainBar>
+        <BottomBar />
       </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>

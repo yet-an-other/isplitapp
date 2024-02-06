@@ -47,13 +47,13 @@ public record PartyInfo
     /// <summary>
     /// Number of expenses
     /// </summary>
-    public int TotalExpenseNumber { get; init; } = 0;
+    public int TotalTransactions { get; init; } = 0;
 
     /// <summary>
     /// Total unpaid balance
     /// </summary>
-    [JsonPropertyName("totalBorrow")]
-    public decimal FuTotalBorrow { get; init; } = 0;
+    [JsonPropertyName("outstandingBalance")]
+    public decimal FuOutstandingBalance { get; init; } = 0;
     
     /// <summary>
     /// List of all participants in the party

@@ -31,7 +31,7 @@ const LogoText = styled(Typography)(({theme}) => ({
     paddingBottom: theme.spacing(1)
 }));
 
-function Topbar() {
+function TopBar() {
 
     const navigate = useNavigate();
     return (
@@ -45,7 +45,7 @@ function Topbar() {
                         <LogoText variant='subtitle2' >
                             iSplitApp
                         </LogoText>
-                        <GroupsButton  onClick={() => navigate('groups')}>
+                        <GroupsButton  onClick={() => navigate('groups', {state: Math.random()}) }>
                             Groups
                         </GroupsButton>
                     </Toolbar>
@@ -56,4 +56,4 @@ function Topbar() {
     )
 }
 
-export default Topbar;
+export default TopBar;

@@ -15,7 +15,6 @@ namespace IB.ISplitApp.Core.Expenses;
 /// </summary>
 public static class ExpenseCommand
 {
-
     /// <summary>
     /// Creates new party
     /// </summary>
@@ -155,11 +154,11 @@ public static class ExpenseCommand
                     where pp.PartyId == p.Id 
                     select new ParticipantResponse { Id = pp.Id, Name = pp.Name }).ToArray(),
                 TotalParticipants = (from pp in db.Participants where pp.PartyId == p.Id select p.Id).Count(),
-                TotalExpenseNumber = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
+                TotalTransactions = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
                 FuTotalExpenses = (from e in db.Expenses 
                     where e.PartyId == p.Id && !e.IsReimbursement 
                     select e.MuAmount).Sum().ToFuAmount(),
-                FuTotalBorrow = db.Participants
+                FuOutstandingBalance = db.Participants
                     .Where(pp => pp.PartyId == p.Id)
                     .Select(pp =>
                         db.Expenses
@@ -210,11 +209,11 @@ public static class ExpenseCommand
                 Created = p.Created,
                 Updated = p.Updated,
                 TotalParticipants = (from pp in db.Participants where pp.PartyId == p.Id select p.Id).Count(),
-                TotalExpenseNumber = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
+                TotalTransactions = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
                 FuTotalExpenses = (from e in db.Expenses
                     where e.PartyId == p.Id && !e.IsReimbursement
                     select e.MuAmount).Sum().ToFuAmount(),
-                FuTotalBorrow = db.Participants
+                FuOutstandingBalance = db.Participants
                     .Where(pp => pp.PartyId == p.Id)
                     .Select(pp =>
                         db.Expenses

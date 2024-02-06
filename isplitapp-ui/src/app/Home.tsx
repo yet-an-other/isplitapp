@@ -17,8 +17,9 @@ const ButtonStack = styled(Stack)({
     maxWidth: "230px"
 })
 
-const FeatureTypography = styled(Typography)(({theme})=>({
+const FeatureTypography = styled(Typography)(({theme}) => ({
     marginTop: "40px",
+    marginBottom: "40px",
     marginLeft: "auto",
     marginRight: "auto",
     textAlign: "left",
@@ -27,19 +28,20 @@ const FeatureTypography = styled(Typography)(({theme})=>({
     }
 }))
 
-const HighLightTypography = styled(Typography) (({theme}) =>({
+const HighLightTypography = styled(Typography) (({theme}) => ({
+    paddingTop: "6px",
     color: theme.palette.primary.main,
     fontWeight: "bold"
 }))
 
 const FeatureItem = styled(Box)(({theme})=>({
     display: "flex",
-    color: theme.palette.action.active,
+    color: theme.palette.text.disabled,
 }))
 
 const Subtitle = styled(Typography)(({theme}) =>({
     marginBottom: theme.spacing(10),
-    color: theme.palette.action.active
+    color: theme.palette.text.disabled
 }))
 
 
@@ -100,12 +102,12 @@ function Home(){
 const ShowFeature =(props: { title: string, subtitle: string }) => {
     return(
         <Stack direction="row">
-        <ArrowRight fontSize="large"/>
-        <Stack>
-            <HighLightTypography>{props.title}</HighLightTypography>
-            <FeatureItem>{props.subtitle}</FeatureItem>
-        </Stack>
-    </Stack> 
+            <ArrowRight fontSize="large" color="primary"/>
+            <Stack>
+                <HighLightTypography>{props.title}</HighLightTypography>
+                <FeatureItem>{props.subtitle}</FeatureItem>
+            </Stack>
+        </Stack> 
     )
 }
 
