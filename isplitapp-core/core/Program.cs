@@ -86,6 +86,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+
 app.MapGet("/login", UserCommand.Login).WithName("Login");
 
 var partyApi = app.MapGroup("/parties");
@@ -94,6 +96,7 @@ partyApi.MapPut("/{partyId}", ExpenseCommand.PartyUpdate).WithName("UpdateParty"
 partyApi.MapGet("/{partyId}", ExpenseCommand.PartyGet).WithName("GetParty");
 partyApi.MapGet("/", ExpenseCommand.PartyListGet).WithName("ListParty");
 partyApi.MapGet("/{partyId}/balance", ExpenseCommand.PartyBalanceGet).WithName("GetPartyBalance");
+partyApi.MapDelete("/{partyId}", ExpenseCommand.PartyUnfollow).WithName("UnfollowParty");
 
 partyApi.MapPost("/{partyId}/expenses", ExpenseCommand.ExpenseCreate).WithName("CreateExpense");
 partyApi.MapGet("/{partyId}/expenses", ExpenseCommand.PartyExpenseListGet).WithName("GetPartyExpenseList");
@@ -102,14 +105,10 @@ var expenseApi = app.MapGroup("/expenses");
 expenseApi.MapPut("/{expenseId}", ExpenseCommand.ExpenseUpdate).WithName("UpdateExpense");
 expenseApi.MapGet("/{expenseId}", ExpenseCommand.ExpenseGet).WithName("GetExpense");
 
-
-
 // Use NSwag instead of Swashbuckle as NSwag is supporting AOT
 //
 app.UseOpenApi();
 app.UseSwaggerUi();
-
-
 
 // Handle and log errors
 //
@@ -118,6 +117,10 @@ app.UseStatusCodePages();
 app.UseHttpLogging();
 
 app.UseCors();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.MapFallbackToFile("index.html");
 
 app.Run();
 

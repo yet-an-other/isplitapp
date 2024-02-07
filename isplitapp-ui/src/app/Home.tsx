@@ -63,7 +63,7 @@ function Home(){
                 <Button variant="contained" startIcon={<AddCircle/>} size="large" onClick={() => navigate('groups/create')}>
                     Create Group&nbsp;&nbsp;&nbsp;
                 </Button>
-                <Button variant="contained" startIcon={<AddCircle/>}  size="large">
+                <Button variant="contained" startIcon={<AddCircle/>}  size="large" disabled>
                     Create Expense
                 </Button>
             </ButtonStack>

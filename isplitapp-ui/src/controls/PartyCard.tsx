@@ -35,7 +35,7 @@ export const PartyCard = ({party, ActionIcon}: PartyCardProps) => {
                     </Typography>
                 </Box>
 
-                <ActionIcon partyId={party.id} sx={{ mt: -1.5, mr: -1, float: 'right' }}/>
+                <ActionIcon partyId={party.id} sx={{ mt: -1.5, mr: -1, float: 'right' }} />
 
                 <Typography variant="subtitle1" sx = {{ mt: 0, lineHeight: 1.66 }}>
                     {party.name}

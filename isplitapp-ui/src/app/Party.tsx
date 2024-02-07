@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useParams } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { fetchParty } from "../api/expenseApi";
-import { useErrorAlert } from "../controls/AlertProvider";
+import { useErrorAlert, useSuccessAlert } from "../controls/AlertProvider";
 import PartyMenuBar from "../controls/PartyMenuBar";
 import { shareLink } from "../util";
 import { ActionIconProps, PartyCard } from "../controls/PartyCard";
@@ -43,9 +43,12 @@ export default function Party() {
 }
 
 const ShareButton = ({partyId, sx}: ActionIconProps) => {
+    const successAlert = useSuccessAlert();
 
     const handleShare = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        await shareLink(`${window.location.origin}/groups/${partyId}/expenses`);
+        if (await shareLink(`${window.location.origin}/groups/${partyId}/expenses`))
+            successAlert("The link has been successfully copied")
+
         event.stopPropagation();
     }
 

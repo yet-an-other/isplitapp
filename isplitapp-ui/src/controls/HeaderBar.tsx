@@ -31,7 +31,7 @@ const LogoText = styled(Typography)(({theme}) => ({
     paddingBottom: theme.spacing(1)
 }));
 
-function TopBar() {
+function HeaderBar() {
 
     const navigate = useNavigate();
     return (
@@ -56,4 +56,4 @@ function TopBar() {
     )
 }
 
-export default TopBar;
+export default HeaderBar;

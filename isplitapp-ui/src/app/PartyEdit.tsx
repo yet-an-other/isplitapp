@@ -19,8 +19,11 @@ export default function PartyEdit() {
 
     let [party, setParty] = useState<PartyPayload>(new PartyPayload());
     let [participants, setParticipants] = useState<ParticipantPayload[]>([{name: "Alice", id: ""}, {name: "Bob", id: ""}]);
-    let [isNameFocus, setNameFocus] = useState(false);
+    let [isNameFocus, setNameFocus] = useState(false);   
 
+    let [partyValidation, setPartyValidation] = useState(new PartyValidationType());
+    let [isShowErrors, setIsShowErrors] = useState(false);
+    
     useEffect(() => {
         if (!partyId)
             return;
@@ -37,26 +40,49 @@ export default function PartyEdit() {
 
     }, [partyId]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    const validate = (name: keyof PartyValidationType, value: string | ParticipantPayload[]) => {
+        setPartyValidation({
+            ...partyValidation, 
+            [name]: {
+                ...partyValidation[name], 
+                "isValid": new PartyValidationType()[name].validate(value) 
+            }
+        }) 
+    }
+
     const handlePartyChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setParty({...party, [event.target.name]: event.target.value})
+
+        const { name, value } = event.target;
+        setParty({...party, [name]: value});
+
+        validate(name as keyof PartyValidationType, value);   
     }
 
     const handleAddParticipant = () => {
         setParticipants([...participants, {id: "", name: ""}]);
         setNameFocus(true);
-      };
+        setPartyValidation({...partyValidation, "participants": {...partyValidation.participants, "isValid": true}})
+    };
 
     const handleDeleteParticipant = (index: number) => {
-        setParticipants(participants.filter((_, i) => i !== index));
+        const value = participants.filter((_, i) => i !== index)
+        setParticipants(value);
+        validate("participants", value); 
     };
     
     const handleNameChange = (index: number, text: string) => {
         const updated = [...participants];
         updated[index].name = text;
         setParticipants(updated);
+        validate("participants", updated);
     }
 
     const handleCreateOrUpdateGroup = async (partyId: string | undefined) => {
+
+        setIsShowErrors(true);
+        if (!Object.keys(partyValidation).every(key=> partyValidation[key as keyof typeof partyValidation].isValid))
+            return;
+
         try {
             party.participants = participants;
             partyId ? await updateParty(partyId!, party) : await createParty(party);
@@ -68,11 +94,12 @@ export default function PartyEdit() {
         }
     }
 
+    const isParticipantsError = isShowErrors && !partyValidation.participants.isValid && participants.length === 0
     return (
         <Container>
             <PartyMenuBar partyId={partyId} />
 
-            <Paper elevation={0} sx={{ borderRadius: '10px' }}>
+            <Paper elevation={0}>
                 <Grid container>
                     <Grid item xs={12} sm={8} sx={{ pb: { xs: 2, sm: 5 }, px: 2, pt: 5 }}>
                         <AdaptiveInput
@@ -82,8 +109,13 @@ export default function PartyEdit() {
                             name="name"
                             value={ party.name }
                             label="Group Name"
-                            helperText="e. g. 'Sailing in Croatia' or 'Party trip to Paris'."
+                            helperText={
+                                !partyValidation.name.isValid && isShowErrors
+                                    ? partyValidation.name.errorMessage
+                                    : "E. g. 'Sailing in Croatia' or 'Party trip to Paris'."
+                            }
                             onChange={handlePartyChange}
+                            error = { !partyValidation.name.isValid && isShowErrors}
                         />
                     </Grid>
                     <Grid item xs={12} sm={4} sx={{ px: 2, pb: 4, pt: { xs: 2, sm: 5 } }}>
@@ -92,9 +124,14 @@ export default function PartyEdit() {
                             fullWidth
                             name="currency"
                             value={ party.currency }
-                            label="Currency Symbol"
-                            helperText="Will be using in all group expenses."
+                            label="Currency"
+                            helperText={
+                                !partyValidation.currency.isValid && isShowErrors
+                                    ? partyValidation.currency.errorMessage
+                                    : "Will be used in all group expenses."
+                            }
                             onChange={handlePartyChange}
+                            error={ !partyValidation.currency.isValid && isShowErrors }
                         /> 
                     </Grid>
                 </Grid>
@@ -106,6 +143,11 @@ export default function PartyEdit() {
 
             <Paper elevation={0} >
                 <Grid container alignItems="center" justifyContent="center" sx={{ py: 2 }}>
+                    <Typography 
+                        variant="caption" 
+                        sx={{ display: isParticipantsError ? 'block' : 'none', color: 'error.main' }}>
+                        {partyValidation.participants.errorMessage}
+                    </Typography>
                     {participants.map((p, index) => (
                         <React.Fragment key={"name" + index}>
                             <Grid item xs={10} sx={{ px: 2, py: 1}} >
@@ -122,6 +164,8 @@ export default function PartyEdit() {
                                             </InputAdornment>
                                         )
                                     }}
+                                    error={isShowErrors && (!(p.name) || p.name.trim().length === 0)}
+                                    helperText={(isShowErrors && (!(p.name) || p.name.trim().length === 0)) && "Participant name must not be empty" }
                                 />
                             </Grid>
                             <Grid item xs={2} sx={{ px: 2, py: 1, display: "flex", justifyContent:"center"}}>
@@ -150,3 +194,24 @@ export default function PartyEdit() {
         </Container>
     )
 }
+
+
+class PartyValidationType {
+    name = {
+        isValid: false,
+        errorMessage: "Group Name must not be empty",
+        validate: (value: ParticipantPayload[] | string) => typeof(value) === 'string' && value.trim().length > 0
+    };
+    currency = {
+        isValid: false,
+        errorMessage: "Currency must not be empty",
+        validate: (value: ParticipantPayload[] | string) => typeof(value) === 'string' && value.trim().length > 0
+    };
+    participants = {
+        isValid: true,
+        errorMessage: "Must be at least one participant in the group",
+        validate: (value: ParticipantPayload[] | string) => {
+            return Array.isArray(value) && value.length > 0 && value.every(p => p.name.trim().length > 0)
+        }
+    }
+} 

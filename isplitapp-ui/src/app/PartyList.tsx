@@ -1,9 +1,9 @@
 import { AddCircle, IosShare, Menu as MenuIcon, VisibilityOffOutlined, } from "@mui/icons-material"
-import { Button, Container, IconButton, Menu, MenuItem, Stack, Typography, styled } from "@mui/material"
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Menu, MenuItem, Stack, Typography, styled } from "@mui/material"
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
-import { fetchPartyList } from "../api/expenseApi";
+import { fetchPartyList, unfollowParty } from "../api/expenseApi";
 import { useErrorAlert, useSuccessAlert } from "../controls/AlertProvider";
 import { Fade } from "../controls/StyledControls";
 import { shareLink } from "../util";
@@ -69,10 +69,15 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
     
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const successAlert = useSuccessAlert();
+    const navigate = useNavigate();
+
+    const [isConfirmOpen, setConfirmOpen] = useState(false);
 
     const handleMenu = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        setAnchorEl(event.currentTarget)
+        event.preventDefault();
         event.stopPropagation();
+        event.nativeEvent.stopImmediatePropagation();
+        setAnchorEl(event.currentTarget);
     }
 
     const handleClose = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -84,11 +89,20 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
         if (await shareLink(`${window.location.origin}/groups/${partyId}/expenses`))
             successAlert("The link has been successfully copied");
         setAnchorEl(null);
-
     }    
 
-    const handleUnfollow = async () => {
+    const handleConfirmClose = () => {
+        setConfirmOpen(false);
+    }
 
+    const handleConfirmOk = () => {
+        partyId && unfollowParty(partyId);
+        setConfirmOpen(false);
+        navigate(0);
+    }
+
+    const handleUnfollow = async () => {
+        setConfirmOpen(true);
         setAnchorEl(null);
     }
 
@@ -120,6 +134,24 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
                     <VisibilityOffOutlined fontSize="small" sx={{ml: 3, color: 'error.main'}}/>
                 </MenuItem>
             </Menu>
+
+            <Dialog
+                open={isConfirmOpen}
+                onClose={ e => { handleConfirmClose(); (e as any).stopPropagation && (e as any).stopPropagation();}}
+            >
+                <DialogTitle>
+                    Unfollow the group?
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        You'll be following the group back automatically, if visiting it again.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={e => {handleConfirmClose(); e.stopPropagation(); }}>Cancel</Button>
+                    <Button onClick={e => {handleConfirmOk(); e.stopPropagation(); }} autoFocus>Ok</Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }

@@ -235,6 +235,27 @@ public static class ExpenseCommand
     }
 
     /// <summary>
+    /// Delete User Party association
+    /// </summary>
+    /// <param name="userId">unique user id </param>
+    /// <param name="partyId">Unique party identifier</param>
+    /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
+    /// <param name="db">DataContext object</param>
+    /// <returns>Returns 204 with path if everything is ok</returns>
+    public static async Task<Results<NoContent, ValidationProblem>> PartyUnfollow(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,        
+        string? partyId,
+        GenericValidator validator,
+        ExpenseDb db)
+    {
+        if (!validator.IsValid(userId, partyId, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        await db.UserParty.DeleteAsync(up => up.PartyId == partyId && up.UserId == userId);
+        return TypedResults.NoContent();
+    }
+
+    /// <summary>
     /// Create new expense in the provided party
     /// </summary>
     /// <param name="partyId">Unique party identifier</param>

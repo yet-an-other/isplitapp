@@ -8,7 +8,7 @@ const Bar = styled(Paper)(({theme}) => ({
 
 export const BOTTOM_BAR_HEIGHT = "60px";
 
-export default function BottomBar() {
+export default function FooterBar() {
 
     return(
         <Bar elevation={3} square sx={{ marginTop: 'auto'}}>

@@ -90,6 +90,16 @@ export async function fetchBalance(partyId: string) {
     return await fetchResult<undefined, BalanceInfo>('GET', endpoint, undefined);
 }
 
+
+/**
+ * Unfollow party
+ */
+export async function unfollowParty(partyId: string) {
+    const endpoint = `/parties/${partyId}`
+    return await sendBody<undefined>('DELETE', endpoint, undefined);
+}
+
+
 /**
  * Allowed Http methods
  */

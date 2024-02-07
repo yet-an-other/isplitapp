@@ -4,12 +4,12 @@ import reportWebVitals from './reportWebVitals';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './app/Home';
-import TopBar from './controls/TopBar';
+import HeaderBar from './controls/HeaderBar';
 import { ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material/styles';
-import BottomBar from './controls/BottomBar';
+import FooterBar from './controls/FooterBar';
 import { PartyList } from './app/PartyList';
 import { AlertContextProvider } from './controls/AlertProvider';
-import MainBar from './controls/MainBar';
+import ContentBar from './controls/ContentBar';
 import PartyEdit from './app/PartyEdit';
 import Party from './app/Party';
 import ExpenseList from './app/ExpenseList';
@@ -41,8 +41,8 @@ root.render(
     <CssBaseline />
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <MainBar>
-          <TopBar />
+        <ContentBar>
+          <HeaderBar />
           <AlertContextProvider>
             <GlobalError>
               <Routes>
@@ -61,8 +61,8 @@ root.render(
               </Routes>
             </GlobalError>
           </AlertContextProvider>
-        </MainBar>
-        <BottomBar />
+        </ContentBar>
+        <FooterBar />
       </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>
