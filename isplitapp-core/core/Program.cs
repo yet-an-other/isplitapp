@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Expenses.Payloads;
-using IB.ISplitApp.Core.Expenses.Payloads.Core.Users;
+using IB.ISplitApp.Core.Expenses.Contract;
+using IB.ISplitApp.Core.Expenses.Contract.Core.Users;
 using IB.ISplitApp.Core.Utils;
 
 using LinqToDB;
@@ -11,6 +11,7 @@ using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.AspNetCore.HttpLogging;
+using Migrations;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 
@@ -68,8 +69,8 @@ builder.Services.AddLinqToDBContext<ExpenseDb>((provider, options)
 
 // Add validation objects
 //
-builder.Services.AddTransient<IValidator<PartyRequest>, PartyRequestValidator>();
-builder.Services.AddTransient<IValidator<ExpenseRequest>, ExpenseRequestValidator>();
+builder.Services.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
+builder.Services.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
 builder.Services.AddTransient<GenericValidator>();
 
 // Add Cors
@@ -104,6 +105,7 @@ partyApi.MapGet("/{partyId}/expenses", ExpenseCommand.PartyExpenseListGet).WithN
 var expenseApi = app.MapGroup("/expenses");
 expenseApi.MapPut("/{expenseId}", ExpenseCommand.ExpenseUpdate).WithName("UpdateExpense");
 expenseApi.MapGet("/{expenseId}", ExpenseCommand.ExpenseGet).WithName("GetExpense");
+expenseApi.MapDelete("/{expenseId}", ExpenseCommand.ExpenseDelete).WithName("DeleteExpense");
 
 // Use NSwag instead of Swashbuckle as NSwag is supporting AOT
 //
@@ -122,6 +124,12 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
 
+// Run db migrations
+//
+var migrationRunner = new MigrationRunner(connectionString!);
+migrationRunner.EnsureDatabase();
+migrationRunner.RunMigrationsUp();
+
 app.Run();
 
 
@@ -130,9 +138,9 @@ app.Run();
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(User))]
-[JsonSerializable(typeof(ExpenseRequest[]))]
-[JsonSerializable(typeof(ExpenseResponse[]))]
-[JsonSerializable(typeof(PartyRequest[]))]
+[JsonSerializable(typeof(ExpensePayload[]))]
+[JsonSerializable(typeof(ExpenseInfo[]))]
+[JsonSerializable(typeof(PartyPayload[]))]
 [JsonSerializable(typeof(PartyInfo[]))]
 [JsonSerializable(typeof(BalanceInfo[]))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext;

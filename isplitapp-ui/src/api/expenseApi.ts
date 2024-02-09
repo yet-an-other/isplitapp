@@ -99,6 +99,14 @@ export async function unfollowParty(partyId: string) {
     return await sendBody<undefined>('DELETE', endpoint, undefined);
 }
 
+/**
+ * Delete expense
+ */
+export async function deleteExpense(expenseId: string) {
+    const endpoint = `/expenses/${expenseId}`
+    return await sendBody<undefined>('DELETE', endpoint, undefined);
+}
+
 
 /**
  * Allowed Http methods

@@ -2,18 +2,18 @@
 using FluentValidation;
 using IB.ISplitApp.Core.Utils;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 
 /// <summary>
 /// Borrower data in request payload  
 /// </summary>
-public record BorrowerRequest 
+public record BorrowerPayload 
 {
     public string ParticipantId { get; init; } = string.Empty;
 }
 
-public class BorrowerRequestValidator : AbstractValidator<BorrowerRequest>
+public class BorrowerRequestValidator : AbstractValidator<BorrowerPayload>
 {
     public BorrowerRequestValidator()
     {

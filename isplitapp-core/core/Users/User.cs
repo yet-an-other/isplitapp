@@ -1,5 +1,5 @@
 
-namespace IB.ISplitApp.Core.Expenses.Payloads.Core.Users;
+namespace IB.ISplitApp.Core.Expenses.Contract.Core.Users;
 
 /// <summary>
 /// A POCO object representing a user of the app

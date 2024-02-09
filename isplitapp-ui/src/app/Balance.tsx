@@ -14,6 +14,7 @@ const MarkLink = styled(Link)(({theme}) =>({
     fontWeight: 'bold',
     textDecoration: 'none',
     color: theme.palette.primary.main
+    
 }))
 
 export default function Balance() {
@@ -83,7 +84,8 @@ function BalanceChart(props: {balances: BalanceEntry[], party: PartyInfo}) {
                             <Typography variant="body2" sx={{ position:'absolute', px: 1, alignSelf: 'center' }}>
                                 {balance.amount}&nbsp;{props.party.currency}
                             </Typography>
-                            <Box sx={{ zIndex: -10, width:`${(Math.abs(balance.amount) / maxBalance) * 100}%`, backgroundColor: isPositive ? 'palegreen' : 'lightsalmon' }} />
+                            <Box sx={{ zIndex: -10, width:`${(Math.abs(balance.amount) / maxBalance) * 100}%`, 
+                                backgroundColor: isPositive ? 'rgba(100, 255, 100, 0.4)' : 'rgba(255, 100, 100, 0.4)' }} />
                         </Box>
                     </Box>
                 )

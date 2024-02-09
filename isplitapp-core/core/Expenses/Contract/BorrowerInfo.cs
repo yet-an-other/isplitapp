@@ -1,10 +1,10 @@
 
 using System.Text.Json.Serialization;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 
-public record BorrowerResponse 
+public record BorrowerInfo 
 {
     public string ParticipantId { get; init; } = string.Empty;
     

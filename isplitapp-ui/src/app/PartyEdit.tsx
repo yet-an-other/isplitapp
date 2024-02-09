@@ -1,5 +1,5 @@
 import { Button, Container, Grid, IconButton, InputAdornment, Paper, Typography } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { PartyPayload } from "../api/contract/PartyPayload";
 import { DeleteForeverOutlined, PersonAddAltOutlined, PersonOutlineOutlined } from "@mui/icons-material";
 import { ParticipantPayload } from "../api/contract/ParticipantPayload";
@@ -17,21 +17,24 @@ export default function PartyEdit() {
     const navigate = useNavigate();
     let { partyId } = useParams();
 
-    let [party, setParty] = useState<PartyPayload>(new PartyPayload());
-    let [participants, setParticipants] = useState<ParticipantPayload[]>([{name: "Alice", id: ""}, {name: "Bob", id: ""}]);
+    let initParty = new PartyPayload();
+    initParty.participants = [{name: "Alice", id: "", canDelete: true}, {name: "Bob", id: "", canDelete: true}]
+
+    let [party, setParty] = useState<PartyPayload>(initParty);
     let [isNameFocus, setNameFocus] = useState(false);   
 
-    let [partyValidation, setPartyValidation] = useState(new PartyValidationType());
+    let [validationResult, setValidationResult] = useState(new PartyValidator());
     let [isShowErrors, setIsShowErrors] = useState(false);
     
     useEffect(() => {
+        setValidationResult(validatePayload(initParty))
         if (!partyId)
             return;
 
         fetchParty(partyId)
         .then(partyInfo => {
-            setParticipants(partyInfo.participants);
             setParty(partyInfo);
+            setValidationResult(validatePayload(partyInfo))
         })
         .catch(e => {
             console.log(e);
@@ -40,53 +43,45 @@ export default function PartyEdit() {
 
     }, [partyId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    const validate = (name: keyof PartyValidationType, value: string | ParticipantPayload[]) => {
-        setPartyValidation({
-            ...partyValidation, 
-            [name]: {
-                ...partyValidation[name], 
-                "isValid": new PartyValidationType()[name].validate(value) 
-            }
-        }) 
-    }
+    const handleOnChange = (event: {name: string, value: string}) => {
+        let { name, value } = event;
 
-    const handlePartyChange = (event: ChangeEvent<HTMLInputElement>) => {
-
-        const { name, value } = event.target;
-        setParty({...party, [name]: value});
-
-        validate(name as keyof PartyValidationType, value);   
+        const newParty = {...party, [name]: value, participants:[...party.participants]};
+        setParty(newParty);
+        setValidationResult(validatePayload(newParty));
     }
 
     const handleAddParticipant = () => {
-        setParticipants([...participants, {id: "", name: ""}]);
+        const newParty = {...party, participants:[...party.participants, {id: "", name: "", canDelete: true}]};
+        setParty(newParty);
+        setValidationResult(validatePayload(newParty));
         setNameFocus(true);
-        setPartyValidation({...partyValidation, "participants": {...partyValidation.participants, "isValid": true}})
     };
 
     const handleDeleteParticipant = (index: number) => {
-        const value = participants.filter((_, i) => i !== index)
-        setParticipants(value);
-        validate("participants", value); 
+        const newParty = {...party, participants: party.participants.filter((_, i) => i !== index)};
+        setParty(newParty);
+        setValidationResult(validatePayload(newParty));
     };
     
     const handleNameChange = (index: number, text: string) => {
-        const updated = [...participants];
+        const updated = [...party.participants];
         updated[index].name = text;
-        setParticipants(updated);
-        validate("participants", updated);
+        const newParty = {...party, participants: updated};
+        setParty(newParty);
+        setValidationResult(validatePayload(newParty));
     }
 
     const handleCreateOrUpdateGroup = async (partyId: string | undefined) => {
 
         setIsShowErrors(true);
-        if (!Object.keys(partyValidation).every(key=> partyValidation[key as keyof typeof partyValidation].isValid))
+        if (!Object
+            .keys(validationResult)
+            .every(key=> validationResult[key as keyof PartyValidator].isValid))
             return;
 
         try {
-            party.participants = participants;
             partyId ? await updateParty(partyId!, party) : await createParty(party);
-            
             navigate("/groups")
         } catch(e) {
             console.log(e);
@@ -94,7 +89,10 @@ export default function PartyEdit() {
         }
     }
 
-    const isParticipantsError = isShowErrors && !partyValidation.participants.isValid && participants.length === 0
+    const isParticipantsError = isShowErrors && 
+        !validationResult.participants.isValid && 
+        party.participants.length === 0
+
     return (
         <Container>
             <PartyMenuBar partyId={partyId} />
@@ -110,12 +108,12 @@ export default function PartyEdit() {
                             value={ party.name }
                             label="Group Name"
                             helperText={
-                                !partyValidation.name.isValid && isShowErrors
-                                    ? partyValidation.name.errorMessage
+                                !validationResult.name.isValid && isShowErrors
+                                    ? validationResult.name.errorMessage
                                     : "E. g. 'Sailing in Croatia' or 'Party trip to Paris'."
                             }
-                            onChange={handlePartyChange}
-                            error = { !partyValidation.name.isValid && isShowErrors}
+                            onChange={e => handleOnChange(e.target)}
+                            error = { !validationResult.name.isValid && isShowErrors}
                         />
                     </Grid>
                     <Grid item xs={12} sm={4} sx={{ px: 2, pb: 4, pt: { xs: 2, sm: 5 } }}>
@@ -126,12 +124,12 @@ export default function PartyEdit() {
                             value={ party.currency }
                             label="Currency"
                             helperText={
-                                !partyValidation.currency.isValid && isShowErrors
-                                    ? partyValidation.currency.errorMessage
+                                !validationResult.currency.isValid && isShowErrors
+                                    ? validationResult.currency.errorMessage
                                     : "Will be used in all group expenses."
                             }
-                            onChange={handlePartyChange}
-                            error={ !partyValidation.currency.isValid && isShowErrors }
+                            onChange={e => handleOnChange(e.target)}
+                            error={ !validationResult.currency.isValid && isShowErrors }
                         /> 
                     </Grid>
                 </Grid>
@@ -146,9 +144,9 @@ export default function PartyEdit() {
                     <Typography 
                         variant="caption" 
                         sx={{ display: isParticipantsError ? 'block' : 'none', color: 'error.main' }}>
-                        {partyValidation.participants.errorMessage}
+                        {validationResult.participants.errorMessage}
                     </Typography>
-                    {participants.map((p, index) => (
+                    {party.participants.map((p, index) => (
                         <React.Fragment key={"name" + index}>
                             <Grid item xs={10} sx={{ px: 2, py: 1}} >
                                 <AdaptiveInput
@@ -169,7 +167,7 @@ export default function PartyEdit() {
                                 />
                             </Grid>
                             <Grid item xs={2} sx={{ px: 2, py: 1, display: "flex", justifyContent:"center"}}>
-                                <IconButton aria-label="delete" onClick={() => handleDeleteParticipant(index)} >
+                                <IconButton onClick={() => handleDeleteParticipant(index)} disabled={!party.participants[index].canDelete} >
                                     <DeleteForeverOutlined sx={{ fontSize: {sm: 35, xs: 30} }}/>
                                 </IconButton>
                             </Grid>
@@ -196,7 +194,7 @@ export default function PartyEdit() {
 }
 
 
-class PartyValidationType {
+class PartyValidator {
     name = {
         isValid: false,
         errorMessage: "Group Name must not be empty",
@@ -215,3 +213,13 @@ class PartyValidationType {
         }
     }
 } 
+
+const validatePayload = (partyPayload: PartyPayload) => {
+
+    let validationResult = new PartyValidator();
+    Object.keys(validationResult).forEach( key => {
+        validationResult[key as keyof PartyValidator].isValid = validationResult[key as keyof PartyValidator]
+            .validate(partyPayload[key as keyof PartyPayload])
+    })
+    return validationResult;
+}

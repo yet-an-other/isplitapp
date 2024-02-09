@@ -1,9 +1,9 @@
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Participant's payload to create or update one
 /// </summary>
-public record ParticipantRequest
+public record ParticipantPayload
 {
     /// <summary>
     /// Unique ID, can be empty if Participant not exists

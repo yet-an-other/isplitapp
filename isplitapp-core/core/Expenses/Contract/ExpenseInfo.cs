@@ -1,12 +1,12 @@
 using System.Text.Json.Serialization;
 using IB.ISplitApp.Core.Utils;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Expense data in response
 /// </summary>
-public record ExpenseResponse 
+public record ExpenseInfo 
 {
     /// <summary>
     /// Unique expense id
@@ -38,5 +38,5 @@ public record ExpenseResponse
     
     public bool IsReimbursement { get; init; }
     
-    public BorrowerResponse[] Borrowers { get; set; } = [];
+    public BorrowerInfo[] Borrowers { get; set; } = [];
 }

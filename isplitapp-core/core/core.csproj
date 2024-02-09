@@ -36,4 +36,8 @@
       <EmbeddedResource Include="SqlMigrations\InitDatabase-Down.sql" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Migrations\Migrations.csproj" />
+    </ItemGroup>
+
 </Project>

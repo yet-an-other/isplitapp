@@ -1,4 +1,4 @@
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Who pays who borrow and suggested reimbursements

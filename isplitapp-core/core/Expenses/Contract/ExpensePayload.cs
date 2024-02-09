@@ -2,12 +2,12 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using IB.ISplitApp.Core.Utils;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Expense payload to create or update expense
 /// </summary>
-public record ExpenseRequest 
+public record ExpensePayload 
 {
     /// <summary>
     /// What was expense for
@@ -38,23 +38,24 @@ public record ExpenseRequest
     /// <summary>
     /// List of those who participated in expense
     /// </summary>
-    public BorrowerRequest[] Borrowers { get; set; } = [];
+    public BorrowerPayload[] Borrowers { get; set; } = [];
 }
 
-public class ExpenseRequestValidator : AbstractValidator<ExpenseRequest>
+public class ExpensePayloadValidator : AbstractValidator<ExpensePayload>
 {
     private const int TitleLength = 200;
 
-    public ExpenseRequestValidator()
+    public ExpensePayloadValidator()
     {
         RuleFor(e => e.Title).NotEmpty().Length(1, TitleLength)
             .WithMessage($"Expense title must not be empty or greater than {TitleLength} characters");
-        RuleFor(e => e.Borrowers).NotEmpty().WithMessage("In expense must be at least one participant");
+        RuleFor(e => e.Borrowers).NotEmpty()
+            .WithMessage("In expense must be at least one participant");
         RuleFor(e => e.FuAmount).GreaterThan(0);
         RuleFor(e => e.Date).NotEmpty();
         RuleFor(e => e.LenderId).NotEmpty().Must(IdUtil.IsValidId)
             .WithMessage("LenderId must be correct");
-        RuleFor(e => e.Borrowers).Must(b => b is { Length: > 0 })
+        RuleFor(e => e.Borrowers).NotEmpty()
             .WithMessage("Must be at least one participant who was paid for");
         RuleForEach(e => e.Borrowers).SetValidator(new BorrowerRequestValidator());
     }

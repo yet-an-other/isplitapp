@@ -7,4 +7,6 @@ export class ParticipantInfo {
     id: string = "";
 
     name: string = "";
+
+    canDelete: boolean = false;
 }

@@ -4,15 +4,22 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <UserSecretsId>7e40099a-ed44-4a9a-aad4-d7e068c16ac2</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="FluentMigrator" Version="5.0.0" />
       <PackageReference Include="FluentMigrator.Runner" Version="5.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+      <PackageReference Include="Npgsql" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\core\core.csproj" />
+      <Reference Include="Microsoft.Extensions.Logging.Console">
+        <HintPath>..\..\..\..\..\..\usr\local\share\dotnet\shared\Microsoft.AspNetCore.App\8.0.0\Microsoft.Extensions.Logging.Console.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Expenses.Payloads;
+using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using LinqToDB.Data;
@@ -26,8 +26,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                     .UsePostgreSQL(databaseFixture.ConnectionString, PostgreSQLVersion.v15)));
 
         var collection = new ServiceCollection();
-        collection.AddTransient<IValidator<PartyRequest>, PartyRequestValidator>();
-        collection.AddTransient<IValidator<ExpenseRequest>, ExpenseRequestValidator>();
+        collection.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
+        collection.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
         _serviceProvider = collection.BuildServiceProvider();
     }
     
@@ -46,11 +46,11 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var party = new PartyRequest
+        var party = new PartyPayload
         {
             Currency = "EUR",
             Name = "Test",
-            Participants =[ new ParticipantRequest{Name="test-p1"}, new ParticipantRequest(){Name="test-p2"}]
+            Participants =[ new ParticipantPayload{Name="test-p1"}, new ParticipantPayload(){Name="test-p2"}]
         };
         
         
@@ -138,14 +138,14 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
 
         var validator = new GenericValidator(_serviceProvider);
 
-        var changedParty = new PartyRequest
+        var changedParty = new PartyPayload
         {
             Currency = "GBP",
             Name = "Changed",
             Participants =
             [
-                new ParticipantRequest { Id = aParticipants[0].Id, Name = "changed-p1" },
-                new ParticipantRequest() { Name = "added" }
+                new ParticipantPayload { Id = aParticipants[0].Id, Name = "changed-p1" },
+                new ParticipantPayload() { Name = "added" }
             ]
         };
         
@@ -206,13 +206,13 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         //
         var userId = IdUtil.NewId();
         var actualPartyId = IdUtil.NewId();
-        var actualParty = new PartyRequest
+        var actualParty = new PartyPayload
         {
             Currency = "EUR",
             Name = "Actual",
             Participants =
             [
-                new ParticipantRequest
+                new ParticipantPayload
                 {
                     Id = IdUtil.NewId(),
                     Name = "actual-changed"
@@ -386,14 +386,14 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
-        var expense = new ExpenseRequest()
+        var expense = new ExpensePayload()
         {
             LenderId = participantId,
             Title = "payment",
             FuAmount = 100,
             Date = DateTime.UtcNow,
             IsReimbursement = false,
-            Borrowers = [new BorrowerRequest() { ParticipantId = participantId }]
+            Borrowers = [new BorrowerPayload() { ParticipantId = participantId }]
         };
         
         // Act
@@ -454,7 +454,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
-        var expense = new ExpenseRequest()
+        var expense = new ExpensePayload()
         {
             LenderId = participantId2,
             Title = "payment",
@@ -462,9 +462,9 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Date = DateTime.UtcNow,
             IsReimbursement = false,
             Borrowers = [
-                new BorrowerRequest() { ParticipantId = participantId1 },
-                new BorrowerRequest() { ParticipantId = participantId2 },
-                new BorrowerRequest() { ParticipantId = participantId3 }
+                new BorrowerPayload() { ParticipantId = participantId1 },
+                new BorrowerPayload() { ParticipantId = participantId2 },
+                new BorrowerPayload() { ParticipantId = participantId3 }
             ]
         };
         
@@ -558,14 +558,14 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         await _db.BulkCopyAsync(cBorrowers);        
         
         
-        var changedExpense = new ExpenseRequest
+        var changedExpense = new ExpensePayload
         {
             LenderId = participantId2,
             Title = "changed-payment",
             FuAmount = 200,
             Date = DateTime.UtcNow,
             IsReimbursement = false,
-            Borrowers = [new BorrowerRequest { ParticipantId = participantId1 }]
+            Borrowers = [new BorrowerPayload { ParticipantId = participantId1 }]
         };
         
         // Act
@@ -643,7 +643,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         await _db.InsertAsync(expense);
         await _db.BulkCopyAsync(borrowers);
 
-        var control = new ExpenseResponse
+        var control = new ExpenseInfo
         {
             Id = expenseId,
             LenderId = participantId1,
@@ -652,7 +652,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             FuAmount = 100,
             Date = expenseDate,
             IsReimbursement = false,
-            Borrowers = [new BorrowerResponse { ParticipantId = participantId2, ParticipantName = "actual-2"}]
+            Borrowers = [new BorrowerInfo { ParticipantId = participantId2, ParticipantName = "actual-2"}]
         };
         
         // Act
@@ -662,9 +662,9 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Assert
         //
-        Assert.IsType<Ok<ExpenseResponse>>(getExpenseResult.Result);
+        Assert.IsType<Ok<ExpenseInfo>>(getExpenseResult.Result);
         
-        var getExpense = (getExpenseResult.Result as Ok<ExpenseResponse>)!.Value;
+        var getExpense = (getExpenseResult.Result as Ok<ExpenseInfo>)!.Value;
         Assert.Equivalent(control, getExpense);
 
     }
@@ -745,8 +745,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
 
         // Assert
         //
-        Assert.IsType<Ok<ExpenseResponse[]>>(listResult.Result);
-        var expenseList = (listResult.Result as Ok<ExpenseResponse[]>)!.Value;
+        Assert.IsType<Ok<ExpenseInfo[]>>(listResult.Result);
+        var expenseList = (listResult.Result as Ok<ExpenseInfo[]>)!.Value;
         
         Assert.Equal(2, expenseList!.Length);
     }
@@ -847,7 +847,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 Updated = p.Updated,
                 Participants = _db.Participants
                     .Where(pp => pp.PartyId == p.Id)
-                    .Select(pp => new ParticipantResponse
+                    .Select(pp => new ParticipantInfo
                     {
                         Id = pp.Id,
                         Name = pp.Name

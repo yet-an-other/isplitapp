@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Utils;
-using IB.ISplitApp.Core.Expenses.Payloads;
+using IB.ISplitApp.Core.Expenses.Contract;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.Tools;
@@ -25,7 +25,7 @@ public static class ExpenseCommand
     /// <returns>Http response 201 in case of success creation or set of validation errors</returns>
     public static async Task<Results<CreatedAtRoute, ValidationProblem>> PartyCreate(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
-        PartyRequest party,
+        PartyPayload party,
         GenericValidator validator,
         ExpenseDb db)
     {
@@ -71,7 +71,7 @@ public static class ExpenseCommand
     public static async Task<Results<NoContent, NotFound, ValidationProblem>> PartyUpdate(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
         string? partyId,
-        PartyRequest party,
+        PartyPayload party,
         GenericValidator validator,
         ILoggerFactory loggerFactory,
         ExpenseDb db)
@@ -152,7 +152,13 @@ public static class ExpenseCommand
                 Participants = (
                     from pp in db.Participants 
                     where pp.PartyId == p.Id 
-                    select new ParticipantResponse { Id = pp.Id, Name = pp.Name }).ToArray(),
+                    select new ParticipantInfo
+                    {
+                        Id = pp.Id, 
+                        Name = pp.Name,
+                        CanDelete = db.Borrowers.Count(b=>b.ParticipantId == pp.Id) == 0 &&
+                                    db.Expenses.Count(e => e.LenderId == pp.Id) == 0
+                    }).ToArray(),
                 TotalParticipants = (from pp in db.Participants where pp.PartyId == p.Id select p.Id).Count(),
                 TotalTransactions = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
                 FuTotalExpenses = (from e in db.Expenses 
@@ -265,11 +271,11 @@ public static class ExpenseCommand
     /// <returns>Returns 201 with path if everything is ok</returns>
     public static async Task<Results<CreatedAtRoute, ValidationProblem>> ExpenseCreate(
         string? partyId,
-        ExpenseRequest expense,
+        ExpensePayload expense,
         GenericValidator validator,
         ExpenseDb db)
     {
-        if (!validator.IsValid(IdUtil.DefaultId, partyId, out var validationResult))
+        if (!validator.IsValid(IdUtil.DefaultId, partyId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
         string expenseId = IdUtil.NewId();
@@ -311,11 +317,11 @@ public static class ExpenseCommand
     /// <returns>Returns 204 with path if everything is ok</returns>
     public static async Task<Results<NoContent, NotFound, ValidationProblem>> ExpenseUpdate(
         string? expenseId,
-        ExpenseRequest expense,
+        ExpensePayload expense,
         GenericValidator validator,
         ExpenseDb db)
     {
-        if (!validator.IsValidExpenseId(expenseId, out var validationResult))
+        if (!validator.IsValid(IdUtil.DefaultId, expenseId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
         var rows = await db.Expenses.Where(e => e.Id == expenseId)
@@ -351,7 +357,7 @@ public static class ExpenseCommand
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
     /// <returns>Returns 200 with requested expense object if everything is ok</returns>
-    public static async Task<Results<Ok<ExpenseResponse>, NotFound, ValidationProblem>> ExpenseGet(
+    public static async Task<Results<Ok<ExpenseInfo>, NotFound, ValidationProblem>> ExpenseGet(
         string? expenseId,
         GenericValidator validator,
         ExpenseDb db)
@@ -360,7 +366,7 @@ public static class ExpenseCommand
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
         var expenseQuery = db.Expenses.Where(e => e.Id == expenseId)
-            .Select(e => new ExpenseResponse
+            .Select(e => new ExpenseInfo
             {
                 Id = e.Id,
                 FuAmount = e.MuAmount.ToFuAmount(),
@@ -373,7 +379,7 @@ public static class ExpenseCommand
                     .Select(p => p.Name).Single(),
                 Borrowers = db.Borrowers
                     .Where(b => b.ExpenseId == e.Id)
-                    .Select(b => new BorrowerResponse
+                    .Select(b => new BorrowerInfo
                     {
                         ParticipantId = b.ParticipantId,
                         FuAmount = b.MuAmount.ToFuAmount(),
@@ -396,7 +402,7 @@ public static class ExpenseCommand
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
     /// <returns>Returns 200 with all party expenses if everything is ok</returns>
-    public static async Task<Results<Ok<ExpenseResponse[]>, ValidationProblem>> PartyExpenseListGet(
+    public static async Task<Results<Ok<ExpenseInfo[]>, ValidationProblem>> PartyExpenseListGet(
         string? partyId,
         GenericValidator validator,
         ExpenseDb db)
@@ -405,7 +411,7 @@ public static class ExpenseCommand
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
         var expenseQuery = db.Expenses.Where(e => e.PartyId == partyId)
-            .Select(e => new ExpenseResponse
+            .Select(e => new ExpenseInfo
             {
                 Id = e.Id,
                 FuAmount = e.MuAmount.ToFuAmount(),
@@ -418,7 +424,7 @@ public static class ExpenseCommand
                     .Select(p => p.Name).Single(),
                 Borrowers = db.Borrowers
                     .Where(b => b.ExpenseId == e.Id)
-                    .Select(b => new BorrowerResponse
+                    .Select(b => new BorrowerInfo
                     {
                         ParticipantId = b.ParticipantId,
                         FuAmount = b.MuAmount.ToFuAmount(),
@@ -458,7 +464,7 @@ public static class ExpenseCommand
                     db.Expenses
                         .Where(e => e.LenderId == pp.Id)
                         .Select(e => e.MuAmount)
-                        .Sum()
+                        .Sum() 
                     - db.Borrowers
                         .Where(b => b.ParticipantId == pp.Id)
                         .Select(b => b.MuAmount)
@@ -474,6 +480,27 @@ public static class ExpenseCommand
         var reimbursements = CalculateReimbursements(rawEntries);
 
         return TypedResults.Ok(new BalanceInfo { Balances = balances, Reimbursements = reimbursements });
+    }
+    
+    /// <summary>
+    /// Delete Expense
+    /// </summary>
+    /// <param name="userId">unique user id </param>
+    /// <param name="expenseId">Unique expense identifier</param>
+    /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
+    /// <param name="db">DataContext object</param>
+    /// <returns>Returns 204 with path if everything is ok</returns>
+    public static async Task<Results<NoContent, ValidationProblem>> ExpenseDelete(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,        
+        string? expenseId,
+        GenericValidator validator,
+        ExpenseDb db)
+    {
+        if (!validator.IsValid(userId, expenseId, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        await db.Expenses.DeleteAsync(e => e.Id == expenseId);
+        return TypedResults.NoContent();
     }
     
     /// <summary>
@@ -543,8 +570,6 @@ public static class ExpenseCommand
             if (entry.FuAmount != 0)
                 reimbursements.Add(entry);
         }
-
         return reimbursements.ToArray();
     }
-    
 }

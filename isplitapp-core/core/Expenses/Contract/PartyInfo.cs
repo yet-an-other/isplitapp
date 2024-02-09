@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using IB.ISplitApp.Core.Utils;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Response with party data and additional summary 
@@ -58,5 +58,5 @@ public record PartyInfo
     /// <summary>
     /// List of all participants in the party
     /// </summary>
-    public ParticipantResponse[] Participants { get; init; } = [];
+    public ParticipantInfo[] Participants { get; init; } = [];
 }

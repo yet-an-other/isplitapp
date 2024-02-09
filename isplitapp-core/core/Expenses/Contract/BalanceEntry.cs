@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Balance line entry

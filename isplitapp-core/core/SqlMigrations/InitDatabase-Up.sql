@@ -60,7 +60,7 @@ CREATE TABLE borrower(
                          percent int default(0) NOT NULL,
 
                          PRIMARY KEY(id),
-                         CONSTRAINT fk_borrower_expense FOREIGN KEY(expense_id) REFERENCES expense(id),
+                         CONSTRAINT fk_borrower_expense FOREIGN KEY(expense_id) REFERENCES expense(id) ON DELETE CASCADE,
                          CONSTRAINT fk_borrower_participant FOREIGN KEY (participant_id) REFERENCES participant(id)
 );
 CREATE INDEX IX_borrower_expense_id ON "borrower" USING btree ("expense_id");

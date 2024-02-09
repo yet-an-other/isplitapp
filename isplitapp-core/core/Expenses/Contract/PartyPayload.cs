@@ -1,11 +1,11 @@
 using FluentValidation;
 
-namespace IB.ISplitApp.Core.Expenses.Payloads;
+namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
 /// Payload to update or create a new party 
 /// </summary>
-public record PartyRequest
+public record PartyPayload
 {
     /// <summary>
     /// Name of the party
@@ -20,13 +20,13 @@ public record PartyRequest
     /// <summary>
     /// List of all participants in the party
     /// </summary>
-    public ParticipantRequest[] Participants { get; init; } = [];
+    public ParticipantPayload[] Participants { get; init; } = [];
 }
 
 /// <summary>
 /// Validation logic of party
 /// </summary>
-public class PartyRequestValidator : AbstractValidator<PartyRequest>
+public class PartyRequestValidator : AbstractValidator<PartyPayload>
 {
     private const int NameLength = 100;
     

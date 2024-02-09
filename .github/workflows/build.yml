@@ -49,7 +49,7 @@ jobs:
         file: Dockerfile
         #file: ./isplitapp-core/core/Dockerfile
         push: true
-        tags: ilaverlin/isplitapp-full-prod:latest,ilaverlin/isplitapp-full:${{ env.version }}
+        tags: ilaverlin/isplitapp-full-prod:latest,ilaverlin/isplitapp-full-prod:${{ env.version }}
         build-args: |
           BUILD_ENV=production
           VERSION=${{ env.version }}
@@ -61,7 +61,7 @@ jobs:
         file: Dockerfile
         #file: ./isplitapp-core/core/Dockerfile
         push: true
-        tags: ilaverlin/isplitapp-full-dev:latest,ilaverlin/isplitapp-full:${{ env.version }}
+        tags: ilaverlin/isplitapp-full-dev:latest,ilaverlin/isplitapp-full-dev:${{ env.version }}
         build-args: |
           BUILD_ENV=development
           VERSION=${{ env.version }}
