@@ -1,9 +1,10 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Contract;
-using IB.ISplitApp.Core.Expenses.Contract.Core.Users;
+using IB.ISplitApp.Core.Users;
 using IB.ISplitApp.Core.Utils;
 
 using LinqToDB;
@@ -14,6 +15,12 @@ using Microsoft.AspNetCore.HttpLogging;
 using Migrations;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+
+
+var version = Assembly
+    .GetEntryAssembly()
+    ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+    ?.InformationalVersion; 
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -106,6 +113,16 @@ var expenseApi = app.MapGroup("/expenses");
 expenseApi.MapPut("/{expenseId}", ExpenseCommand.ExpenseUpdate).WithName("UpdateExpense");
 expenseApi.MapGet("/{expenseId}", ExpenseCommand.ExpenseGet).WithName("GetExpense");
 expenseApi.MapDelete("/{expenseId}", ExpenseCommand.ExpenseDelete).WithName("DeleteExpense");
+
+
+// Add custom header
+//
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.Headers.TryAdd("X-App-Version", version);
+    await next();
+});
+
 
 // Use NSwag instead of Swashbuckle as NSwag is supporting AOT
 //

@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-net:
+  build-all:
 
     runs-on: ubuntu-latest
     defaults:
@@ -20,7 +20,18 @@ jobs:
 
     - name: Set version var
       run: |
-        echo "version=1.0.${{github.run_number}}-$(echo "${{github.sha}}" | cut -c 1-7)" >> $GITHUB_ENV
+        echo "hash=$(echo "${{github.sha}}" | cut -c 1-7)" >> $GITHUB_ENV
+        echo "version=1.0.${{github.run_number}}" >> $GITHUB_ENV
+
+    - name: generate semver
+      uses: paulhatch/semantic-version@v5.1.0
+      id: semver
+      with:
+        tag_prefix: "v"
+        major_pattern: "[MAJOR]"
+        minor_pattern: "[MINOR]"
+        search_commit_body: true
+        version_format: ${major}.${minor}.${patch}
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -49,10 +60,11 @@ jobs:
         file: Dockerfile
         #file: ./isplitapp-core/core/Dockerfile
         push: true
-        tags: ilaverlin/isplitapp-full-prod:latest,ilaverlin/isplitapp-full-prod:${{ env.version }}
+        tags: ilaverlin/isplitapp-full:latest, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}
         build-args: |
           BUILD_ENV=production
-          VERSION=${{ env.version }}
+          VERSION=${{ steps.semver.outputs.version }}
+
 
     - name: Build and push dev
       uses: docker/build-push-action@v5
@@ -61,8 +73,9 @@ jobs:
         file: Dockerfile
         #file: ./isplitapp-core/core/Dockerfile
         push: true
-        tags: ilaverlin/isplitapp-full-dev:latest,ilaverlin/isplitapp-full-dev:${{ env.version }}
+        tags: ilaverlin/isplitapp-full:edge, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}-dev${{github.run_number}}+${{ env.hash }}
         build-args: |
           BUILD_ENV=development
-          VERSION=${{ env.version }}
+          VERSION=${{ steps.semver.outputs.version }}-dev${{github.run_number}}+${{ env.hash }}
+          BUILD_CONFIGURATION=Debug
   

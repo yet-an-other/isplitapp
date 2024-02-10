@@ -1,6 +1,6 @@
 using LinqToDB.Mapping;
 
-namespace IB.ISplitApp.Core.Expenses;
+namespace IB.ISplitApp.Core.Expenses.Data;
 
 /// <summary>
 /// Represent the one who borrow a part of the expense 

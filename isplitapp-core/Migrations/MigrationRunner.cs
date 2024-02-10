@@ -19,8 +19,6 @@ public class MigrationRunner
     
     public MigrationRunner(ServiceCollection serviceCollection, string connectionString)
     {
-        using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
-        
         _connectionString = connectionString;
         _serviceProvider = serviceCollection
             .AddFluentMigratorCore()

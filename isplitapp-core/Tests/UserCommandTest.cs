@@ -1,4 +1,4 @@
-using IB.ISplitApp.Core.Expenses.Contract.Core.Users;
+using IB.ISplitApp.Core.Users;
 using IB.ISplitApp.Core.Utils;
 
 namespace Tests;

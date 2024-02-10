@@ -2,7 +2,7 @@ using IB.ISplitApp.Core.Utils;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IB.ISplitApp.Core.Expenses.Contract.Core.Users;
+namespace IB.ISplitApp.Core.Users;
 
 /// <summary>
 /// Set of commands to execute api requests on User object

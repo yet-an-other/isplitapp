@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using IB.ISplitApp.Core.Utils;
 using LinqToDB.Mapping;
 
-namespace IB.ISplitApp.Core.Expenses;
+namespace IB.ISplitApp.Core.Expenses.Data;
 
 /// <summary>
 /// Specific expense in the party
