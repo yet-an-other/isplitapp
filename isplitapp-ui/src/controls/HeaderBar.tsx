@@ -1,6 +1,5 @@
 import { AppBar, Toolbar, Typography, styled, Button, IconButton, SvgIcon } from '@mui/material';
 import Container from '@mui/material/Container';
-import LogoPng  from '../Logo.png';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as SvgLogogo } from '../logo1.svg'
 
@@ -13,10 +12,6 @@ const GroupsButton = styled(Button)({
     color: "white"
 });
 
-const LogoImage = styled('img') (({theme})=>({
-    height: "32px",
-    width: "32px",
-}))
 
 const LogoText = styled(Typography)(({theme}) => ({
     fontFamily: "fantasy",
@@ -41,7 +36,6 @@ function HeaderBar() {
                 <Container maxWidth="xl" sx={{pl:0}}>
                     <Toolbar disableGutters>
                         <IconButton onClick={() =>navigate("/")} sx={{ mr: .5 }}>
-                            <LogoImage src={LogoPng} alt='Logo' sx={{display:'none'}}/>
                             <SvgIcon sx={{color: 'secondary.main', height: '32px', width: '32px'}}>
                                 <SvgLogogo />
                             </SvgIcon>
