@@ -16,7 +16,6 @@ using Migrations;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 
-
 var version = Assembly
     .GetEntryAssembly()
     ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
@@ -93,8 +92,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-
 
 app.MapGet("/login", UserCommand.Login).WithName("Login");
 
