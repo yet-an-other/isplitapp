@@ -88,9 +88,15 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
     }
 
     const handleConfirmOk = () => {
-        partyId && unfollowParty(partyId);
-        setConfirmOpen(false);
-        navigate(0);
+        try {
+            partyId && unfollowParty(partyId);
+            console.log(`${partyId} - has been unfollowed`)
+            setConfirmOpen(false);
+            navigate(0);
+        }
+        catch(e){
+            console.log(`unable unfollow group ${e}`);
+        }
     }
 
     const handleUnfollow = async () => {
@@ -140,8 +146,8 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={e => {handleConfirmClose(); e.stopPropagation(); }}>Cancel</Button>
-                    <Button onClick={e => {handleConfirmOk(); e.stopPropagation(); }} autoFocus>Ok</Button>
+                    <Button onClick={e => { e.stopPropagation(); handleConfirmClose(); }}>Cancel</Button>
+                    <Button onClick={e => { e.stopPropagation(); handleConfirmOk(); }}>Ok</Button>
                 </DialogActions>
             </Dialog>
         </>
