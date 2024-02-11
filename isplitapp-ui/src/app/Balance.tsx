@@ -41,8 +41,8 @@ export default function Balance() {
             <Typography variant="h4" sx={{fontWeight: 'bold', mt: 4  }}>
                 Balance
             </Typography>
-            <Typography variant="caption" sx={{ mb: 2  }} component="div">
-                <Fade>Here is the total amount each participant borrowed or paid for.</Fade>
+            <Typography variant="body2" sx={{ mb: 3, mt: .5 }} component="div">
+                <Fade>Here is the total amount each participant borrowed or paid for</Fade>
             </Typography>
 
             {balanceInfo.reimbursements.length > 0
@@ -51,8 +51,8 @@ export default function Balance() {
                     <Typography variant="h4" sx={{fontWeight: 'bold', mt: 4  }}>
                         Suggested Reimbursements
                     </Typography>
-                    <Typography variant="caption" sx={{ mb: 2  }} component="div">
-                        <Fade>Here are some tips to make sure everyone gets their fair share back.</Fade>
+                    <Typography variant="body2" sx={{ mb: 3, mt: .5 }} component="div">
+                        <Fade>Here are some tips to make sure everyone gets their fair share back</Fade>
                     </Typography>
                     <ReimbursementList reimbursements={balanceInfo.reimbursements} party={party}/>
                   </>
@@ -129,7 +129,7 @@ const CreateLink = styled(Link)(({theme})=>({
 
 const EmptyReimbursements = (props: {party: PartyInfo}) => {
     return (
-        <Typography variant="body2" sx={{ mt: 4 }}>
+        <Typography variant="body1" sx={{ mt: 4 }}>
             <Fade sx={{ mt: 4 }}>
                 It seems you are all set! <br/> 
                 Or, you haven't logged any expenses yet. If it comes up, you can add a&nbsp; 

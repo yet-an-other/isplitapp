@@ -1,5 +1,7 @@
 import { Box, Link, Paper, styled } from '@mui/material';
 import curiosity from '../curiosity.gif'
+//import { version } from '../../package.json';
+const packageJson = require('../../package.json');
 
 const Bar = styled(Paper)(({theme}) => ({
     marginTop: theme.spacing(6),
@@ -16,7 +18,7 @@ export default function FooterBar() {
                 <Box sx = {{ mr: 'auto', mt: 2, ml: 3, display: 'grid', flexDirection: 'column' }}>
                     
                     <Link href="https://github.com/yet-an-other/isplitapp" sx={{textDecoration: 'none', fontSize: '0.9rem'}}>
-                        <b>{"//"}</b> github
+                        <b>{"//"}</b> {packageJson.version}
                     </Link>
 
                 </Box>

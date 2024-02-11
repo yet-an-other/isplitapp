@@ -21,7 +21,7 @@ import GlobalError  from './app/GlobalError';
 let theme = createTheme({
   palette: {
     background: {
-      paper: '#f9f9ff' //'#f7f8fa'
+      paper: '#f9fcff' //'#f7f8fa'
     },
     primary: {
       main: '#091e6f',

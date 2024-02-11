@@ -96,7 +96,9 @@ export default function PartyEdit() {
     return (
         <Container>
             <PartyMenuBar partyId={partyId} />
-
+            <Typography variant="body2" sx={{color: 'text.disabled', mt: -2, mb: 3}}>
+                Get started now by creating a group of participants to share expenses with
+            </Typography>
             <Paper elevation={0}>
                 <Grid container>
                     <Grid item xs={12} sm={8} sx={{ pb: { xs: 2, sm: 5 }, px: 2, pt: 5 }}>
