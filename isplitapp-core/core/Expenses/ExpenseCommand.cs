@@ -34,6 +34,7 @@ public static class ExpenseCommand
         
         // Create Party
         //
+        await db.BeginTransactionAsync();
         string partyId = IdUtil.NewId();
         await db.InsertAsync(new Party
         {
@@ -50,9 +51,9 @@ public static class ExpenseCommand
             p => new Participant { Id = IdUtil.NewId(), Name = p.Name, PartyId = partyId });
         await db.BulkCopyAsync(participants);
         
-
         await UpsertUserPartyVisibility(userId, partyId, db);
-
+        await db.CommitTransactionAsync();
+        
         return TypedResults.CreatedAtRoute(
             "GetParty", 
             new RouteValueDictionary([new KeyValuePair<string, string>("partyId", partyId)]));
@@ -81,6 +82,7 @@ public static class ExpenseCommand
         
         // Update party
         //
+        await db.BeginTransactionAsync();
         var rowsAffected = await db.Parties
             .Where(g => g.Id == partyId)
             .Set(g => g.Name, party.Name)
@@ -120,6 +122,8 @@ public static class ExpenseCommand
             .MergeAsync();
         
         await UpsertUserPartyVisibility(userId, partyId!, db);
+        await db.CommitTransactionAsync();
+        
         return TypedResults.NoContent();
     }
 
@@ -165,7 +169,7 @@ public static class ExpenseCommand
                     where e.PartyId == p.Id && !e.IsReimbursement 
                     select e.MuAmount).Sum().ToFuAmount(),
                 FuOutstandingBalance = db.Participants
-                    .Where(pp => pp.PartyId == p.Id)
+                    .Where(pp => pp.PartyId == partyId)
                     .Select(pp =>
                         db.Expenses
                             .Where(e => e.LenderId == pp.Id)
@@ -176,9 +180,10 @@ public static class ExpenseCommand
                             .Select(b => b.MuAmount)
                             .Sum()
                     )
-                    .Where(a=> a > 0)
+                    .Where(a => a > 0)
                     .Sum()
                     .ToFuAmount()
+                    
             };
 
         var party = await partyQuery.FirstOrDefaultAsync();
@@ -207,6 +212,7 @@ public static class ExpenseCommand
         var parties = from p in db.Parties
             join up in db.UserParty on p.Id equals up.PartyId
             where up.UserId == userId
+            orderby p.Id descending
             select new PartyInfo
             {
                 Id = p.Id,
@@ -234,7 +240,6 @@ public static class ExpenseCommand
                     .Where(a=> a > 0)
                     .Sum()
                     .ToFuAmount()
-
             };
 
         return TypedResults.Ok(await parties.ToArrayAsync());
@@ -278,6 +283,7 @@ public static class ExpenseCommand
         if (!validator.IsValid(IdUtil.DefaultId, partyId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
+        await db.BeginTransactionAsync();
         string expenseId = IdUtil.NewId();
         await db.InsertAsync(new Expense
         {
@@ -300,6 +306,7 @@ public static class ExpenseCommand
                         + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1)
                 })
         );
+        await db.CommitTransactionAsync();
         
         return TypedResults.CreatedAtRoute(
             "GetExpense", 
@@ -324,6 +331,7 @@ public static class ExpenseCommand
         if (!validator.IsValid(IdUtil.DefaultId, expenseId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
+        await db.BeginTransactionAsync();
         var rows = await db.Expenses.Where(e => e.Id == expenseId)
             .Set(e => e.LenderId, expense.LenderId)
             .Set(e => e.Title, expense.Title)
@@ -346,6 +354,7 @@ public static class ExpenseCommand
                                + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1)
                 })
         );
+        await db.CommitTransactionAsync();
         
         return TypedResults.NoContent();
     }
@@ -410,7 +419,9 @@ public static class ExpenseCommand
         if (!validator.IsValid(IdUtil.DefaultId, partyId, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
-        var expenseQuery = db.Expenses.Where(e => e.PartyId == partyId)
+        var expenseQuery = db.Expenses
+            .Where(e => e.PartyId == partyId)
+            .OrderByDescending(e=>e.Date)
             .Select(e => new ExpenseInfo
             {
                 Id = e.Id,
@@ -572,4 +583,6 @@ public static class ExpenseCommand
         }
         return reimbursements.ToArray();
     }
+
+
 }
