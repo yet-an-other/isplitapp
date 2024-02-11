@@ -87,10 +87,9 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
         setConfirmOpen(false);
     }
 
-    const handleConfirmOk = () => {
+    const handleConfirmOk = async () => {
         try {
-            partyId && unfollowParty(partyId);
-            console.log(`${partyId} - has been unfollowed`)
+            partyId && await unfollowParty(partyId);
             setConfirmOpen(false);
             navigate(0);
         }
