@@ -33,6 +33,7 @@ jobs:
         major_pattern: "[MAJOR]"
         minor_pattern: "[MINOR]"
         search_commit_body: true
+        bump_each_commit: true
         version_format: ${major}.${minor}.${patch}
 
     - name: Setup .NET
