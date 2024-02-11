@@ -1,12 +1,11 @@
-import { Button, List, ListItem, ListItemText, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, List, ListItem, ListItemText, Paper, Stack, Typography } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { useErrorAlert } from "../controls/AlertProvider";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
 import { fetchExpenseList } from "../api/expenseApi";
 import { PartyInfo } from "../api/contract/PartyInfo";
-import { Accent, Fade } from "../controls/StyledControls";
-
+import { Accent, Fade, RouterLink } from "../controls/StyledControls";
 
 export default function ExpenseList() {
 
@@ -29,55 +28,78 @@ export default function ExpenseList() {
         });
     }, [partyId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-
     return(
     <>
         <Stack direction="row" sx={{ mt: 5 }}>
-            <Typography variant="h4" sx={{fontWeight: 'bold' }}>Espenses</Typography>
-            <Button variant="contained" size="small" sx={{ ml: 'auto' }} onClick={()=> navigate(`/groups/${partyId}/expenses/create`)}>
+            <Box>
+                <Typography variant="h4" sx={{fontWeight: 'bold' }}>Expenses</Typography>
+                <Typography variant="body2" sx={{ mt: .5, mb: 3 }}>
+                    <Fade>Explore the group's expenses and money transfers here</Fade>
+                </Typography>
+            </Box>
+            <Button variant="contained" size="small" sx={{ ml: 'auto', height: 32 }} onClick={()=> navigate(`/groups/${partyId}/expenses/create`)}>
                 Add
             </Button>
         </Stack>
-        <Typography variant="caption" sx={{ mt: -1 }}>
-            <Fade>Here are the expenses and money transfers that happend in this group.</Fade>
-        </Typography>
-
-        <List component="nav" disablePadding>
-            {expenseList.map((expense) => (
-                <Fragment key={expense.id}>
-                  
-                    <Paper elevation={0} sx={{ px: 1, my: 1 }}>
-                    <ListItem disableGutters>
-                        <ListItemText
-                            onClick={() =>  navigate(`/groups/${partyId}/expenses/${expense.id}/edit`)}
-                            disableTypography
-                            primary = {
-                                <Typography variant="subtitle1">
-                                    {expense.title}
-                                </Typography>
-                            }
-                            secondary = {
-                                <Typography variant="caption">
-                                    <Accent>Paid by</Accent> <Fade>{expense.lenderName}</Fade> <br/> 
-                                    <Accent>for</Accent> <Fade>{expense.borrowers.map(n => n.participantName).join(", ")}</Fade>
-                                </Typography>
-                            }
-                        />
-                        <Stack sx={{ whiteSpace: "nowrap", display: "flex", alignItems:"end", alignSelf:"end", mb: "6px" }}>
-                            <Typography variant="h5">
-                                {expense.amount}&nbsp;<Fade>{party.currency}</Fade>
-                            </Typography>
-                            <Typography variant="caption">
-                                {new Date(expense.date).toDateString()}
-                            </Typography>
-                        </Stack>
-                    </ListItem>
-                    </Paper>
-                    
-                </Fragment>
-            ))}
-
-        </List>
+        
+        {(expenseList && expenseList.length > 0) ? <FullList party={party} expenseList={expenseList} /> : <EmptyList partyId={partyId!} /> }
     </>
+    )
+}
+
+const EmptyList = (props: {partyId: string}) => {
+    return (
+        <Typography sx={{ mt: 4 }} variant="body1">
+            <Fade>
+                It seems you have not added any expense yet... 
+                Start with <RouterLink to={`/groups/${props.partyId}/expenses/create`} >add</RouterLink> expense. 
+            </Fade>
+        </Typography>
+    )
+}
+
+interface FullListProps {
+    party: PartyInfo
+    expenseList: ExpenseInfo[],
+}
+
+const FullList =({party, expenseList}: FullListProps) => {
+
+    const navigate = useNavigate();
+
+    return(
+    <List component="nav" disablePadding>
+    {expenseList.map((expense) => (
+        <Fragment key={expense.id}>
+            <Paper elevation={0} sx={{ px: 1, my: 1 }}>
+            <ListItem disableGutters>
+                <ListItemText
+                    onClick={() =>  navigate(`/groups/${party.id}/expenses/${expense.id}/edit`)}
+                    disableTypography
+                    primary = {
+                        <Typography variant="subtitle1" sx={{mb: 2}}>
+                            {expense.title}
+                        </Typography>
+                    }
+                    secondary = {
+                        <Typography variant="body2">
+                            <Accent>Paid by</Accent> <Fade>{expense.lenderName}</Fade> <br/> 
+                            <Accent>for</Accent> <Fade>{expense.borrowers.map(n => n.participantName).join(", ")}</Fade>
+                        </Typography>
+                    }
+                />
+                <Stack sx={{ whiteSpace: "nowrap", display: "flex", alignItems:"end", alignSelf:"end", mb: "6px" }}>
+                    <Typography variant="h5">
+                        {expense.amount}&nbsp;<Fade>{party.currency}</Fade>
+                    </Typography>
+                    <Typography variant="body2">
+                        {new Date(expense.date).toDateString()}
+                    </Typography>
+                </Stack>
+            </ListItem>
+            </Paper>
+        </Fragment>
+    ))}
+    </List>
     )
 }

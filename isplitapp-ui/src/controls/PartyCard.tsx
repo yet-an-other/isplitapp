@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import Paper from "@mui/material/Paper/Paper";
 import Box from "@mui/material/Box/Box";
@@ -12,6 +11,7 @@ import { SxProps, Theme } from "@mui/material/styles";
 interface PartyCardProps {
     party: PartyInfo,
     ActionIcon: React.ElementType
+    onClick?: (() => void)
 }
 
 export interface ActionIconProps {
@@ -19,12 +19,10 @@ export interface ActionIconProps {
     sx: SxProps<Theme> | undefined
 }
 
-export const PartyCard = ({party, ActionIcon}: PartyCardProps) => {
-
-    const navigate = useNavigate();
+export const PartyCard = ({party, ActionIcon, onClick}: PartyCardProps) => {
 
     return (
-        <Paper elevation={0} onClick={()=>navigate(`/groups/${party.id}/expenses`)} sx={{ my: 2, p: 2, pb: 1, position: 'relative' }} >
+        <Paper elevation={0} onClick={onClick} sx={{ my: 2, p: 2, pb: 1, position: 'relative' }} >
             <Box sx={{ position: 'absolute', left: '0px', top: '0px', bottom: '0px', width:'4px', backgroundColor: party.outstandingBalance !== 0 ? 'error.light' : 'success.light', opacity: .5}} />
 
             <Box>

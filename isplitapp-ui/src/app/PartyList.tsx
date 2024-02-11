@@ -1,11 +1,11 @@
 import { AddCircle, IosShare, Menu as MenuIcon, VisibilityOffOutlined, } from "@mui/icons-material"
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Menu, MenuItem, Stack, Typography, styled } from "@mui/material"
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Menu, MenuItem, Stack, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { fetchPartyList, unfollowParty } from "../api/expenseApi";
 import { useErrorAlert, useSuccessAlert } from "../controls/AlertProvider";
-import { Fade } from "../controls/StyledControls";
+import { Fade, RouterLink } from "../controls/StyledControls";
 import { shareLink } from "../util";
 import React from "react";
 import { ActionIconProps, PartyCard } from "../controls/PartyCard";
@@ -37,7 +37,8 @@ export const PartyList = () => {
                 partyList.length > 0 
                     ? partyList.map(party => <PartyCard 
                         ActionIcon={PartyInListMenu}
-                        party={party} 
+                        party={party}
+                        onClick={() => navigate(`/groups/${party.id}/expenses`)} 
                         key={party.id}/>) 
                     : <EmptyList/> 
             }
@@ -45,25 +46,16 @@ export const PartyList = () => {
     )
 } 
 
-const CreateLink = styled(Link)(({theme})=>({
-    "&:visited, &:link": {
-        color: theme.palette.secondary.main,
-
-    }
-}))
-
 const EmptyList = () => {
     return (
-        <Typography sx={{ mt: 4 }}>
+        <Typography variant="body1" sx={{ mt: 4 }}>
             <Fade>
                 It seems you have not visited any group yet... <br/> 
-                You may <CreateLink to="create" >create a new group</CreateLink> or ask a friend to send you the link to an existing one. 
+                You may <RouterLink to="create" >create a new group</RouterLink> or ask a friend to send you the link to an existing one. 
             </Fade>
         </Typography>
     )
 }
-
-
 
 const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
     

@@ -2,6 +2,7 @@ import TextField from "@mui/material/TextField/TextField";
 import styled from "@mui/material/styles/styled";
 import React from "react";
 import { NumericFormat, NumericFormatProps } from "react-number-format";
+import { Link } from "react-router-dom";
 
 export const AdaptiveInput = styled(TextField)(({theme}) => ({
 
@@ -26,17 +27,21 @@ export const AdaptiveInput = styled(TextField)(({theme}) => ({
     },
 }));
 
+export const RouterLink = styled(Link)(({theme})=>({
+    "&:visited, &:link": {
+        color: theme.palette.secondary.main,
 
+    }
+}))
 
 export const Fade = styled('span')(({theme}) =>({
-    color: theme.palette.text.secondary
+    color: theme.palette.text.disabled
 }))
 
 export const Accent = styled('span')(({theme}) =>({
     color: theme.palette.primary.main,
     fontWeight: "bold"
 }))
-
 
 interface InputNumberProps {
     onChange: (event: { target: { name: string; value: string } }) => void;

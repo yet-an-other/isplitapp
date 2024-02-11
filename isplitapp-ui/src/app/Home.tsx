@@ -1,32 +1,6 @@
 import { AddCircle, ArrowRight } from "@mui/icons-material";
-import { Box, Button, Container, Stack, Typography, styled } from "@mui/material";
+import { Box, Button, Container, Paper, Stack, Typography, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
-
-const MainContainer = styled(Container)({
-    marginLeft: "auto",
-    marginRight:"auto",
-    textAlign: "center"
-});
-
-const ButtonStack = styled(Stack)({
-    marginTop: "50px",
-    marginLeft: "auto",
-    marginRight:"auto",
-    marginBottom: "50px",
-    maxWidth: "230px"
-})
-
-const FeatureTypography = styled(Typography)(({theme}) => ({
-    marginTop: "40px",
-    marginBottom: "40px",
-    marginLeft: "auto",
-    marginRight: "auto",
-    textAlign: "left",
-    [theme.breakpoints.up("sm")]: {
-        paddingLeft: "40px"
-    }
-}))
 
 const HighLightTypography = styled(Typography) (({theme}) => ({
     paddingTop: "6px",
@@ -39,10 +13,6 @@ const FeatureItem = styled(Box)(({theme})=>({
     color: theme.palette.text.disabled,
 }))
 
-const Subtitle = styled(Typography)(({theme}) =>({
-    marginBottom: theme.spacing(10),
-    color: theme.palette.text.disabled
-}))
 
 
 function Home(){
@@ -51,50 +21,44 @@ function Home(){
 
     return(
 
-        <MainContainer maxWidth="lg">
-            <Typography variant="h2" sx={{ fontWeight: 'bold',  mt: 4, mb: 3}}>
-                Share Expenses
+        <Container disableGutters sx={{ mx: 'auto', textAlign: 'center' }}>
+            <Typography variant="h2" sx={{ fontWeight: 'bold',  mt: 16, mb: 1 }}>
+                Share <Typography variant="h2" component="span" sx={{ fontWeight: 'bold', color: 'primary.main'}}>Expenses</Typography>
             </Typography>
-            <Subtitle variant="h5">
+            <Typography variant="h6" sx={{mb: 10, color:'text.disabled'}}>
                 Intuitive, Clean and Free. Ads Free.
-            </Subtitle>
+            </Typography>
 
-            <ButtonStack direction="column" spacing={7}>
-                <Button variant="contained" startIcon={<AddCircle/>} size="large" onClick={() => navigate('groups/create')}>
-                    Create Group&nbsp;&nbsp;&nbsp;
+            <Stack direction="column"sx={{mx:'auto', mt:10, mb: 15, maxWidth: '230px'}}>
+                <Button variant="contained" startIcon={<AddCircle/>} size="large" onClick={() => navigate('groups/create')} title="Create Group">
+                    Create Group
                 </Button>
-                <Button variant="contained" startIcon={<AddCircle/>}  size="large" disabled>
+                <Button variant="contained" startIcon={<AddCircle/>}  size="large" sx={{display: 'none'}}>
                     Create Expense
                 </Button>
-            </ButtonStack>
+            </Stack>
 
-            <Typography variant="h4" sx={{ fontWeight: 'bold', mt: 10 }}>
-                Features
-            </Typography>
+            <Paper elevation={0} sx={{ px: 2, py: 4, my: 10 }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold', my: 4 }}>
+                    Features
+                </Typography>
             
-            <FeatureTypography variant="subtitle1" maxWidth="md" >
-                <Stack spacing={3} >
-                    <ShowFeature 
-                        title="Straight to the Point." 
-                        subtitle="Just add an expense and participants, and it's done. Without registration, app downloading and SMS." />
-                    <ShowFeature 
-                        title="Ads Free." 
-                        subtitle="No annoying advertisements distracting an attention from the primary goal." />
-                    <ShowFeature 
-                        title="Open Source and Free." 
-                        subtitle="All sources are available on a GitHub." />                        
-                    <ShowFeature 
-                        title="Public API." 
-                        subtitle="Create your own UI or export expenses." />    
-                    <ShowFeature 
-                        title="Sharing." 
-                        subtitle="To Share the group and expenses with participants just send the link from the app." />    
-                    <ShowFeature 
-                        title="Balance visualization." 
-                        subtitle="See on a chart how much each participant spent." />  
-                </Stack>
-            </FeatureTypography>
-        </MainContainer>
+            
+                <Typography variant="subtitle1" maxWidth="md" sx={{mx:'auto', textAlign:'left'}} >
+                    <Stack spacing={3} >
+                        <ShowFeature 
+                            title="Get right to it" 
+                            subtitle="Simply input expenses and participants, and you're good to go! No need for registration, app downloads, or SMS hassle. Plus, no pesky ads to divert your focus from what matters most." />
+                        <ShowFeature 
+                            title="Completely open source and free" 
+                            subtitle="Access all our source code on GitHub. With a public API, you can customize your own user interface or export expenses as needed." />
+                        <ShowFeature 
+                            title="Easy sharing" 
+                            subtitle="Share your group and expenses effortlessly by sending the app's link. And for added clarity, visualize balances on a chart to see each participant's spending at a glance" /> 
+                    </Stack>
+                </Typography>
+            </Paper>
+        </Container>
     )
 }
 
