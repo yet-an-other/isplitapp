@@ -13,12 +13,13 @@ export async function shareLink(url: string) {
     try{
         if (navigator.clipboard) {
             await navigator.clipboard.writeText(url)
+            isSuccess = true;
         }
 
         if (navigator.share !== undefined && navigator.canShare(shareData)){
             await navigator.share(shareData)
+            isSuccess = true;
         }
-        isSuccess = true;
     }
     catch(e)
     {
