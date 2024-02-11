@@ -17,6 +17,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Set version var
       run: |
@@ -73,9 +75,9 @@ jobs:
         file: Dockerfile
         #file: ./isplitapp-core/core/Dockerfile
         push: true
-        tags: ilaverlin/isplitapp-full:edge, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}-dev${{github.run_number}}+${{ env.hash }}
+        tags: ilaverlin/isplitapp-full:edge, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}-${{ env.hash }}
         build-args: |
           BUILD_ENV=development
-          VERSION=${{ steps.semver.outputs.version }}-dev${{github.run_number}}+${{ env.hash }}
+          VERSION=${{ steps.semver.outputs.version }}-dev.${{github.run_number}}+${{ env.hash }}
           BUILD_CONFIGURATION=Debug
   
