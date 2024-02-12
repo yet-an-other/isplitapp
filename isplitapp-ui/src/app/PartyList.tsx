@@ -1,5 +1,5 @@
 import { AddCircle, IosShare, Menu as MenuIcon, VisibilityOffOutlined, } from "@mui/icons-material"
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Menu, MenuItem, Stack, Typography } from "@mui/material"
+import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Menu, MenuItem, Stack, TextField, Typography } from "@mui/material"
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
@@ -13,6 +13,8 @@ import { ActionIconProps, PartyCard } from "../controls/PartyCard";
 export const PartyList = () => {
 
     let [partyList, setPartyList] = useState([] as PartyInfo[]);
+    let [isUrlOpen, setUrlOpen] = useState(false);
+    let [partyUrl, setPartyUrl] = useState("");
     const errorAlert = useErrorAlert();
 
     useEffect(() => {
@@ -23,26 +25,72 @@ export const PartyList = () => {
 
     const navigate = useNavigate();
 
+    const handleAddLink = () => {
+        setUrlOpen(false);
+        const match = partyUrl.match("(^|/)([a-zA-Z]{16})($|/)");
+        setPartyUrl("");
+        if (!match || !match[2]){
+            errorAlert("Cannot find party id");
+            return;
+        }
+
+        navigate(`/groups/${match[2]}/expenses`);
+    }
+
     return (
-        <Container sx={{ my: 2 }}>
-            <Stack direction="row">
-                <Typography variant="h4" sx={{ fontWeight: 'bolder' }}>
-                    Groups
-                </Typography>
-                <Button variant="contained" sx={{ ml: 'auto' }} onClick={() => navigate('create')}>
-                    <AddCircle/>&nbsp;Create
-                </Button>
-            </Stack>
-            { 
-                partyList.length > 0 
-                    ? partyList.map(party => <PartyCard 
-                        ActionIcon={PartyInListMenu}
-                        party={party}
-                        onClick={() => navigate(`/groups/${party.id}/expenses`)} 
-                        key={party.id}/>) 
-                    : <EmptyList/> 
-            }
-        </Container>
+        <>
+            <Container sx={{ my: 2 }}>
+                <Stack direction="row">
+                    <Typography variant="h4" sx={{ fontWeight: 'bolder' }}>
+                        Groups
+                    </Typography>
+                    <Button variant="outlined" sx={{ ml: 'auto' }} onClick={() => {setUrlOpen(true)}}>
+                        Add by URL
+                    </Button>
+                    <Button variant="contained" sx={{ ml: 1 }} onClick={() => navigate('create')}>
+                        <AddCircle/>&nbsp;Create
+                    </Button>
+                </Stack>
+                { 
+                    partyList.length > 0 
+                        ? partyList.map(party => <PartyCard 
+                            ActionIcon={PartyInListMenu}
+                            party={party}
+                            onClick={() => navigate(`/groups/${party.id}/expenses`)} 
+                            key={party.id}/>) 
+                        : <EmptyList/> 
+                }
+            </Container>
+
+            <Dialog
+                open={isUrlOpen}
+                onClose={ () => {setUrlOpen(false); setPartyUrl("");} }
+            >
+                <DialogTitle>
+                    Add group by link
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        If someone has shared a group with you, you can simply paste its URL here to include it in your list
+                        <TextField 
+                            variant="outlined"
+                            fullWidth
+                            value={ partyUrl }
+                            label="URL"
+
+                            onChange={e => setPartyUrl(e.target.value)}
+                            sx={{mt: 2}}
+                        >
+
+                        </TextField>
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => {setUrlOpen(false); setPartyUrl("");}}>Cancel</Button>
+                    <Button onClick={() => handleAddLink()} autoFocus>Add</Button>
+                </DialogActions>
+            </Dialog>
+        </>
     )
 } 
 
