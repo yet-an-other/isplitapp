@@ -30,7 +30,6 @@ export const AdaptiveInput = styled(TextField)(({theme}) => ({
 export const RouterLink = styled(Link)(({theme})=>({
     "&:visited, &:link": {
         color: theme.palette.secondary.main,
-
     }
 }))
 

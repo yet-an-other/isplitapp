@@ -23,7 +23,6 @@ export default function Party() {
         fetchParty(partyId)
         .then(p => {
             setParty(p);
-            console.log(`party ${party.id} has been fetched`)
         })
         .catch(e => {
             console.log(e);
@@ -49,10 +48,9 @@ const ShareButton = ({partyId, sx}: ActionIconProps) => {
     const successAlert = useSuccessAlert();
 
     const handleShare = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.stopPropagation();
         if (await shareLink(`${window.location.origin}/groups/${partyId}/expenses`))
             successAlert("The link has been successfully copied")
-
-        event.stopPropagation();
     }
 
     return(

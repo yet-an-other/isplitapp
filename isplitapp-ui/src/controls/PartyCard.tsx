@@ -3,7 +3,6 @@ import Paper from "@mui/material/Paper/Paper";
 import Box from "@mui/material/Box/Box";
 import { PeopleAltOutlined } from "@mui/icons-material";
 import Typography from "@mui/material/Typography/Typography";
-import Grid from "@mui/material/Grid/Grid";
 import { Accent, Fade } from "./StyledControls";
 import React from "react";
 import { SxProps, Theme } from "@mui/material/styles";
@@ -22,8 +21,13 @@ export interface ActionIconProps {
 export const PartyCard = ({party, ActionIcon, onClick}: PartyCardProps) => {
 
     return (
-        <Paper elevation={0} onClick={onClick} sx={{ my: 2, p: 2, pb: 1, position: 'relative' }} >
-            <Box sx={{ position: 'absolute', left: '0px', top: '0px', bottom: '0px', width:'4px', backgroundColor: party.outstandingBalance !== 0 ? 'error.light' : 'success.light', opacity: .5}} />
+        <Paper 
+            elevation={0} 
+            variant="outlined" 
+            onClick={onClick} 
+            sx={{ my: 2, p: 2, pb: 1, position: 'relative', borderColor: '#c2c2c2', borderRadius: '10px', overflow: 'hidden'}} 
+        >
+            <Box sx={{ position: 'absolute', overflow: 'hidden', left: '0px', top: '0px', bottom: '0px', width:'4px', backgroundColor: party.outstandingBalance !== 0 ? 'error.light' : 'success.light', opacity: .5}} />
 
             <Box>
                 <Box sx={{ whiteSpace: 'nowrap', float: 'left', mr: 1 }}>
@@ -40,23 +44,19 @@ export const PartyCard = ({party, ActionIcon, onClick}: PartyCardProps) => {
                 </Typography>
             </Box>
             
-            <Box height="16px" />
+            <Box height="28px" />
 
-            <Grid container>
-                <Grid item xs={8} sx={{ display: 'flex', justifyContent:'end', alignItems: 'center'}}>
-                    <Typography variant="body2" sx={{lineHeight: 1.1}}><Fade>Transactions:</Fade></Typography>
-                </Grid>
-                <Grid item xs={4} sx={{pl: 1 }}>
-                    <Typography variant="subtitle1" sx={{lineHeight: 1.1}}>{party.totalTransactions}</Typography>
-                </Grid>
-                <Grid item xs={8} sx={{ display: 'flex', justifyContent:'end', alignItems: 'center'}}>
-                    <Typography variant="body2" sx={{lineHeight: 1.1}}><Fade>Outstanding:</Fade></Typography>
-                </Grid>
-                <Grid item xs={4} sx={{pl: 1}}>
-                    <Typography variant="subtitle1" sx={{lineHeight: 1.1}}>{party.outstandingBalance}&nbsp;<Fade>{party.currency}</Fade></Typography>
-                </Grid>
+            <Box sx={{display: 'flex', flexDirection: 'row'}}>
+                <Box sx={{ ml:'auto', pr: 2, display: 'flex', justifyContent:'end', alignItems: 'center', flexDirection:'column'}}>
+                    <Typography variant="body2" sx={{lineHeight: 1.1, height: '22px', ml:'auto'}} component="div"><Fade>Transactions:</Fade></Typography>
+                    <Typography variant="body2" sx={{lineHeight: 1.1, height: '22px', ml:'auto'}} component="div"><Fade>Outstanding:</Fade></Typography>
+                </Box>
+                <Box>
+                    <Typography variant="subtitle1" sx={{lineHeight: 1.1, height: '22px'}}>{party.totalTransactions}</Typography>
+                    <Typography variant="subtitle1" sx={{lineHeight: 1.1, height: '22px'}}>{party.outstandingBalance}&nbsp;<Fade>{party.currency}</Fade></Typography>
+                </Box>
+            </Box>
 
-            </Grid>
 
             <Box sx={{ display: 'flex', flexDirection:'row' }}>
                 <Typography variant="h5" sx={{mt: 'auto'}}>
