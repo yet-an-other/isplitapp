@@ -164,3 +164,21 @@ Content-Type: application/json
     { "participantId": "CMPrdJbTmBPqbcSR" }
   ]
 }
+
+###
+
+# @name create-expense-for-default-party
+POST {{ISplitAppCore_HostAddress}}/parties/{{ubparty}}/expenses
+Accept: application/json
+Content-Type: application/json
+
+{
+  "title": "Expense on 50",
+  "amount": "50",
+  "lenderId": "CMPrdJbSKJjztDbH",
+  "date": "{{$datetime iso8601}}",
+  "borrowers": [
+    { "participantId": "CMPrdJbSKJjztDbH" },
+    { "participantId": "CMPrdJbTKcTCxtXf" }
+  ]
+}
