@@ -21,11 +21,9 @@ export default function Party() {
             return;
 
         fetchParty(partyId)
-        .then(p => {
-            setParty(p);
-        })
+        .then(p => setParty(p))
         .catch(e => {
-            console.log(e);
+            console.error(e);
             errorAlert("Something went wrong. Unable to fetch data from server, please try again later.");
         })
 

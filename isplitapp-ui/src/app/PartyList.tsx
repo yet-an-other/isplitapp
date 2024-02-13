@@ -70,7 +70,7 @@ export const PartyList = () => {
                     Add group by link
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText component="div">
                         If someone has shared a group with you, you can simply paste its URL here to include it in your list
                         <TextField 
                             variant="outlined"
@@ -80,14 +80,13 @@ export const PartyList = () => {
 
                             onChange={e => setPartyUrl(e.target.value)}
                             sx={{mt: 2}}
-                        >
+                        />
 
-                        </TextField>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => {setUrlOpen(false); setPartyUrl("");}}>Cancel</Button>
-                    <Button onClick={() => handleAddLink()} autoFocus>Add</Button>
+                    <Button variant="outlined" onClick={() => {setUrlOpen(false); setPartyUrl("");}}>Cancel</Button>
+                    <Button variant="contained" onClick={() => handleAddLink()} autoFocus>Add</Button>
                 </DialogActions>
             </Dialog>
         </>
@@ -142,7 +141,7 @@ const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
             navigate(0);
         }
         catch(e){
-            console.log(`unable unfollow group ${e}`);
+            console.error(`unable unfollow group ${e}`);
         }
     }
 
