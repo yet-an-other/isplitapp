@@ -27,18 +27,22 @@ class GlobalError extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <Container>
-            <Alert severity="error">
-                <AlertTitle>Generic Error</AlertTitle>
-                Ooops, something went wrong.
-                Unknown error has occured, please, try again later.
-            </Alert>
-        </Container>
+        <GlobalErrorAlert />
       )
     }
 
     return this.props.children;
   }
 }
+
+export const GlobalErrorAlert = () => 
+    <Container>
+        <Alert severity="error">
+            <AlertTitle>Generic Error</AlertTitle>
+            Ooops, something went wrong.
+            Unknown error has occured, please, try again later.
+        </Alert>
+    </Container>
+
 
 export default GlobalError;

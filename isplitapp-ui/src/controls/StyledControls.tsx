@@ -1,6 +1,7 @@
+import { Box, Skeleton } from "@mui/material";
 import TextField from "@mui/material/TextField/TextField";
 import styled from "@mui/material/styles/styled";
-import React from "react";
+import React, { ReactElement } from "react";
 import { NumericFormat, NumericFormatProps } from "react-number-format";
 import { Link } from "react-router-dom";
 
@@ -72,3 +73,22 @@ export  const NumericFormatCustom = React.forwardRef<NumericFormatProps, InputNu
       );
     },
   );
+
+
+interface LodingContentProps {
+    isLoading: boolean
+    children: React.ReactNode
+}
+export const LoadingPartyContent = ({ isLoading, children }: LodingContentProps): ReactElement => {
+    console.log(children);
+    return (
+        isLoading 
+            ? <Box sx={{ mt: 5 }}>
+                <Skeleton variant="rectangular" height={20} sx={{ my: 1, width: '50%' }} />
+                <Skeleton variant="rectangular" height={20} sx={{ my: 1}} />
+                <Skeleton variant="rectangular" height={20} sx={{ my: 1, width: '90%'}} />
+                <Skeleton variant="rectangular" height={20} sx={{ my: 1}} />
+              </Box>
+            : <>{children}</>
+    )
+}
