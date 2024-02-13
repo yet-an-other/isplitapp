@@ -1,26 +1,64 @@
-import { AddCircle, IosShare, Menu as MenuIcon, VisibilityOffOutlined, } from "@mui/icons-material"
-import { Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Menu, MenuItem, Stack, TextField, Typography } from "@mui/material"
-import { useEffect, useState } from "react";
+import { 
+    AddCircle, 
+    IosShare, 
+    Menu as MenuIcon, 
+    VisibilityOffOutlined, 
+} from "@mui/icons-material"
+import { 
+    Box,
+    Button, 
+    Container, 
+    Dialog, 
+    DialogActions, 
+    DialogContent, 
+    DialogContentText, 
+    DialogTitle, 
+    IconButton, 
+    Menu, 
+    MenuItem, 
+    Skeleton, 
+    Stack, 
+    TextField, 
+    Typography 
+} from "@mui/material"
+import { 
+    ReactElement,
+    useEffect, 
+    useState 
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
-import { fetchPartyList, unfollowParty } from "../api/expenseApi";
-import { useErrorAlert, useSuccessAlert } from "../controls/AlertProvider";
-import { Fade, RouterLink } from "../controls/StyledControls";
+import { 
+    fetchPartyList, 
+    unfollowParty 
+} from "../api/expenseApi";
+import { 
+    useErrorAlert, 
+    useSuccessAlert 
+} from "../controls/AlertProvider";
+import { Fade, LoadingPartyContent, RouterLink } from "../controls/StyledControls";
 import { shareLink } from "../util";
 import React from "react";
 import { ActionIconProps, PartyCard } from "../controls/PartyCard";
 
+/**
+ *  PartyList component is used to display the list of parties
+ * @returns 
+ */
 export const PartyList = () => {
 
     let [partyList, setPartyList] = useState([] as PartyInfo[]);
     let [isUrlOpen, setUrlOpen] = useState(false);
     let [partyUrl, setPartyUrl] = useState("");
+    let [isLoading, setLoading] = useState(true);
     const errorAlert = useErrorAlert();
 
     useEffect(() => {
+        //setLoading(true);
         fetchPartyList()
         .then(parties => setPartyList(parties))
-        .catch(_ => errorAlert("An unknown error has occurred. Please try again later."));
+        .catch(_ => errorAlert("An unknown error has occurred. Please try again later."))
+        .finally(() => setLoading(false));
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const navigate = useNavigate();
@@ -51,14 +89,18 @@ export const PartyList = () => {
                         <AddCircle/>&nbsp;Create
                     </Button>
                 </Stack>
+
                 { 
-                    partyList.length > 0 
-                        ? partyList.map(party => <PartyCard 
-                            ActionIcon={PartyInListMenu}
-                            party={party}
-                            onClick={() => navigate(`/groups/${party.id}/expenses`)} 
-                            key={party.id}/>) 
-                        : <EmptyList/> 
+                    <LoadingPartyContent isLoading={isLoading}>
+                        {partyList.length > 0 
+                            ? partyList.map(party => <PartyCard
+                                key={party.id} 
+                                ActionIcon={PartyInListMenu}
+                                party={party}
+                                onClick={() => navigate(`/groups/${party.id}/expenses`)}/>) 
+                            : <EmptyList/>
+                        } 
+                    </LoadingPartyContent>
                 }
             </Container>
 
@@ -92,6 +134,7 @@ export const PartyList = () => {
         </>
     )
 } 
+
 
 const EmptyList = () => {
     return (

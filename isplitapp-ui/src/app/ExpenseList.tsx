@@ -5,7 +5,7 @@ import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
 import { fetchExpenseList } from "../api/expenseApi";
 import { PartyInfo } from "../api/contract/PartyInfo";
-import { Accent, Fade, RouterLink } from "../controls/StyledControls";
+import { Accent, Fade, LoadingPartyContent, RouterLink } from "../controls/StyledControls";
 
 export default function ExpenseList() {
 
@@ -15,6 +15,7 @@ export default function ExpenseList() {
     const party = useOutletContext<PartyInfo>();
 
     let [expenseList, setExpenseList] = useState([] as ExpenseInfo[]);
+    let [isLoading, setLoading] = useState(true);   
     
     useEffect(() => {
         if (!partyId)
@@ -25,7 +26,8 @@ export default function ExpenseList() {
         .catch(e => {
             console.log(e);
             errorAlert("An unknown error has occurred. Please try again later.");
-        });
+        })
+        .finally(() => setLoading(false));
     }, [partyId]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return(
@@ -42,7 +44,11 @@ export default function ExpenseList() {
             </Button>
         </Stack>
         
-        {(expenseList && expenseList.length > 0) ? <FullList party={party} expenseList={expenseList} /> : <EmptyList partyId={partyId!} /> }
+        <LoadingPartyContent isLoading={isLoading}>
+            {(expenseList && expenseList.length > 0) 
+            ? <FullList party={party} expenseList={expenseList} /> 
+            : <EmptyList partyId={partyId!} /> }
+        </LoadingPartyContent>
     </>
     )
 }

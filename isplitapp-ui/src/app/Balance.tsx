@@ -4,7 +4,7 @@ import { Link, useOutletContext, useParams } from "react-router-dom";
 import { fetchBalance } from "../api/expenseApi";
 import { BalanceInfo } from "../api/contract/BalanceInfo";
 import { useErrorAlert } from "../controls/AlertProvider";
-import { Fade } from "../controls/StyledControls";
+import { Fade, LoadingPartyContent } from "../controls/StyledControls";
 import { BalanceEntry } from "../api/contract/BalanceEntry";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ReimburseEntry } from "../api/contract/ReimburseEntry";
@@ -23,6 +23,7 @@ export default function Balance() {
     const { partyId } = useParams();
     const party = useOutletContext<PartyInfo>();
     let [balanceInfo, setBalance] = useState<BalanceInfo>(new BalanceInfo())
+    let [isLoading, setLoading] = useState(true);
 
     useEffect(()=>{
         if (!partyId)
@@ -34,6 +35,7 @@ export default function Balance() {
             console.log(e);
             errorAlert("An unknown error has occurred. Please try again later.");
         })
+        .finally(() => setLoading(false));
     }, [partyId]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
@@ -45,19 +47,21 @@ export default function Balance() {
                 <Fade>Here is the total amount each participant borrowed or paid for</Fade>
             </Typography>
 
-            {balanceInfo.reimbursements.length > 0
-                ? <>
-                    <BalanceChart balances={balanceInfo.balances} party={party}/>
-                    <Typography variant="h4" sx={{fontWeight: 'bold', mt: 4  }}>
-                        Suggested Reimbursements
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 3, mt: .5 }} component="div">
-                        <Fade>Here are some tips to make sure everyone gets their fair share back</Fade>
-                    </Typography>
-                    <ReimbursementList reimbursements={balanceInfo.reimbursements} party={party}/>
-                  </>
-                : <EmptyReimbursements party={party} />
-            }
+            <LoadingPartyContent isLoading={isLoading}>
+                {balanceInfo.reimbursements.length > 0
+                    ? <>
+                        <BalanceChart balances={balanceInfo.balances} party={party}/>
+                        <Typography variant="h4" sx={{fontWeight: 'bold', mt: 4  }}>
+                            Suggested Reimbursements
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 3, mt: .5 }} component="div">
+                            <Fade>Here are some tips to make sure everyone gets their fair share back</Fade>
+                        </Typography>
+                        <ReimbursementList reimbursements={balanceInfo.reimbursements} party={party}/>
+                    </>
+                    : <EmptyReimbursements party={party} />
+                }
+            </LoadingPartyContent>
         </Container>
     )
 }
