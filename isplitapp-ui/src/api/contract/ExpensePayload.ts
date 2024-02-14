@@ -1,4 +1,5 @@
 import { BorrowerPayload } from "./BorrowerPayload"
+import { SplitMode } from "./SplitMode"
 
 export class ExpensePayload {
     
@@ -11,6 +12,8 @@ export class ExpensePayload {
     lenderId: string = ""
     
     isReimbursement: boolean = false
+
+    splitMode: SplitMode = "Evenly"
     
     borrowers: BorrowerPayload[] = [];
 

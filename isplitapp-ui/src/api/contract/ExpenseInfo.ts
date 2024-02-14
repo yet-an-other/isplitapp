@@ -1,4 +1,5 @@
 import { BorrowerInfo } from "./BorrowerInfo"
+import { SplitMode } from "./SplitMode"
 
 export class ExpenseInfo {
 
@@ -15,6 +16,8 @@ export class ExpenseInfo {
     lenderName: string = ""
     
     isReimbursement: boolean = false
+
+    splitMode: SplitMode = "Evenly"
     
     borrowers: BorrowerInfo[] = [];
 }

@@ -80,7 +80,7 @@ interface LodingContentProps {
     children: React.ReactNode
 }
 export const LoadingPartyContent = ({ isLoading, children }: LodingContentProps): ReactElement => {
-    console.log(children);
+
     return (
         isLoading 
             ? <Box sx={{ mt: 5 }}>
