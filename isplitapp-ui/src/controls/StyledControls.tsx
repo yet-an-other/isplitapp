@@ -104,6 +104,7 @@ interface LodingContentProps {
     isLoading: boolean
     children: React.ReactNode
 }
+
 export const LoadingPartyContent = ({ isLoading, children }: LodingContentProps): ReactElement => {
 
     return (
