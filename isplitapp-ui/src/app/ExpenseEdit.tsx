@@ -39,8 +39,8 @@ export default function ExpenseEdit() {
     const paramsExpens = {
         title: title ?? "",
         borrowers: borrowerId 
-            ? [{participantId: borrowerId, amount: 0, share: 1, percentage: 0}] 
-            : party.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percentage: 0}}),
+            ? [{participantId: borrowerId, amount: 0, share: 1, percent: 0}] 
+            : party.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percent: 0}}),
         lenderId: lenderId ?? party.participants[0].id,
         amount: Number.parseFloat(amount ?? "0"),
         isReimbursement: Boolean(JSON.parse(isReimbursement ?? "false")),
@@ -95,7 +95,7 @@ export default function ExpenseEdit() {
         if (name === 'borrowers') {
             const ids = expense.borrowers.find(b => b.participantId === value) 
                 ? expense.borrowers.filter(b => b.participantId !== value)
-                : expense.borrowers.concat([{ participantId: value, amount: 0, share: 1, percentage: 0}]);
+                : expense.borrowers.concat([{ participantId: value, amount: 0, share: 1, percent: 0}]);
             newExpense = { ...expense, borrowers: ids }
         } else 
         if (name === 'splitMode') {
@@ -118,7 +118,7 @@ export default function ExpenseEdit() {
                 if (expense.splitMode === 'ByShare')
                     return { ...b, share: Math.trunc(Number.parseInt(value)) }
                 if (expense.splitMode === 'ByPercentage')
-                    return { ...b, percentage: Number.parseInt(value) }
+                    return { ...b, percent: Number.parseInt(value) }
                 if (expense.splitMode === 'ByAmount')
                     return { ...b, amount: Number.parseFloat(value) }
             }
@@ -131,7 +131,7 @@ export default function ExpenseEdit() {
 
     const handleSelectionToggle = (mode: "all" | "none" | "evenly") => {
         const newExpense = mode === 'all' 
-            ? { ...expense, borrowers: party.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percentage: 0}}) }
+            ? { ...expense, borrowers: party.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percent: 0}}) }
             : { ...expense, borrowers: [] }
         setExpense(newExpense);
         setValidationResult(validatePayload(newExpense));
@@ -182,7 +182,6 @@ export default function ExpenseEdit() {
 
     const splitEqualRecalculate = (mode: SplitMode) => {
          
-        
         const muAmount = (amount: number) => amount * 100;
         const fuAmount = (amount: number) => amount / 100;
 
@@ -190,7 +189,7 @@ export default function ExpenseEdit() {
             return {
                 ...b,
                 share: mode === 'ByShare' ? 1 : 0,
-                percentage: mode === 'ByPercentage' 
+                percent: mode === 'ByPercentage' 
                 ? Math.trunc(100 / expense.borrowers.length) 
                     + (i < 100 % expense.borrowers.length ? 1 : 0)
                 : 0,
@@ -214,7 +213,7 @@ export default function ExpenseEdit() {
             return borrower.share;
         }
         if (expense.splitMode === 'ByPercentage') {
-            return borrower.percentage;
+            return borrower.percent;
         }
         return borrower.amount;
     }
@@ -470,19 +469,19 @@ class ExpenseValidator {
             isValid = Array.isArray(value) && value.length > 0
             !isValid && (this.borrowers.errorMessage = "At least one participant must be selected");
             if (expense.splitMode === 'ByPercentage') {
-                isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.percentage, 0) === 100
-                !isValid && (this.borrowers.errorMessage += "The sum of percentage must be 100%");
-                isValid = isValid && (value as BorrowerPayload[]).every(b => b.percentage >= 0)
-                !isValid && (this.borrowers.errorMessage += "Percentage must be non negative");
+                isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.percent, 0) === 100
+                !isValid && (this.borrowers.errorMessage += "The sum of percents must be 100% ");
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.percent > 0)
+                !isValid && (this.borrowers.errorMessage += "Percent must be greater than 0");
             }
             if (expense.splitMode === 'ByAmount') {
                 isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.amount, 0) === expense.amount
                 !isValid && (this.borrowers.errorMessage += "The sum of amounts must be equal to the expense amount");
-                isValid = isValid && (value as BorrowerPayload[]).every(b => b.amount >= 0)
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.amount > 0)
                 !isValid && (this.borrowers.errorMessage += "Amount must be non negative");
             }
             if (expense.splitMode === 'ByShare') {
-                isValid = isValid && (value as BorrowerPayload[]).every(b => b.share >= 0)
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.share > 0)
                 !isValid && (this.borrowers.errorMessage += "Share must be non negative");
             } 
             return isValid;
