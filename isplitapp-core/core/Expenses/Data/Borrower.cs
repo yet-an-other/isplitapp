@@ -25,4 +25,16 @@ public record Borrower
     /// </summary>
     [Column("amount")]
     public long MuAmount { get; init; } = 0;
+    
+    /// <summary>
+    ///  Participant's part of money form the expense in shares
+    /// </summary>
+    [Column("share")]
+    public int Share { get; init; } = 0;
+    
+    /// <summary>
+    /// Participant's part of money form the expense in percentage
+    /// </summary>
+    [Column("percent")]
+    public int Percent { get; init; } = 0;
 }

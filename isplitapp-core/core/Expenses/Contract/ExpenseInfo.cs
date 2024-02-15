@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Utils;
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
@@ -39,4 +40,6 @@ public record ExpenseInfo
     public bool IsReimbursement { get; init; }
     
     public BorrowerInfo[] Borrowers { get; set; } = [];
+    
+    public SplitMode SplitMode { get; init; } = SplitMode.Evenly;
 }

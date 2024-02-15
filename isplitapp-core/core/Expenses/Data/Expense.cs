@@ -54,4 +54,7 @@ public record Expense
     /// </summary>
     [Column("is_reimbursement")]
     public bool IsReimbursement { get; init; }
+    
+    [Column("split_mode")] 
+    public SplitMode SplitMode { get; init; } = SplitMode.Evenly;
 }

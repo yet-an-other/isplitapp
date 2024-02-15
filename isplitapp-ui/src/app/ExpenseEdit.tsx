@@ -1,5 +1,5 @@
-import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, FormGroup, Grid, InputAdornment, MenuItem, Paper, Typography } from "@mui/material";
-import { AdaptiveInput, Fade, NumericFormatCustom } from "../controls/StyledControls";
+import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, FormGroup, Grid, InputAdornment, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material";
+import { AdaptiveInput, Fade, FloatFormatCustom, IntFormatCustom } from "../controls/StyledControls";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { useEffect, useState } from "react";
 import { ExpensePayload } from "../api/contract/ExpensePayload";
@@ -7,6 +7,8 @@ import { BorrowerPayload } from "../api/contract/BorrowerPayload";
 import { useNavigate, useOutletContext, useParams, useSearchParams } from "react-router-dom";
 import { createExpense, deleteExpense, fetchExpense, updateExpense } from "../api/expenseApi";
 import { useErrorAlert } from "../controls/AlertProvider";
+import { SplitMode } from "../api/contract/SplitMode";
+import { ParticipantInfo } from "../api/contract/ParticipantInfo";
 
 interface IDictionary {
     [index: string]: string;
@@ -37,12 +39,13 @@ export default function ExpenseEdit() {
     const paramsExpens = {
         title: title ?? "",
         borrowers: borrowerId 
-            ? [{participantId: borrowerId}] 
-            : party.participants.map(p => {return {participantId: p.id}}),
+            ? [{participantId: borrowerId, amount: 0, share: 1, percentage: 0}] 
+            : party.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percentage: 0}}),
         lenderId: lenderId ?? party.participants[0].id,
         amount: Number.parseFloat(amount ?? "0"),
         isReimbursement: Boolean(JSON.parse(isReimbursement ?? "false")),
-        date: new Date(Date.now())
+        date: new Date(Date.now()),
+        splitMode: "Evenly" as SplitMode
     }
     
     let [expense, setExpense] = useState<ExpensePayload>(paramsExpens);
@@ -55,8 +58,9 @@ export default function ExpenseEdit() {
 
         fetchExpense(expenseId)
             .then(e => {
-                setExpense(e);
-                setValidationResult(validatePayload(e));
+                let fixE = {...e, splitMode: e.splitMode ?? "Evenly" as SplitMode};
+                setExpense(fixE);
+                setValidationResult(validatePayload(fixE));
             })
             .catch(e=>{
                 console.log(e);
@@ -91,8 +95,11 @@ export default function ExpenseEdit() {
         if (name === 'borrowers') {
             const ids = expense.borrowers.find(b => b.participantId === value) 
                 ? expense.borrowers.filter(b => b.participantId !== value)
-                : expense.borrowers.concat([{ participantId: value }]);
+                : expense.borrowers.concat([{ participantId: value, amount: 0, share: 1, percentage: 0}]);
             newExpense = { ...expense, borrowers: ids }
+        } else 
+        if (name === 'splitMode') {
+            newExpense = splitEqualRecalculate(normValue as SplitMode);
         } else {
             newExpense = { ...expense, [name]: normValue, borrowers: [...expense.borrowers] }
         }
@@ -101,9 +108,30 @@ export default function ExpenseEdit() {
         setValidationResult(validatePayload(newExpense));
     }
 
-    const handleSelectionToggle = (mode: "all" | "none") => {
+    const handleBorrowerChange = (participantId: string, value: string) => {
+        const borrower = expense.borrowers.find(b => b.participantId === participantId);
+        if (!borrower)
+            return;
+
+        const newBorrowers = expense.borrowers.map(b => {
+            if (b.participantId === participantId) {
+                if (expense.splitMode === 'ByShare')
+                    return { ...b, share: Math.trunc(Number.parseInt(value)) }
+                if (expense.splitMode === 'ByPercentage')
+                    return { ...b, percentage: Number.parseInt(value) }
+                if (expense.splitMode === 'ByAmount')
+                    return { ...b, amount: Number.parseFloat(value) }
+            }
+            return b;
+        })
+        const newExpense = { ...expense, borrowers: newBorrowers }
+        setExpense(newExpense);
+        setValidationResult(validatePayload(newExpense));
+    }
+
+    const handleSelectionToggle = (mode: "all" | "none" | "evenly") => {
         const newExpense = mode === 'all' 
-            ? { ...expense, borrowers: party.participants.map(p => {return {participantId: p.id}}) }
+            ? { ...expense, borrowers: party.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percentage: 0}}) }
             : { ...expense, borrowers: [] }
         setExpense(newExpense);
         setValidationResult(validatePayload(newExpense));
@@ -152,6 +180,45 @@ export default function ExpenseEdit() {
         }
     }
 
+    const splitEqualRecalculate = (mode: SplitMode) => {
+         
+        
+        const muAmount = (amount: number) => amount * 100;
+        const fuAmount = (amount: number) => amount / 100;
+
+        const borrowers = expense.borrowers.map((b, i) => {
+            return {
+                ...b,
+                share: mode === 'ByShare' ? 1 : 0,
+                percentage: mode === 'ByPercentage' 
+                ? Math.trunc(100 / expense.borrowers.length) 
+                    + (i < 100 % expense.borrowers.length ? 1 : 0)
+                : 0,
+                amount: mode === 'ByAmount' 
+                ? fuAmount(
+                    Math.trunc(muAmount(expense.amount) / expense.borrowers.length) 
+                    + (i < muAmount(expense.amount) % expense.borrowers.length ? 1 : 0)
+                )
+                : 0
+            }
+        })
+        return {...expense, splitMode: mode, borrowers: borrowers};
+    }
+
+    const showSplit = (participant: ParticipantInfo) => {
+        const borrower = expense.borrowers.find(b => b.participantId === participant.id);
+        if (!borrower)
+            return 0;
+
+        if (expense.splitMode === 'ByShare') {
+            return borrower.share;
+        }
+        if (expense.splitMode === 'ByPercentage') {
+            return borrower.percentage;
+        }
+        return borrower.amount;
+    }
+
     const isAllSelected = () => expense.borrowers.length === party.participants.length;
     const isNoneSelected = () => expense.borrowers.length === 0;
 
@@ -188,7 +255,7 @@ export default function ExpenseEdit() {
                             name="amount"
                             onChange={e => handleOnChange(e.target)}
                             InputProps={{
-                                inputComponent: NumericFormatCustom as any,
+                                inputComponent: FloatFormatCustom as any,
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         { party.currency }
@@ -253,7 +320,7 @@ export default function ExpenseEdit() {
 
                 <Box sx={{ p: 2, pt: 0 }}>
                     <Grid container>
-                        <Grid item xs={6}>
+                        <Grid item xs={12}>
                             <Typography variant="h5" sx={{ pt:1 }}>
                                 <b>Paid for</b>
                             </Typography>
@@ -261,10 +328,13 @@ export default function ExpenseEdit() {
                                 <Fade>Who participated in spending</Fade>
                             </Typography>
                         </Grid>
-                        <Grid item xs={6} sx={{display:'flex', alignItems:'start', justifyContent:'end'}}>
+
+
+
+                        <Grid item xs={6} sx={{display:'flex', alignItems:'center', justifyContent:'start'}}>
                             <Button
                                 disabled={isAllSelected()}
-                                sx={{ fontWeight: 'bold', ml: 'auto', mr: 2, mt: 1, alignSelf: 'start', color: 'secondary.main' }} 
+                                sx={{ fontWeight: 'bold', mt: 1, alignSelf: 'start', color: 'secondary.main' }} 
                                 onClick={() => handleSelectionToggle('all')}>
                                 all
                             </Button>
@@ -274,20 +344,66 @@ export default function ExpenseEdit() {
                                 component="a" onClick={() => handleSelectionToggle('none')}>
                                 none
                             </Button>
+
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <FormControl fullWidth size="small" sx={{mt: 1, ml:'auto'}}>
+                                <InputLabel>Split by</InputLabel>
+                                <Select
+                                    label="Split by"
+                                    value={expense.splitMode}
+                                    onChange={e => handleOnChange({name: 'splitMode', value: e.target.value as SplitMode}) }
+                                >
+                                    <MenuItem value={'Evenly'}>Evenly</MenuItem>
+                                    <MenuItem value={'ByShare'}>By shares</MenuItem>
+                                    <MenuItem value={'ByPercentage'}>By percentage</MenuItem>
+                                    <MenuItem value={'ByAmount'}>By amount</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <Typography variant="caption" sx={{ display: isShowError && !validationResult.borrowers.isValid ? 'block' : 'none', color: 'error.main', mt: 2}}>
+                                {validationResult.borrowers.errorMessage}
+                            </Typography>
                         </Grid>
                     </Grid>
-                    <FormGroup sx={{mt:2}}>
-                        <Typography variant="caption" sx={{ display: isShowError && !validationResult.borrowers.isValid ? 'block' : 'none', color: 'error.main'}}>
-                            {validationResult.borrowers.errorMessage}
-                        </Typography>
-                        {party.participants.map(p => 
-                            <FormControlLabel 
-                                key={p.id}
-                                control={<Checkbox checked={expense.borrowers.find(i => i.participantId === p.id) ? true : false } />} 
-                                label={p.name} 
-                                onChange={()=>handleOnChange({ name: 'borrowers', value: p.id })} />
-                        )}
-                    </FormGroup>
+                    
+                        <FormGroup sx={{ mt: 2 }}>
+                            {party.participants.map(p => 
+                                <Box key={p.id} sx={{display: 'flex', flexDirection: 'row'}}>
+                                    <Box >
+                                    <FormControlLabel 
+                                        control={<Checkbox checked={expense.borrowers.find(i => i.participantId === p.id) ? true : false } />} 
+                                        label={p.name} 
+                                        sx={{ display: 'block', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                                        onChange={() => handleOnChange({ name: 'borrowers', value: p.id })} />
+                                    </Box>
+                                    {expense.splitMode !== 'Evenly' && (
+                                    <AdaptiveInput
+                                        sx={{width: '120px', minWidth: '120px', ml: 'auto'}}
+                                        value={showSplit(p)}
+                                        disabled={expense.borrowers.find(i => i.participantId === p.id) ? false : true}
+                                        onChange={e => handleBorrowerChange(p.id, e.target.value)}  
+                                        InputProps={{
+                                            sx: { textAlign: "right", "& input": { textAlign: "right" }},
+                                            inputComponent: (expense.splitMode === 'ByAmount' ? FloatFormatCustom : IntFormatCustom) as any,
+                                            endAdornment:  expense.splitMode !== 'ByShare' && (
+                                                <InputAdornment 
+                                                    position="end" 
+                                                    sx={{ backgroundColor: '#f7f7f7', py: '18px', px: 1, ml: .5, mr: -1.6}}>
+                                                    { expense.splitMode === 'ByAmount' ? party.currency: "%" }
+                                                </InputAdornment>
+                                            )
+                                        }}   
+                                    />
+                                    )}
+                                </Box>
+
+                            )}
+                        </FormGroup>
+                    
                 </Box>
             </Paper>
 
@@ -323,33 +439,54 @@ export default function ExpenseEdit() {
     )
 }
 
-type ValidatorValueType = string | number | BorrowerPayload[] | boolean | Date;
+type ValidatorValueType = string | number | BorrowerPayload[] | boolean | Date | SplitMode;
 
 class ExpenseValidator {
     title = {
         isValid: false,
         errorMessage: "'Title' must not be empty",
-        validate: (value: ValidatorValueType) => typeof(value) === 'string' && value.trim().length > 0
+        validate: (_: ExpensePayload, value: ValidatorValueType) => typeof(value) === 'string' && value.trim().length > 0
     };
     amount = {
         isValid: false,
         errorMessage: "Paid amount must be non zero",
-        validate: (value: ValidatorValueType) => typeof(value) === 'number' && value > 0
+        validate: (_: ExpensePayload, value: ValidatorValueType) => typeof(value) === 'number' && value > 0
     };
     lenderId = {
         isValid: false,
         errorMessage: "Lender must be set",
-        validate: (value: ValidatorValueType) => typeof(value) === 'string' && value.length === 16
+        validate: (_: ExpensePayload, value: ValidatorValueType) => typeof(value) === 'string' && value.length === 16
     };
     date = {
         isValid: false,
         errorMessage: "Date must be set",
-        validate: (value: ValidatorValueType) => !isNaN(Date.parse(value as string))
+        validate: (_: ExpensePayload, value: ValidatorValueType) => !isNaN(Date.parse(value as string))
     }
     borrowers = {
         isValid: false,
-        errorMessage: "At least one participant must be set as 'paid for'",
-        validate: (value: ValidatorValueType) => Array.isArray(value) && value.length > 0
+        errorMessage: "",
+        validate: (expense: ExpensePayload, value: ValidatorValueType) => {
+            let isValid = false;
+            isValid = Array.isArray(value) && value.length > 0
+            !isValid && (this.borrowers.errorMessage = "At least one participant must be selected");
+            if (expense.splitMode === 'ByPercentage') {
+                isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.percentage, 0) === 100
+                !isValid && (this.borrowers.errorMessage += "The sum of percentage must be 100%");
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.percentage >= 0)
+                !isValid && (this.borrowers.errorMessage += "Percentage must be non negative");
+            }
+            if (expense.splitMode === 'ByAmount') {
+                isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.amount, 0) === expense.amount
+                !isValid && (this.borrowers.errorMessage += "The sum of amounts must be equal to the expense amount");
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.amount >= 0)
+                !isValid && (this.borrowers.errorMessage += "Amount must be non negative");
+            }
+            if (expense.splitMode === 'ByShare') {
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.share >= 0)
+                !isValid && (this.borrowers.errorMessage += "Share must be non negative");
+            } 
+            return isValid;
+        }
     }
 }
 
@@ -358,7 +495,7 @@ const validatePayload = (expensePayload: ExpensePayload) => {
     let validationResult = new ExpenseValidator();
     Object.keys(validationResult).forEach( key => {
         validationResult[key as keyof ExpenseValidator].isValid = validationResult[key as keyof ExpenseValidator]
-            .validate(expensePayload[key as keyof ExpensePayload])
+            .validate(expensePayload, expensePayload[key as keyof ExpensePayload])
     })
     return validationResult;
 }

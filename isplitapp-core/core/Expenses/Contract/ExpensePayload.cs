@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using FluentValidation;
+using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Utils;
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
@@ -39,6 +40,8 @@ public record ExpensePayload
     /// List of those who participated in expense
     /// </summary>
     public BorrowerPayload[] Borrowers { get; set; } = [];
+    
+    public SplitMode SplitMode { get; init; } = SplitMode.Evenly;
 }
 
 public class ExpensePayloadValidator : AbstractValidator<ExpensePayload>
@@ -57,6 +60,22 @@ public class ExpensePayloadValidator : AbstractValidator<ExpensePayload>
             .WithMessage("LenderId must be correct");
         RuleFor(e => e.Borrowers).NotEmpty()
             .WithMessage("Must be at least one participant who was paid for");
-        RuleForEach(e => e.Borrowers).SetValidator(new BorrowerRequestValidator());
+        RuleForEach(e => e.Borrowers).SetValidator(e=> new BorrowerRequestValidator(e.SplitMode));
+        
+        RuleFor(e => e.Borrowers).Must((e, borrowers, context) =>
+        {
+            if (e.SplitMode != SplitMode.ByAmount)
+                return true;
+            
+            return borrowers.Sum(b => b.FuAmount.ToMuAmount()) == e.FuAmount.ToMuAmount();
+        }).WithMessage("Sum of all participants must be equal to expense amount");
+        
+        RuleFor(e => e.Borrowers).Must((e, borrowers, context) =>
+        {
+            if (e.SplitMode != SplitMode.ByPercentage)
+                return true;
+            
+            return 100 == borrowers.Sum(b => b.Percent);
+        }).WithMessage("Sum of all percents must be equal to 100");        
     }
 }

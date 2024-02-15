@@ -48,7 +48,7 @@ interface InputNumberProps {
     name: string;
   }
 
-export  const NumericFormatCustom = React.forwardRef<NumericFormatProps, InputNumberProps>(
+export  const FloatFormatCustom = React.forwardRef<NumericFormatProps, InputNumberProps>(
     function NumericFormatCustom(props, ref) {
       const { onChange, ...other } = props;
   
@@ -74,13 +74,39 @@ export  const NumericFormatCustom = React.forwardRef<NumericFormatProps, InputNu
     },
   );
 
+export  const IntFormatCustom = React.forwardRef<NumericFormatProps, InputNumberProps>(
+  function NumericFormatCustom(props, ref) {
+    const { onChange, ...other } = props;
+
+    return (
+      <NumericFormat
+        {...other}
+        getInputRef={ref}
+        onValueChange={(values) => {
+          onChange({
+            target: {
+              name: props.name,
+              value: values.value,
+            },
+          });
+        }}
+        thousandSeparator
+        valueIsNumericString
+        allowLeadingZeros = {false}
+        allowNegative = {false}
+        decimalScale={0} 
+      />
+    );
+  },
+);
 
 interface LodingContentProps {
     isLoading: boolean
     children: React.ReactNode
 }
+
 export const LoadingPartyContent = ({ isLoading, children }: LodingContentProps): ReactElement => {
-    console.log(children);
+
     return (
         isLoading 
             ? <Box sx={{ mt: 5 }}>

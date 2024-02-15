@@ -36,10 +36,18 @@ import {
     useErrorAlert, 
     useSuccessAlert 
 } from "../controls/AlertProvider";
-import { Fade, LoadingPartyContent, RouterLink } from "../controls/StyledControls";
+import { 
+    Fade, 
+    LoadingPartyContent, 
+    RouterLink 
+} from "../controls/StyledControls";
+
 import { shareLink } from "../util";
 import React from "react";
-import { ActionIconProps, PartyCard } from "../controls/PartyCard";
+import { 
+    ActionIconProps, 
+    PartyCard 
+} from "../controls/PartyCard";
 
 /**
  *  PartyList component is used to display the list of parties
@@ -135,7 +143,9 @@ export const PartyList = () => {
     )
 } 
 
-
+/**
+ * EmptyList component is used to display the empty list message
+ */
 const EmptyList = () => {
     return (
         <Typography variant="body1" sx={{ mt: 4 }}>
@@ -147,6 +157,12 @@ const EmptyList = () => {
     )
 }
 
+/**
+ *  PartyInListMenu component is used to display the menu for the party in the list
+ * @param partyId  unique id of the party
+ * @param sx  style object
+ * @returns 
+ */
 const PartyInListMenu = ({partyId, sx}: ActionIconProps) => {
     
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
