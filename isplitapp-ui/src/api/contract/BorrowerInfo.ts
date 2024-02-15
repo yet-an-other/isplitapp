@@ -7,5 +7,5 @@ export class BorrowerInfo {
 
     share: number = 0;
 
-    percentage: number = 0;
+    percent: number = 0;
 }
