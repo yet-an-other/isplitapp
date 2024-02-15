@@ -34,6 +34,10 @@
     <ItemGroup>
       <EmbeddedResource Include="SqlMigrations\InitDatabase-Up.sql" />
       <EmbeddedResource Include="SqlMigrations\InitDatabase-Down.sql" />
+      <None Remove="SqlMigrations\v1-Down.sql" />
+      <EmbeddedResource Include="SqlMigrations\v1-Down.sql" />
+      <None Remove="SqlMigrations\v1-Up.sql" />
+      <EmbeddedResource Include="SqlMigrations\v1-Up.sql" />
     </ItemGroup>
 
     <ItemGroup>

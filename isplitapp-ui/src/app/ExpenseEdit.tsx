@@ -1,5 +1,5 @@
 import { Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, FormGroup, Grid, InputAdornment, InputLabel, MenuItem, Paper, Select, Typography } from "@mui/material";
-import { AdaptiveInput, Fade, NumericFormatCustom } from "../controls/StyledControls";
+import { AdaptiveInput, Fade, FloatFormatCustom, IntFormatCustom } from "../controls/StyledControls";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { useEffect, useState } from "react";
 import { ExpensePayload } from "../api/contract/ExpensePayload";
@@ -58,8 +58,9 @@ export default function ExpenseEdit() {
 
         fetchExpense(expenseId)
             .then(e => {
-                setExpense(e);
-                setValidationResult(validatePayload(e));
+                let fixE = {...e, splitMode: e.splitMode ?? "Evenly" as SplitMode};
+                setExpense(fixE);
+                setValidationResult(validatePayload(fixE));
             })
             .catch(e=>{
                 console.log(e);
@@ -114,11 +115,11 @@ export default function ExpenseEdit() {
 
         const newBorrowers = expense.borrowers.map(b => {
             if (b.participantId === participantId) {
-                if (expense.splitMode === 'Share')
+                if (expense.splitMode === 'ByShare')
                     return { ...b, share: Math.trunc(Number.parseInt(value)) }
-                if (expense.splitMode === 'Percentage')
+                if (expense.splitMode === 'ByPercentage')
                     return { ...b, percentage: Number.parseInt(value) }
-                if (expense.splitMode === 'Amount')
+                if (expense.splitMode === 'ByAmount')
                     return { ...b, amount: Number.parseFloat(value) }
             }
             return b;
@@ -188,12 +189,12 @@ export default function ExpenseEdit() {
         const borrowers = expense.borrowers.map((b, i) => {
             return {
                 ...b,
-                share: mode === 'Share' ? 1 : 0,
-                percentage: mode === 'Percentage' 
+                share: mode === 'ByShare' ? 1 : 0,
+                percentage: mode === 'ByPercentage' 
                 ? Math.trunc(100 / expense.borrowers.length) 
                     + (i < 100 % expense.borrowers.length ? 1 : 0)
                 : 0,
-                amount: mode === 'Amount' 
+                amount: mode === 'ByAmount' 
                 ? fuAmount(
                     Math.trunc(muAmount(expense.amount) / expense.borrowers.length) 
                     + (i < muAmount(expense.amount) % expense.borrowers.length ? 1 : 0)
@@ -209,10 +210,10 @@ export default function ExpenseEdit() {
         if (!borrower)
             return 0;
 
-        if (expense.splitMode === 'Share') {
+        if (expense.splitMode === 'ByShare') {
             return borrower.share;
         }
-        if (expense.splitMode === 'Percentage') {
+        if (expense.splitMode === 'ByPercentage') {
             return borrower.percentage;
         }
         return borrower.amount;
@@ -254,7 +255,7 @@ export default function ExpenseEdit() {
                             name="amount"
                             onChange={e => handleOnChange(e.target)}
                             InputProps={{
-                                inputComponent: NumericFormatCustom as any,
+                                inputComponent: FloatFormatCustom as any,
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         { party.currency }
@@ -355,9 +356,9 @@ export default function ExpenseEdit() {
                                     onChange={e => handleOnChange({name: 'splitMode', value: e.target.value as SplitMode}) }
                                 >
                                     <MenuItem value={'Evenly'}>Evenly</MenuItem>
-                                    <MenuItem value={'Share'}>By shares</MenuItem>
-                                    <MenuItem value={'Percentage'}>By percentage</MenuItem>
-                                    <MenuItem value={'Amount'}>By amount</MenuItem>
+                                    <MenuItem value={'ByShare'}>By shares</MenuItem>
+                                    <MenuItem value={'ByPercentage'}>By percentage</MenuItem>
+                                    <MenuItem value={'ByAmount'}>By amount</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -387,12 +388,12 @@ export default function ExpenseEdit() {
                                         onChange={e => handleBorrowerChange(p.id, e.target.value)}  
                                         InputProps={{
                                             sx: { textAlign: "right", "& input": { textAlign: "right" }},
-                                            inputComponent: NumericFormatCustom as any,
-                                            endAdornment:  expense.splitMode !== 'Share' && (
+                                            inputComponent: (expense.splitMode === 'ByAmount' ? FloatFormatCustom : IntFormatCustom) as any,
+                                            endAdornment:  expense.splitMode !== 'ByShare' && (
                                                 <InputAdornment 
                                                     position="end" 
                                                     sx={{ backgroundColor: '#f7f7f7', py: '18px', px: 1, ml: .5, mr: -1.6}}>
-                                                    { expense.splitMode === 'Amount' ? party.currency: "%" }
+                                                    { expense.splitMode === 'ByAmount' ? party.currency: "%" }
                                                 </InputAdornment>
                                             )
                                         }}   
@@ -468,14 +469,22 @@ class ExpenseValidator {
             let isValid = false;
             isValid = Array.isArray(value) && value.length > 0
             !isValid && (this.borrowers.errorMessage = "At least one participant must be selected");
-            if (expense.splitMode === 'Percentage') {
+            if (expense.splitMode === 'ByPercentage') {
                 isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.percentage, 0) === 100
                 !isValid && (this.borrowers.errorMessage += "The sum of percentage must be 100%");
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.percentage >= 0)
+                !isValid && (this.borrowers.errorMessage += "Percentage must be non negative");
             }
-            if (expense.splitMode === 'Amount') {
+            if (expense.splitMode === 'ByAmount') {
                 isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.amount, 0) === expense.amount
                 !isValid && (this.borrowers.errorMessage += "The sum of amounts must be equal to the expense amount");
-            }  
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.amount >= 0)
+                !isValid && (this.borrowers.errorMessage += "Amount must be non negative");
+            }
+            if (expense.splitMode === 'ByShare') {
+                isValid = isValid && (value as BorrowerPayload[]).every(b => b.share >= 0)
+                !isValid && (this.borrowers.errorMessage += "Share must be non negative");
+            } 
             return isValid;
         }
     }

@@ -293,19 +293,11 @@ public static class ExpenseCommand
             MuAmount = expense.FuAmount.ToMuAmount(),
             Date = expense.Date,
             IsReimbursement = expense.IsReimbursement,
-            LenderId = expense.LenderId
+            LenderId = expense.LenderId,
+            SplitMode = expense.SplitMode
         });
 
-        await db.Borrowers.BulkCopyAsync(
-            expense.Borrowers
-                .Select((b, i) => new Borrower
-                {
-                    ExpenseId = expenseId, 
-                    ParticipantId = b.ParticipantId,
-                    MuAmount = (expense.FuAmount.ToMuAmount() / expense.Borrowers.Length)!
-                        + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1)
-                })
-        );
+        await InsertBorrowersAsync(expenseId, expense, db);
         await db.CommitTransactionAsync();
         
         return TypedResults.CreatedAtRoute(
@@ -338,22 +330,14 @@ public static class ExpenseCommand
             .Set(e => e.MuAmount, expense.FuAmount.ToMuAmount())
             .Set(e => e.Date, expense.Date)
             .Set(e => e.IsReimbursement, expense.IsReimbursement)
+            .Set(e => e.SplitMode, expense.SplitMode)
             .UpdateAsync();
 
         if (rows == 0)
             return TypedResults.NotFound();
 
         await db.Borrowers.Where(b => b.ExpenseId == expenseId).DeleteAsync();
-        await db.Borrowers.BulkCopyAsync(
-            expense.Borrowers
-                .Select((b, i) => new Borrower
-                {
-                    ExpenseId = expenseId!, 
-                    ParticipantId = b.ParticipantId,
-                    MuAmount = (expense.FuAmount.ToMuAmount() / expense.Borrowers.Length)!
-                               + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1)
-                })
-        );
+        await InsertBorrowersAsync(expenseId!, expense, db);
         await db.CommitTransactionAsync();
         
         return TypedResults.NoContent();
@@ -383,6 +367,7 @@ public static class ExpenseCommand
                 IsReimbursement = e.IsReimbursement,
                 Title = e.Title,
                 LenderId = e.LenderId,
+                SplitMode = e.SplitMode,
                 LenderName = db.Participants
                     .Where(p => p.Id == e.LenderId)
                     .Select(p => p.Name).Single(),
@@ -392,6 +377,8 @@ public static class ExpenseCommand
                     {
                         ParticipantId = b.ParticipantId,
                         FuAmount = b.MuAmount.ToFuAmount(),
+                        Share = b.Share,
+                        Percent = b.Percent,
                         ParticipantName = db.Participants
                             .Where(p => p.Id == b.ParticipantId)
                             .Select(p => p.Name)
@@ -430,6 +417,7 @@ public static class ExpenseCommand
                 IsReimbursement = e.IsReimbursement,
                 Title = e.Title,
                 LenderId = e.LenderId,
+                SplitMode = e.SplitMode,
                 LenderName = db.Participants
                     .Where(p => p.Id == e.LenderId)
                     .Select(p => p.Name).Single(),
@@ -439,6 +427,8 @@ public static class ExpenseCommand
                     {
                         ParticipantId = b.ParticipantId,
                         FuAmount = b.MuAmount.ToFuAmount(),
+                        Share = b.Share,
+                        Percent = b.Percent,
                         ParticipantName = db.Participants
                             .Where(p => p.Id == b.ParticipantId)
                             .Select(p => p.Name)
@@ -517,7 +507,7 @@ public static class ExpenseCommand
     /// <summary>
     /// Creates User/Party association
     /// </summary>
-    public static async Task UpsertUserPartyVisibility(string? userId, string partyId, ExpenseDb db)
+    private static async Task UpsertUserPartyVisibility(string? userId, string partyId, ExpenseDb db)
     {
         await db.UserParty
             .Merge()
@@ -529,6 +519,41 @@ public static class ExpenseCommand
             .OnTargetKey()
             .InsertWhenNotMatched(s=>s)
             .MergeAsync();                
+    }
+    
+    private static async Task InsertBorrowersAsync(string expenseId, ExpensePayload expense, ExpenseDb db)
+    {
+        int totalShares = expense.Borrowers.Sum(b => b.Share);
+        
+        long Evenly(int i) => (expense.FuAmount.ToMuAmount() / expense.Borrowers.Length)
+                               + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1);
+        
+        long ByShares(int i) => ((expense.FuAmount.ToMuAmount() / totalShares)
+                                + (expense.FuAmount.ToMuAmount() % totalShares <= i ? 0 : 1))
+                                * expense.Borrowers[i].Share;
+        
+        long ByPercentage(int i) => (expense.FuAmount.ToMuAmount() * expense.Borrowers[i].Percent) / 100;
+        
+        long ByAmount(int i) => expense.Borrowers[i].FuAmount.ToMuAmount();
+        
+        await db.Borrowers.BulkCopyAsync(
+            expense.Borrowers
+                .Select((b, i) => new Borrower
+                {
+                    ExpenseId = expenseId, 
+                    ParticipantId = b.ParticipantId,
+                    Share = b.Share,
+                    Percent = b.Percent,
+                    MuAmount = expense.SplitMode switch
+                    {
+                        SplitMode.Evenly => Evenly(i),
+                        SplitMode.ByShare => ByShares(i),
+                        SplitMode.ByPercentage => ByPercentage(i),
+                        SplitMode.ByAmount => ByAmount(i),
+                        _ => throw new ArgumentOutOfRangeException(nameof(SplitMode))
+                    }
+                })
+        );
     }
     
     /// <summary>
@@ -543,8 +568,8 @@ public static class ExpenseCommand
     
     private class RawBalanceEntry
     {
-        public string ParticipantId { get; set; } = default!;
-        public string ParticipantName { get; set; } = default!;
+        public string ParticipantId { get; init; } = default!;
+        public string ParticipantName { get; init; } = default!;
         public long MuAmount { get; set; }
     }
 
@@ -583,6 +608,4 @@ public static class ExpenseCommand
         }
         return reimbursements.ToArray();
     }
-
-
 }

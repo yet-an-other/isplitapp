@@ -12,4 +12,8 @@ public record BorrowerInfo
 
     [JsonPropertyName("amount")]
     public decimal FuAmount { get; init; } = 0;
+    
+    public int Share { get; init; } = 0;
+    
+    public int Percent { get; init; } = 0;
 }
