@@ -16,7 +16,7 @@ Here is an attempt to build a yet another one application that offers a free, st
 
 ## Current Status
 
-Fully functional v1 is available here: https://isplit.app \
+Fully functional v1 is available here: https://isplit.app 
 ### Features
   - [x] No ads, paywalls and registration
   - [x] Create/Edit groups
