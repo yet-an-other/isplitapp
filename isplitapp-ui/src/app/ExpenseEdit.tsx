@@ -363,9 +363,12 @@ export default function ExpenseEdit() {
                         </Grid>
 
                         <Grid item xs={12}>
-                            <Typography variant="caption" sx={{ display: isShowError && !validationResult.borrowers.isValid ? 'block' : 'none', color: 'error.main', mt: 2}}>
-                                {validationResult.borrowers.errorMessage}
-                            </Typography>
+                            <Box sx={{ display: isShowError && !validationResult.borrowers.isValid ? 'block' : 'none', mt: 2}}>
+                                {
+                                    validationResult.borrowers.errorMessages
+                                    .map((m, i) => <Typography key={i} variant="caption" component="div" sx={{ color: 'error.main' }} >{m}</Typography>)
+                                }
+                            </Box>
                         </Grid>
                     </Grid>
                     
@@ -463,27 +466,31 @@ class ExpenseValidator {
     }
     borrowers = {
         isValid: false,
-        errorMessage: "",
+        errorMessages: [""],
         validate: (expense: ExpensePayload, value: ValidatorValueType) => {
             let isValid = false;
+            let messages = [""];
             isValid = Array.isArray(value) && value.length > 0
-            !isValid && (this.borrowers.errorMessage = "At least one participant must be selected");
+            !isValid && (messages = messages.concat("At least one participant must be selected"));
             if (expense.splitMode === 'ByPercentage') {
-                isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.percent, 0) === 100
-                !isValid && (this.borrowers.errorMessage += "The sum of percents must be 100% ");
-                isValid = isValid && (value as BorrowerPayload[]).every(b => b.percent > 0)
-                !isValid && (this.borrowers.errorMessage += "Percent must be greater than 0");
+                isValid = (value as BorrowerPayload[]).reduce((acc, b) => acc + b.percent, 0) === 100
+                !isValid && (messages = messages.concat("The sum of percents must be 100% "));
+                let v = (value as BorrowerPayload[]).every(b => b.percent > 0);
+                !v && (messages = messages.concat("Percent must be greater than 0"));
+                isValid = isValid && v;
             }
             if (expense.splitMode === 'ByAmount') {
-                isValid = isValid && (value as BorrowerPayload[]).reduce((acc, b) => acc + b.amount, 0) === expense.amount
-                !isValid && (this.borrowers.errorMessage += "The sum of amounts must be equal to the expense amount");
-                isValid = isValid && (value as BorrowerPayload[]).every(b => b.amount > 0)
-                !isValid && (this.borrowers.errorMessage += "Amount must be non negative");
+                isValid = (value as BorrowerPayload[]).reduce((acc, b) => acc + b.amount, 0) === expense.amount
+                !isValid && (messages = messages.concat("The sum of amounts must be equal to the expense amount"));
+                let v = (value as BorrowerPayload[]).every(b => b.amount > 0);
+                !v && (messages = messages.concat("Amount must be greater than 0"));
+                isValid = isValid && v;
             }
             if (expense.splitMode === 'ByShare') {
-                isValid = isValid && (value as BorrowerPayload[]).every(b => b.share > 0)
-                !isValid && (this.borrowers.errorMessage += "Share must be non negative");
+                isValid = (value as BorrowerPayload[]).every(b => b.share > 0)
+                !isValid && (messages = messages.concat("Share must be greater than 0"));
             } 
+            this.borrowers.errorMessages = messages;
             return isValid;
         }
     }
