@@ -21,7 +21,7 @@ Fully functional v1 is available here: https://isplit.app \
   - [x] No ads, paywalls and registration
   - [x] Create/Edit groups
   - [x] Add/Edit expenses
-  - [x] Share expenses by simply send the link
+  - [x] Share expenses by simply send a link
   - [x] Split expenses unevenly
   - [x] All statistics and balance
   - [x] Precalculated reimbursements
