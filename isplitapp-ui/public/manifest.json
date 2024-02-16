@@ -5,17 +5,10 @@
     "icons": [
       {
         "src": "public-logo.svg",
-        "sizes": "any",
+        "sizes": "16x16 32x32 48x48 64x64 128x128 256x256 512x512",
         "type": "image/svg+xml",
         "purpose": "any"
-      },
-      {
-        "src": "logo512.png",
-        "sizes": "any",
-        "type": "image/svg+xml",
-        "purpose": "512x512"
-      }      
-
+      }
     ],
     "start_url": ".",
     "display": "standalone",
