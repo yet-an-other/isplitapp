@@ -94,6 +94,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+app.UseRouting();
+app.MapFallbackToFile("index.html");
+
 app.MapGet("/login", UserCommand.Login).WithName("Login");
 
 var partyApi = app.MapGroup("/parties");
@@ -134,12 +139,6 @@ app.UseStatusCodePages();
 app.UseHttpLogging();
 
 app.UseCors();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapFallbackToFile("index.html");
-app.MapFallbackToFile(".well-known/apple-app-site-association");
-app.MapFallbackToFile(".well-known/web-app-origin-association");
 
 // Run db migrations
 //
