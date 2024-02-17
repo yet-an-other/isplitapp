@@ -138,6 +138,8 @@ app.UseCors();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapFallbackToFile("index.html");
+app.MapFallbackToFile(".well-known/apple-app-site-association");
+app.MapFallbackToFile(".well-known/web-app-origin-association");
 
 // Run db migrations
 //
