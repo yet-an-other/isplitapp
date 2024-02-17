@@ -95,7 +95,11 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+    {
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/json"
+    });
 app.UseRouting();
 app.MapFallbackToFile("index.html");
 
