@@ -1,0 +1,19 @@
+{
+  "applinks": {
+      "details": [
+           {
+             "appIDs": [ "XRR68Q4FN7.app.isplit" ],
+             "paths": ["*", "/*"],
+             "components": [
+               {
+                  "/": "/*",
+                  "comment": "Matches any URL with a path that starts with / and instructs the system to open it as a universal link."
+               }
+             ]
+           }
+       ]
+   },
+   "webcredentials": {
+      "apps": [ "XRR68Q4FN7.app.isplit" ]
+   }
+}
