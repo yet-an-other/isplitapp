@@ -4,11 +4,23 @@
     "description": "iSplitApp is a user-friendly app that simplifies the process of sharing expenses, dividing costs, and keeping track of transactions. It also streamlines the reimbursement process for friends, family and party attendees.",
     "icons": [
       {
-        "src": "public-logo.svg",
-        "sizes": "16x16 32x32 48x48 64x64 128x128 256x256 512x512",
-        "type": "image/svg+xml",
+        "src": "logo64.png",
+        "sizes": "64x64",
+        "type": "image/png",
         "purpose": "any"
-      }
+      },
+      {
+        "src": "logo192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+      },
+      {
+        "src": "logo512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+      }            
     ],
     "start_url": ".",
     "display": "standalone",
