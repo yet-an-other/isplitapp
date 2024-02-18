@@ -1,7 +1,17 @@
 {
   "web_apps": [
     {
-      "web_app_identity": "https://isplit.app/"
+        "manifest": "https://isplit.app/manifest.json",
+        "details": {
+            "paths": ["/*"]
+        },
+        "name": "iSplitApp",
+        "web_app_identity": "https://isplit.app/",
+        "web_app_scope": "https://isplit.app/",
+        "web_app_url": "https://isplit.app/",
+        "web_app_type": "web_app",
+        "web_app_icon": "https://isplit.app/favicon.ico",
+        "web_app_description": "iSplitApp is a web app that allows you to split bills with friends and family."
     }
   ]
 }

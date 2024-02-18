@@ -94,6 +94,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseDefaultFiles();
+app.UseStaticFiles(new StaticFileOptions
+    {
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/json"
+    });
+app.UseRouting();
+app.MapFallbackToFile("index.html");
+
 app.MapGet("/login", UserCommand.Login).WithName("Login");
 
 var partyApi = app.MapGroup("/parties");
@@ -134,10 +143,6 @@ app.UseStatusCodePages();
 app.UseHttpLogging();
 
 app.UseCors();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapFallbackToFile("index.html");
 
 // Run db migrations
 //

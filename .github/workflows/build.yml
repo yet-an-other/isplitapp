@@ -2,9 +2,12 @@ name: Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "stage" ]
   pull_request:
     branches: [ "main" ]
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 jobs:
   build-all:
@@ -24,6 +27,7 @@ jobs:
       run: |
         echo "hash=$(echo "${{github.sha}}" | cut -c 1-7)" >> $GITHUB_ENV
         echo "version=1.0.${{github.run_number}}" >> $GITHUB_ENV
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
 
     - name: generate semver
       uses: paulhatch/semantic-version@v5.1.0
@@ -66,7 +70,7 @@ jobs:
         tags: ilaverlin/isplitapp-full:latest, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}
         build-args: |
           BUILD_ENV=production
-          VERSION=${{ steps.semver.outputs.version }}
+          VERSION=${{ steps.semver.outputs.version }}${{ env.BRANCH_NAME != 'main' && format('-{0}', env.BRANCH_NAME) }}
 
 
     - name: Build and push dev
