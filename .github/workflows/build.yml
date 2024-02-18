@@ -70,7 +70,7 @@ jobs:
         tags: ilaverlin/isplitapp-full:latest, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}
         build-args: |
           BUILD_ENV=production
-          VERSION=${{ steps.semver.outputs.version }}${{ env.BRANCH_NAME != 'main' && format('-{0}', env.BRANCH_NAME) }}
+          VERSION=${{ steps.semver.outputs.version }}${{ env.BRANCH_NAME != 'main' && format('-{0}', env.BRANCH_NAME) || '' }}
 
 
     - name: Build and push dev
