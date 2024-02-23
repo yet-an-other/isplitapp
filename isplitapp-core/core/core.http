@@ -182,3 +182,28 @@ Content-Type: application/json
     { "participantId": "CMPrdJbTKcTCxtXf" }
   ]
 }
+
+
+
+###
+
+GET https://isplit.app/.well-known/apple-app-site-association
+Accept: application/json
+
+
+###
+
+GET https://isplit.app/.well-known/web-app-origin-association
+
+
+
+###
+
+GET https://isplit.app/manifest.json
+Accept: application/json
+
+
+###
+
+GET http://localhost:5096/apple-app-site-association
+Accept: application/json
