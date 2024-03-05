@@ -87,8 +87,9 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy
         .SetIsOriginAllowed(origin => CorsUtil.IsValidOrigin().IsMatch(origin))
         .AllowCredentials()
-        .AllowAnyHeader()
         .AllowAnyMethod()
+        .AllowAnyHeader()        
+        .WithExposedHeaders("X-Created-Id")
         .SetPreflightMaxAge(TimeSpan.FromDays(20)));
 });
 
@@ -122,6 +123,8 @@ expenseApi.MapGet("/{expenseId}", ExpenseCommand.ExpenseGet).WithName("GetExpens
 expenseApi.MapDelete("/{expenseId}", ExpenseCommand.ExpenseDelete).WithName("DeleteExpense");
 
 
+app.UseCors();
+
 // Add custom header
 //
 app.Use(async (ctx, next) =>
@@ -129,7 +132,6 @@ app.Use(async (ctx, next) =>
     ctx.Response.Headers.TryAdd("X-App-Version", version);
     await next();
 });
-
 
 // Use NSwag instead of Swashbuckle as NSwag is supporting AOT
 //
@@ -141,8 +143,6 @@ app.UseSwaggerUi();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseHttpLogging();
-
-app.UseCors();
 
 // Run db migrations
 //
