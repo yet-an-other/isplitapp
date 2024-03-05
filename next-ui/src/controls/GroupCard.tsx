@@ -1,15 +1,23 @@
 import { Avatar, Badge, Card, CardBody, CardFooter, CardHeader, Tooltip } from "@nextui-org/react"
 import { PartyInfo } from "../api/contract/PartyInfo"
 import { CashIcon, TransactionsIcon, UsersIcon } from "../icons"
+import { useNavigate } from "react-router-dom"
 
 interface GroupCardProps {
     party: PartyInfo
+    disablePress?: boolean
     children: React.ReactNode
 }
 
-export const GroupCard = ({party, children}: GroupCardProps) => {
+export const GroupCard = ({party, children, disablePress}: GroupCardProps) => {
+    const navigate = useNavigate();
     return (
-    <Card className="min-h-[120px] w-full">
+    <Card 
+        className="min-h-[120px] w-full" 
+        isPressable = {!disablePress}
+        as = "form"
+        onPress={() => navigate(`/groups/${party.id}`)}
+    >
         <CardHeader className="block items-start">
 
             <div className="float-left mr-4">
@@ -27,7 +35,7 @@ export const GroupCard = ({party, children}: GroupCardProps) => {
         <CardBody className="flex flex-row">
             <Tooltip content="Total expenses">
                 <div className="whitespace-nowrap mt-auto">
-                    <span className="text-xl font-bold font-mono">{party.totalExpenses}</span>
+                    <span className="text-xl font-bold font-mono">{party.totalExpenses.toFixed(2)}</span>
                     <span className="text-dimmed ml-2 text-xl">{party.currency}</span>
                 </div>
             </Tooltip>
@@ -39,7 +47,7 @@ export const GroupCard = ({party, children}: GroupCardProps) => {
                 </Tooltip>
                 <Tooltip content="Outstanding balance">
                     <div className="whitespace-nowrap flex flex-row text-sm leading-none mt-1 font-mono">
-                        <CashIcon className="h-4 w-4 mr-2" /> {party.outstandingBalance} <span className="font-sans text-dimmed ml-1">{party.currency}</span>
+                        <CashIcon className="h-4 w-4 mr-2" /> {party.outstandingBalance.toFixed(2)} <span className="font-sans text-dimmed ml-1">{party.currency}</span>
                     </div>
                 </Tooltip>
             </div>

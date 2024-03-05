@@ -6,6 +6,9 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { Home } from './pages/Home'
 import { GroupList } from './pages/GroupList'
 import { GroupEdit } from './pages/GroupEdit'
+import { Group } from './pages/Group'
+import { ExpenseList } from './pages/ExpenseList'
+import { ExpenseEdit } from './pages/ExpenseEdit'
 
 
 const router = createBrowserRouter([
@@ -16,6 +19,13 @@ const router = createBrowserRouter([
       { path: '/', element: <Home /> },
       { path: '/groups', element: <GroupList /> },
       { path: '/groups/create', element: <GroupEdit /> },
+      { path: '/groups/:groupId/edit', element: <GroupEdit /> },
+      { path: '/groups/:groupId', element: <Group />, children: [
+        { index: true, element: <ExpenseList /> },
+        { path: 'expenses', element: <ExpenseList /> },
+        { path: 'expenses/create', element: <ExpenseEdit /> },
+      ]},
+      { path: '/expenses/:expenseId/edit', element: <ExpenseEdit /> },
     ],
   },
 ]);

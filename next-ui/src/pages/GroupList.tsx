@@ -1,4 +1,4 @@
-import { Button, Card, Link, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, Skeleton, useDisclosure } from "@nextui-org/react";
+import { Button, Link, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@nextui-org/react";
 import useSWR, { mutate } from "swr";
 import { fetcher, unfollowParty } from "../api/expenseApi";
 import { PartyInfo } from "../api/contract/PartyInfo";
@@ -8,7 +8,9 @@ import { GroupCard } from "../controls/GroupCard";
 import { useState } from "react";
 import { shareLink } from "../utils/shareLink";
 import { useNavigate } from "react-router-dom";
-
+import { useAlerts } from "../utils/useAlerts";
+import { CardSkeleton } from "../controls/CardSkeleton";
+import { ErrorCard } from "../controls/ErrorCard";
 
 export function GroupList() {
 
@@ -21,17 +23,12 @@ export function GroupList() {
                 Recently visited groups
             </div>
 
-            {
-                error && <div>Error: {error.message}</div>
-            }
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
-                {
-                    isLoading 
-                    ? <CardSkeleton/>
-                    : !parties || parties.length === 0 
-                        ? <EmptyList /> 
-                        : parties.map(party => 
+                { error && <ErrorCard error={error}/>}
+                { isLoading && <CardSkeleton/> }
+                { !error && !isLoading && (!parties || parties.length === 0) && <EmptyList /> }
+                { !error && !isLoading && !!parties && parties.length > 0 &&
+                        parties.map(party => 
                             <GroupCard key={party.id} party={party} > 
                                 <GroupMenu party={party} /> 
                             </GroupCard>
@@ -42,6 +39,7 @@ export function GroupList() {
         </div>
     )
 }
+
 
 /**
  * EmptyList component is used to display the empty list message
@@ -55,41 +53,25 @@ const EmptyList = () => {
     )
 }
 
-const CardSkeleton = () => {
-    return (
-        <Card className="min-h-[120px] w-full flex flex-col">
-            <div className="max-w-[300px] w-full flex flex-row items-center gap-3 mt-4 ml-3">
-                <div>
-                    <Skeleton className="flex rounded-full w-12 h-12"/>
-                </div>  
-                <div className="w-full flex flex-col gap-2">
-                    <Skeleton className="h-3 w-3/5 rounded-lg"/>
-                    <Skeleton className="h-3 w-9/10 rounded-lg"/>
-                    <Skeleton className="h-3 w-7/8 rounded-lg"/>
-                </div>
-            </div>
-            <div className="flex flex-col justify-between gap-2 px-4 my-4">
-                <Skeleton className="h-3 w-full rounded-lg"/>
-                <Skeleton className="h-3 w-full rounded-lg"/>
-            </div>
-      </Card>
-    );
-  }
 
 
+
+/**
+ * The menu for the group card with share and unfollow options
+ * @param party party info
+ */
 const GroupMenu = ({ party }: { party: PartyInfo }) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const confirmUnfollow = useDisclosure();
+    const { alertSuccess, alertError } = useAlerts();
 
     const handleAction = async (key: React.Key ) => {
 
         setIsOpen(false);
 
-        if (key === 'share' && await shareLink(party.id)) {
-                alert("The link has been successfully copied");
-                //successAlert("The link has been successfully copied")
-        }
+        key === 'share' && await shareLink(party.id) &&
+            alertSuccess("The link has been successfully copied");
 
         key === 'unfollow' && confirmUnfollow.onOpen();
 
@@ -101,6 +83,7 @@ const GroupMenu = ({ party }: { party: PartyInfo }) => {
             }
             catch(e){
                 console.error(`Error unfollowing the group '${party.id}' ${(e as Error).message}`);
+                alertError("Oops, something went wrong! Unable to unfollow the group. Please try again later.");
             }
         } 
     }
@@ -170,6 +153,9 @@ const GroupMenu = ({ party }: { party: PartyInfo }) => {
 }
 
 
+/**
+ * The main menu for the group list page with create and add by url options
+ */
 const ListMenu = () => {
 
     const [isOpen, setIsOpen] = useState(false);
@@ -177,9 +163,7 @@ const ListMenu = () => {
 
     const handleAction = (key: React.Key ) => {
         setIsOpen(false);
-        if (key === 'create') {
-            navigate('/groups/create');
-        }
+        key === 'create' && navigate('/groups/create');
     }    
 
     return (

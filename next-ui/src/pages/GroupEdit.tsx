@@ -4,6 +4,7 @@ import { PartyPayload, PartyPayloadSchema } from "../api/contract/PartyPayload";
 import { useState } from "react";
 import { ZodError, z } from "zod";
 import { createParty } from "../api/expenseApi";
+import { useNavigate } from "react-router-dom";
 
 
 export function GroupEdit() {
@@ -11,10 +12,12 @@ export function GroupEdit() {
     const initParty = new PartyPayload();
     initParty.participants = [{name: "Alice", id: "", canDelete: true}, {name: "Bob", id: "", canDelete: true}]
     const [party, setParty] = useState<PartyPayload>(initParty);
+    const navigate = useNavigate();
 
     const [validationResult, setValidationResult] = useState<{ success: true; data: z.infer<typeof PartyPayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
     const [isParticipantFocus, setParticipantFocus] = useState(false);
+    
 
 
     const handleGroupChange = (event: {name: string, value: string}) => {
@@ -51,7 +54,8 @@ export function GroupEdit() {
         setValidationResult(result);
         setIsShowErrors(true);
         if (result.success) {
-            await createParty(party);
+            const partyId = await createParty(party);
+            navigate(`/groups/${partyId}/expenses`);
         }
     }
 

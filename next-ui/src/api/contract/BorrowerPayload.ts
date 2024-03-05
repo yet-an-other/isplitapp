@@ -1,9 +1,18 @@
+import { z } from "zod";
+
 export class BorrowerPayload {
-    participantId: string = ""
+    participantId = ""
 
-    amount: number = 0;
+    amount = 0;
 
-    share: number = 0;
+    share = 0;
 
-    percent: number = 0;
+    percent = 0;
 }
+
+export const BorrowerPayloadSchema = z.object({
+    participantId: z.string().min(1, { message: "Must be not empty" }),
+    amount: z.number(),
+    share: z.number().int(),
+    percent: z.number().int()
+})

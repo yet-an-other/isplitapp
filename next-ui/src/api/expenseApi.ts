@@ -1,20 +1,15 @@
 import { ensureUserId } from "./userApi";
-import { PartyInfo } from "./contract/PartyInfo";
 import { PartyPayload } from "./contract/PartyPayload";
 import { ProblemError } from "./contract/ProblemError";
-import { ExpenseInfo } from "./contract/ExpenseInfo";
 import { ExpensePayload } from "./contract/ExpensePayload";
-import { BalanceInfo } from "./contract/BalanceInfo";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 /**
- * Retrieve party list from the server
- * @returns {PartyInfo[]}
+ * Retrieve object or list of objects from the server as a json
+ * @returns json
  */
 export async function fetcher(key: string) {
-    //return await fetchResult<undefined, PartyInfo[]>('GET', key)
-
     const userId = await ensureUserId();
 
     const requestOptions = {
@@ -35,16 +30,17 @@ export async function fetcher(key: string) {
 /**
  * Creates new party
  * @param partyPayload new party data
+ * @returns location
  */
 export async function createParty(partyPayload: PartyPayload) {
     const endpoint = "/parties"
-    await sendBody('POST', endpoint, partyPayload);
+    const location = await sendRequest('POST', endpoint, partyPayload);
+    const partyId = location?.match('/([a-zA-Z]{16}/?$)')?.[0]
+
+    console.log(location);
+    console.log(partyId);
+    return partyId
 }
-
-
-
-
-
 
 /**
  * Updates existing party party
@@ -52,62 +48,28 @@ export async function createParty(partyPayload: PartyPayload) {
  */
 export async function updateParty(partyId: string, partyPayload: PartyPayload) {
     const endpoint = `/parties/${partyId}`;
-    return await sendBody<PartyPayload>('PUT', endpoint, partyPayload);
-}
-
-/**
- * Retrieve party from the server
- * @param partyId Unique party id
- * @returns {PartyInfo}
- */
-export async function fetchParty(partyId: string) {
-    const endpoint = `/parties/${partyId}`;
-    return await fetchResult<undefined, PartyInfo>('GET', endpoint, undefined);
-}
-
-/**
- * Fetche the list of all expenses in the party
- * @param partyId 
- * @returns {ExpenseInfo[]}
- */
-export async function fetchExpenseList(partyId: string) {
-    const endpoint = `/parties/${partyId}/expenses`;
-    return await fetchResult<undefined, ExpenseInfo[]>('GET', endpoint, undefined);
+    await sendRequest('PUT', endpoint, partyPayload);
 }
 
 /**
  * Add new expense
- * @param partyPayload new party data
+ * @param partyId party id
+ * @param expensePayload new party data
  */
 export async function createExpense(partyId: string, expensePayload: ExpensePayload) {
     const endpoint = `/parties/${partyId}/expenses`
-    await sendBody('POST', endpoint, expensePayload);
+    await sendRequest('POST', endpoint, expensePayload);
 }
 
-/**
- * Get expense
- */
-export async function fetchExpense(expenseId: string) {
-    const endpoint = `/expenses/${expenseId}`
-    return await fetchResult<undefined, ExpenseInfo>('GET', endpoint, undefined);
-}
 
 /**
- * Add new expense
+ * Update expense
+ * @param expenseId expense id
  * @param partyPayload new party data
  */
 export async function updateExpense(expenseId: string, expensePayload: ExpensePayload) {
     const endpoint = `/expenses/${expenseId}`
-    await sendBody('PUT', endpoint, expensePayload);
-}
-
-
-/**
- * Get Balance
- */
-export async function fetchBalance(partyId: string) {
-    const endpoint = `/parties/${partyId}/balance`
-    return await fetchResult<undefined, BalanceInfo>('GET', endpoint, undefined);
+    await sendRequest('PUT', endpoint, expensePayload);
 }
 
 
@@ -116,7 +78,7 @@ export async function fetchBalance(partyId: string) {
  */
 export async function unfollowParty(partyId: string) {
     const endpoint = `/parties/${partyId}`
-    return await sendBody<undefined>('DELETE', endpoint, undefined);
+    return await sendRequest('DELETE', endpoint);
 }
 
 /**
@@ -124,14 +86,14 @@ export async function unfollowParty(partyId: string) {
  */
 export async function deleteExpense(expenseId: string) {
     const endpoint = `/expenses/${expenseId}`
-    return await sendBody<undefined>('DELETE', endpoint, undefined);
+    return await sendRequest('DELETE', endpoint);
 }
 
 
 /**
  * Allowed Http methods
  */
-type HttpMethod = 'GET'|'POST'|'PUT'|'DELETE';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 
 /**
@@ -141,7 +103,7 @@ type HttpMethod = 'GET'|'POST'|'PUT'|'DELETE';
  * @param body request body or undefined
  * @returns 
  */
-async function commonFetch<TBody>(method:  HttpMethod, endpoint: string, body: TBody): Promise<Response> {
+async function sendRequest<TBody>(method:  HttpMethod, endpoint: string, body?: TBody): Promise<string | null> {
     const userId = await ensureUserId();
 
     const requestOptions = {
@@ -157,15 +119,8 @@ async function commonFetch<TBody>(method:  HttpMethod, endpoint: string, body: T
     if (!response.ok)
         throw new ProblemError(await response.json())
 
-    return response;
-}
+    console.log(...response.headers);
 
-async function fetchResult<TBody, TResult>(method:  HttpMethod, endpoint: string, body: TBody): Promise<TResult> {
-    const result = await commonFetch(method, endpoint, body)
-    return await result.json() as TResult;
-}
-
-async function sendBody<TBody>(method:  HttpMethod, endpoint: string, body: TBody) {
-    await commonFetch(method, endpoint, body)
-    return;
+    const location = response.headers.get("Location");
+    return location;
 }
