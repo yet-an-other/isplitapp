@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
@@ -6,6 +7,7 @@ using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -53,12 +55,11 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Participants =[ new ParticipantPayload{Name="test-p1"}, new ParticipantPayload(){Name="test-p2"}]
         };
         
-        
         // Act
         //
         var userId = IdUtil.NewId();
         var result = await ExpenseCommand.PartyCreate(
-            userId, party, new GenericValidator(_serviceProvider), _db);
+            userId, party, new GenericValidator(_serviceProvider), null, _db);
         
         
         // Assert
