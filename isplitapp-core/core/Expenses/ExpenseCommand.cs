@@ -22,11 +22,13 @@ public static class ExpenseCommand
     /// <param name="party">A Party description</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
+    /// <param name="httpContext">DataContext object</param>
     /// <returns>Http response 201 in case of success creation or set of validation errors</returns>
-    public static async Task<Results<CreatedAtRoute, ValidationProblem>> PartyCreate(
+    public static async Task<Results<CreatedAtRoute<CreatedPartyInfo>, ValidationProblem>> PartyCreate(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
         PartyPayload party,
         GenericValidator validator,
+        HttpContext? httpContext,
         ExpenseDb db)
     {
         if (!validator.IsValid(userId, party, out var validationResult))
@@ -54,9 +56,13 @@ public static class ExpenseCommand
         await UpsertUserPartyVisibility(userId, partyId, db);
         await db.CommitTransactionAsync();
         
+        httpContext?.Response.Headers.TryAdd("X-Created-Id", partyId);
+        
         return TypedResults.CreatedAtRoute(
-            "GetParty", 
+            new CreatedPartyInfo(partyId),
+            "GetParty",
             new RouteValueDictionary([new KeyValuePair<string, string>("partyId", partyId)]));
+
     }
 
     /// <summary>
