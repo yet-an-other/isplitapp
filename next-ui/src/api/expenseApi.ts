@@ -34,11 +34,7 @@ export async function fetcher(key: string) {
  */
 export async function createParty(partyPayload: PartyPayload) {
     const endpoint = "/parties"
-    const location = await sendRequest('POST', endpoint, partyPayload);
-    const partyId = location?.match('/([a-zA-Z]{16}/?$)')?.[0]
-
-    console.log(location);
-    console.log(partyId);
+    const partyId = await sendRequest('POST', endpoint, partyPayload);
     return partyId
 }
 
@@ -119,8 +115,5 @@ async function sendRequest<TBody>(method:  HttpMethod, endpoint: string, body?: 
     if (!response.ok)
         throw new ProblemError(await response.json())
 
-    console.log(...response.headers);
-
-    const location = response.headers.get("Location");
-    return location;
+    return response.headers.get("x-created-id");
 }

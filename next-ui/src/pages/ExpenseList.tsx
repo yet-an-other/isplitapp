@@ -7,7 +7,7 @@ import { ProblemError } from "../api/contract/ProblemError";
 import { fetcher } from "../api/expenseApi";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { ReimbursementIcon, SpendIcon } from "../icons";
+import { PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
 
 export function ExpenseList() {
   
@@ -16,22 +16,24 @@ export function ExpenseList() {
     const navigate = useNavigate();
 
   return (
-    
     <div className="mt-4 w-full">
 
-        <div className="flex flex-row">
-            <h1 className="text-2xl">Expenses</h1>
-            <Button size="sm" variant="solid" onPress={() => navigate(`/groups/${group.id}/expenses/create`)} color="primary" className="ml-auto">
-                Add
+        <div className="flex w-full">
+            <Button 
+                isIconOnly
+                size="sm" 
+                variant="solid"
+                color="primary" 
+                className="ml-auto my-2" 
+                onPress={() => navigate(`/groups/${group.id}/expenses/create`)} 
+            >
+                <PlusIcon className="h-7 w-7 stroke-[3px]" />
             </Button>
         </div>
-        <div className="flex flex-row justify-between text-dimmed text-sm mb-6">
-            Explore the group&apos;s expenses and money transfers here
-        </div>        
         { error && <ErrorCard error={error}/>}
         { isLoading && <CardSkeleton/> }
         { !error && !isLoading && (!expenses || expenses.length === 0) && <EmptyList groupId={group.id}/> }
-        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses}/> }        
+        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses}/> }
     </div>
   );
 }
@@ -41,22 +43,22 @@ export function ExpenseList() {
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
     return (
-        <div className="text-dimmed top-[50%]">
-                It seems you have not added any expense yet... 
-                Start with <Link href={`/groups/${groupId}/expenses/create`} >add</Link> the first expense. 
+        <div className="absolute text-dimmed top-[60%]">
+            It seems you have not added any expense yet... 
+            Start with <Link href={`/groups/${groupId}/expenses/create`} >add</Link> the first expense. 
         </div>
     )
 }
 
 const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]}) => {
     return (
-        <Listbox label="expenses">
+        <Listbox label="expenses" className="p-0">
             {expenses.map(expense => 
                 <ListboxItem 
                     key={expense.id} 
                     className="border-1 my-1"
                     textValue={expense.title}
-                    href={`/expenses/${expense.id}/edit`}
+                    href={`/groups/${group.id}/expenses/${expense.id}/edit`}
                 >
                     <div className="flex flex-row items-center">
                         {expense.isReimbursement 

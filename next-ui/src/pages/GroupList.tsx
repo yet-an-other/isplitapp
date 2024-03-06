@@ -19,7 +19,7 @@ export function GroupList() {
     return (
         <div className="flex flex-col w-full px-4">
             <h1 className="text-2xl ">Groups</h1>
-            <div className="flex flex-row justify-between text-dimmed w-full">
+            <div className="flex flex-row justify-between text-sm text-dimmed w-full">
                 Recently visited groups
             </div>
 
@@ -46,15 +46,12 @@ export function GroupList() {
  */
 const EmptyList = () => {
     return (
-        <div className="text-dimmed">
-                It seems you have not visited any group yet... <br/> 
-                You may <Link href="/groups/create" >create a new group</Link> or ask a friend to send you the link to an existing one. 
+        <div className="absolute top-[50%] text-dimmed">
+            It seems you have not visited any group yet... <br/> 
+            You may <Link href="/groups/create" >create a new group</Link> or ask a friend to send you the link to an existing one. 
         </div>
     )
 }
-
-
-
 
 /**
  * The menu for the group card with share and unfollow options

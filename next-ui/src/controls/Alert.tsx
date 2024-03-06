@@ -1,4 +1,5 @@
 import { ReactNode, useEffect } from "react"
+import { twMerge } from "tailwind-merge"
 
 export interface AlertProps {
     id?: string
@@ -25,16 +26,16 @@ export const Alert = ({ message = '', severity = 'info', timeout = 0, handleDism
   }
 
   return message?.length && (
-    <div className={classNames[severity] + " rounded-b px-4 py-3 mb-4 shadow-md pointer-events-auto"} role="alert">
+    <div className={twMerge("rounded-b px-4 py-3 mb-4 shadow-md pointer-events-auto", classNames[severity])} role="alert">
       <div className="flex">
         <div className="py-1">
-          <svg className={"fill-current h-6 w-6 mr-4 " + svgFillColors[severity]} viewBox="0 0 24 24">
+          <svg className={twMerge("fill-current h-6 w-6 mr-4 ", svgFillColors[severity])} viewBox="0 0 24 24">
             <path d={svgPaths[severity]} />
           </svg>
         </div>
         <div>
-          <p className="font-bold">{severity.toUpperCase()}</p>
-          <p className="text-sm">{message}</p>
+          <p className={"font-bold"}>{severity.toUpperCase()}</p>
+          <p className={"text-sm"}>{message}</p>
         </div>
         <div className="ml-auto">
             {handleDismiss && (
@@ -59,10 +60,10 @@ export const AlertsWrapper = ({ children }: {children: ReactNode}) => {
 }
 
 const classNames = {
-    info: 'bg-blue-100 border-blue-500 text-blue-700',
-    success: 'bg-green-100 border-green-500 text-green-700',
-    warning: 'bg-yellow-100 border-yellow-500 text-yellow-700',
-    error: 'bg-red-100 border-red-500 text-red-700',
+    info: 'bg-blue-50 border-blue-500 text-blue-700',
+    success: 'bg-green-50 border-green-500 text-green-700',
+    warning: 'bg-yellow-50 border-yellow-500 text-yellow-700',
+    error: 'bg-red-50 border-red-500 text-red-700',
 }
   
 const svgPaths = {

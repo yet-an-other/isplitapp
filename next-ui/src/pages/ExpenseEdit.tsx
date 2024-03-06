@@ -1,21 +1,25 @@
-import { Button, Checkbox, CheckboxGroup, Input, Select, SelectItem } from "@nextui-org/react";
-import { useNavigate, useOutletContext, useSearchParams } from "react-router-dom";
+import { Button, Checkbox, CheckboxGroup, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, useDisclosure } from "@nextui-org/react";
+import { useNavigate, useOutletContext, useParams, useSearchParams } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { SplitMode } from "../api/contract/SplitMode";
 import { ExpensePayload, ExpensePayloadSchema } from "../api/contract/ExpensePayload";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ParticipantInfo } from "../api/contract/ParticipantInfo";
 import { NumericFormat } from "react-number-format";
 import { ZodError, z } from "zod";
-import { createExpense } from "../api/expenseApi";
+import { createExpense, deleteExpense, fetcher, updateExpense } from "../api/expenseApi";
 import { mutate } from "swr";
+import { ExpenseInfo } from "../api/contract/ExpenseInfo";
+import { ProblemError } from "../api/contract/ProblemError";
+import useSWR from "swr";
+import { ErrorCard } from "../controls/ErrorCard";
+import { CardSkeleton } from "../controls/CardSkeleton";
+import { useAlerts } from "../utils/useAlerts";
 
-
-type IDictionary = Record<string, string>;
 
 function useQueryParams() {
     const [searchParams] = useSearchParams();
-    const params = {} as IDictionary;
+    const params = {} as Record<string, string>;
     searchParams.forEach((v,k) =>  {
         params[k] = v 
     })
@@ -23,38 +27,67 @@ function useQueryParams() {
     return params
 }
 
-export function ExpenseEdit () {
+export function ExpenseEdit() {
 
     const group = useOutletContext<PartyInfo>();
-    const navigate = useNavigate();
+    const { expenseId } = useParams();
 
     const { title, lenderId, borrowerId, amount, isReimbursement } = useQueryParams();
-    const paramsExpens = {
+    const paramsExpense = {
         title: title ?? "",
         borrowers: borrowerId 
             ? [{participantId: borrowerId, amount: 0, share: 1, percent: 0}]
             : group.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percent: 0}}),
-        lenderId: lenderId,// ?? group.participants[0].id,
+        lenderId: lenderId ?? group.participants[0].id,
         amount: Number.parseFloat(amount ?? "0"),
         isReimbursement: Boolean(JSON.parse(isReimbursement ?? "false")),
         date: new Date(Date.now()),
         splitMode: "Evenly" as SplitMode
     }
+
+    const [expense, setExpense] = useState<ExpensePayload>(paramsExpense);
+    const {data: fetchedExpense, error, isLoading } = useSWR<ExpenseInfo, ProblemError>(
+        expenseId ? `/expenses/${expenseId}` : null, 
+        fetcher
+    );
+    useEffect(() => { !!fetchedExpense && setExpense(fetchedExpense) }, [fetchedExpense]);
+
+    if (expenseId && error)
+        return (<ErrorCard error={error} />)
+
+    if (expenseId && isLoading)
+        return (<CardSkeleton />)
+
+    return <ExpenseEditForm group={group} expenseId={expenseId} defaultExpense={expense} />
+}
+
+
+function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInfo, expenseId: string | undefined, defaultExpense: ExpensePayload}) {
+
+    const navigate = useNavigate();
+    const confirm = useDisclosure();
+    const alertError = useAlerts().alertError;
+
+    const [expense, setExpense] = useState<ExpensePayload>(defaultExpense);
+    useEffect(() => setExpense(defaultExpense),[defaultExpense]);
     
-    const [expense, setExpense] = useState<ExpensePayload>(paramsExpens);
     const [validationResult, setValidationResult] = 
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
 
-        let typedValue: string | boolean | string[] | number = value;
+        let typedValue: string | boolean | string[] | Date | number = value;
         let borrowers = [...expense.borrowers];
 
         if (name === 'amount') {
             typedValue = (value.startsWith('0') && value.charAt(1)?.match("[1-9]"))
                 ? Number.parseFloat(value.slice(1))
                 : Number.parseFloat(value);
+        }
+
+        if (name === 'date') {
+            typedValue = new Date(value)
         }
 
         if (name === 'isReimbursement') {
@@ -153,8 +186,32 @@ export function ExpenseEdit () {
         return expense.borrowers.findIndex(b => b.participantId === participantId);
     }, [expense.borrowers])
 
-    const handleDeleteExpense = () => {
-        // await deleteExpense(expense.id);
+    const handleSelectionToggle = (mode: "all" | "none") => {
+        const newExpense = mode === 'all' 
+            ? { ...expense, borrowers: group.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percent: 0}}) }
+            : { ...expense, borrowers: [] }
+        setExpense(newExpense);
+        setValidationResult(ExpensePayloadSchema.safeParse(newExpense));
+    }
+
+    const isAllSelected = () => expense.borrowers.length === group.participants.length;
+    const isNoneSelected = () => expense.borrowers.length === 0;
+
+    const handleDeleteExpense = async (isConfirmed = false) => {
+        if (!isConfirmed) {
+            confirm.onOpen();
+            return;
+        }
+        if (isConfirmed && expenseId) {
+            try {
+                await deleteExpense(expenseId);
+                await mutate(`/parties/${group.id}`);
+                navigate(`/groups/${group.id}/expenses`);
+            }
+            catch(e) {
+                alertError("Failed to delete the expense. Please try again later.")
+            }
+        }
     }
 
     const handleUpdateExpense = async () => {
@@ -162,14 +219,49 @@ export function ExpenseEdit () {
         setValidationResult(result);
         setIsShowErrors(true);
         if (result.success) {
-            await createExpense(group.id, expense);
-            await mutate(`/parties/${group.id}`);
-            navigate(`/groups/${group.id}/expenses`);
+            try {
+                expenseId 
+                    ? await updateExpense(expenseId, expense)
+                    : await createExpense(group.id, expense);
+                await mutate(`/parties/${group.id}`);
+                navigate(`/groups/${group.id}/expenses`);
+            }
+            catch(e) {
+                alertError("Failed to save the expense. Please try again later.")
+            }
         }
     }
 
     return (
         <div className="mt-4">
+
+            <Modal 
+                placement="top" 
+                isOpen={confirm.isOpen} 
+                onOpenChange={confirm.onOpenChange} 
+                size="xs" 
+                backdrop="blur"
+                disableAnimation
+            >
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">Delete Expense?</ModalHeader>
+                    <ModalBody>
+                        <p className="text-dimmed">
+                            This action irreversible. Are you sure you want to delete the expense?
+                        </p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="default" variant="flat" onPress={confirm.onClose}>
+                            Cancel
+                        </Button>
+                        <Button color="danger" variant="flat" onPress={() => void handleDeleteExpense(true)}>
+                            Delete
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+
             <h1 className="text-2xl">Expense Info</h1>
             <div className="text-sm text-dimmed">Simply fill who and why spent the money</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full">
@@ -228,7 +320,7 @@ export function ExpenseEdit () {
                         description: "text-dimmed",
                         value: "text-[16px]"
                     }}
-                    value={expense.lenderId}
+                    selectedKeys={[expense.lenderId]}
                     onChange={e => handleOnChange({name: "lenderId", value: e.target.value})}
                     isInvalid={!!fieldError("lenderId")}
                     errorMessage={fieldError("lenderId")}
@@ -261,14 +353,14 @@ export function ExpenseEdit () {
 
                 <Checkbox
                     size="md"
-                    checked={expense.isReimbursement}
+                    isSelected={expense.isReimbursement}
                     onChange={() => handleOnChange({name: 'isReimbursement', value: ''})}
                 >
                     Reimbursement
                 </Checkbox>
                 <div className="text-xs text-dimmed -mt-3">
-                    Check if the expense is a reimbursement. 
-                </div>                
+                    Check if the expense is a reimbursement.
+                </div>
 
             </div>
 
@@ -279,10 +371,24 @@ export function ExpenseEdit () {
 
                     </div>
                     <div className="flex flex-col ml-auto">
-                        <Button size="sm" variant="light" color="primary" className="font-bold">
+                        <Button 
+                            size="sm" 
+                            variant="light" 
+                            color="primary" 
+                            className="font-bold" 
+                            isDisabled={isAllSelected()}
+                            onPress={() => handleSelectionToggle('all')}
+                        >
                             ALL
                         </Button>
-                        <Button size="sm" variant="light" color="primary" className="font-bold">
+                        <Button 
+                            size="sm" 
+                            variant="light" 
+                            color="primary" 
+                            className="font-bold" 
+                            isDisabled={isNoneSelected()} 
+                            onPress={() => handleSelectionToggle('none')}
+                        >
                             NONE
                         </Button>
                     </div>
@@ -355,11 +461,11 @@ export function ExpenseEdit () {
             </div>
 
             <div className="flex mt-6">
-                <Button size="sm" variant="solid" color="danger" onPress={handleDeleteExpense}>
+                <Button size="sm" variant="solid" color="danger" onPress={() => void handleDeleteExpense()} isDisabled={!expenseId}>
                     Delete
                 </Button>
                 <Button size="sm" variant="solid" color="primary" className="ml-auto" onPress={() => void handleUpdateExpense()}>
-                    Add
+                    {expenseId ? 'Update' : 'Add'}
                 </Button>
             </div>
         </div>

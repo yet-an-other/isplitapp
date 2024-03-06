@@ -1,5 +1,7 @@
-@ISplitAppCore_HostAddress = http://localhost:5096
-# http://apidev.isplit.app
+@ISplitAppCore_HostAddress = http://apidev.isplit.app
+#
+#http://localhost:5096
+# 
 # 
 @defaultUser = CKjtmmzqBNXThrNC
 
