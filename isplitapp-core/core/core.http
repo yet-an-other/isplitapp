@@ -1,5 +1,7 @@
-@ISplitAppCore_HostAddress = http://localhost:5096
-# http://apidev.isplit.app
+@ISplitAppCore_HostAddress = http://apidev.isplit.app
+#
+#http://localhost:5096
+# 
 # 
 @defaultUser = CKjtmmzqBNXThrNC
 
@@ -182,3 +184,28 @@ Content-Type: application/json
     { "participantId": "CMPrdJbTKcTCxtXf" }
   ]
 }
+
+
+
+###
+
+GET https://isplit.app/.well-known/apple-app-site-association
+Accept: application/json
+
+
+###
+
+GET https://isplit.app/.well-known/web-app-origin-association
+
+
+
+###
+
+GET https://isplit.app/manifest.json
+Accept: application/json
+
+
+###
+
+GET http://localhost:5096/apple-app-site-association
+Accept: application/json

@@ -1,0 +1,21 @@
+@tailwind base;
+
+@layer base {
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number'] {
+      -webkit-appearance: none;
+      margin: 0;
+      -moz-appearance: textfield !important;
+    }
+
+    *,
+    ::before,
+    ::after {
+      @apply border-zinc-200 dark:border-zinc-800;
+      
+    }    
+}
+
+@tailwind components;
+@tailwind utilities;

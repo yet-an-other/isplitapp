@@ -1,0 +1,1 @@
+export type SplitMode = "Evenly" | "ByShare" | "ByPercentage" | "ByAmount"; 
