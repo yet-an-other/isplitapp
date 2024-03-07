@@ -1,0 +1,53 @@
+{
+  "short_name": "iSplitApp",
+  "name": "iSplitApp: Simplify expense sharing, splitting costs, and tracking transactions effortlessly.",
+  "description": "iSplitApp is a user-friendly app that simplifies the process of sharing expenses, dividing costs, and keeping track of transactions. It also streamlines the reimbursement process for friends, family and party attendees.",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#000000",
+  "id": "isplitapp",
+  "dir": "ltr",
+  "lang": "en",
+  "orientation": "natural",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
+  ],
+  "handle_links": "preferred",
+  "scope_extensions": [
+      {"origin": "isplit.app"},
+      {"origin": "*.isplit.app"}
+    ],
+  "categories": [
+    "finance",
+    "lifestyle",
+    "productivity"
+  ]
+}

@@ -34,10 +34,10 @@ ARG HASH
 RUN mkdir -p /app
 RUN npm cache clear --force
 WORKDIR /app
-COPY isplitapp-ui/package.json /app
+COPY next-ui/package.json /app
 RUN npm install
 RUN npm install env-cmd
-COPY isplitapp-ui/ .
+COPY next-ui/ .
 RUN npm version $VERSION --no-git-tag-version
 RUN ./node_modules/.bin/env-cmd -f ./.env.${BUILD_ENV} npm run build
 
