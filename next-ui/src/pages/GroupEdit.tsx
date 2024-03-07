@@ -171,6 +171,7 @@ export function GroupEdit() {
                             classNames={{
                                 label: "text-dimmed",
                                 description: "text-dimmed",
+                                input: "text-[16px]"
                             }}
                         />
                         <Button 

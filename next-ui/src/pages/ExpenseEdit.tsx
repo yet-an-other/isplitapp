@@ -435,6 +435,9 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                                     size="sm"
                                     labelPlacement="outside"
                                     className={`ml-auto ${expense.splitMode === 'ByAmount' && expense.amount > 10000 ? 'max-w-[150px]': 'max-w-[100px]'}`}
+                                    classNames={{
+                                        input: "text-[16px]"
+                                    }}
                                     endContent={
                                         <span className="text-dimmed text-sm">
                                             {expense.splitMode === 'ByPercentage' && '%'}

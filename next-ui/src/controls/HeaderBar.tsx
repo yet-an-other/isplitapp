@@ -12,11 +12,7 @@ import {
     Switch, 
     useDisclosure 
 } from "@nextui-org/react";
-import { GroupsIcon } from "../icons/GroupsIcon";
-import { SettingIconSketch } from "../icons/SettingIconSketch";
-import { SunIcon } from "../icons/SunIcon";
-import { MoonIcon } from "../icons/MoonIcon";
-import { LogoIcon } from "../icons/LogoIcon";
+import { GroupsIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +27,9 @@ export default function HeaderBar() {
             <Navbar isBordered maxWidth="full">
                 <NavbarBrand>
                     <a href="/">
-                        <LogoIcon className="h-[32px] w-[32px] dark:text-gray-200" />
+                        <LogoIcon 
+                            className="h-[32px] w-[32px] stroke-none dark:text-gray-200"
+                        />
                     </a>
                 </NavbarBrand>
                 <NavbarContent className="gap-4" justify="center">
@@ -52,7 +50,7 @@ export default function HeaderBar() {
                 <NavbarContent justify="end">
                     <NavbarItem >
                         <Button isIconOnly variant="light" onClick={() => onOpen()}>
-                            <SettingIconSketch className="h-[24px] w-[24px] text-primary" />
+                            <SettingsIcon className="h-[24px] w-[24px] text-primary dark:text-primary" />
                         </Button>  
                     </NavbarItem>
                 </NavbarContent>
@@ -66,7 +64,12 @@ export default function HeaderBar() {
                 disableAnimation
                 >
                 <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1">Settings</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <div className="flex flex-row">
+                            <SettingsIcon className="h-[24px] w-[24px] text-primary mr-2" />
+                            <span className="text-md dark:text-zinc-100">Settings</span>
+                        </div>
+                    </ModalHeader>
                     <ModalBody>
                         <Switch
                             isSelected={isDarkMode}

@@ -8,6 +8,8 @@ import { BalanceInfo } from "../api/contract/BalanceInfo";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { ReimburseEntry } from "../api/contract/ReimburseEntry";
+import { Button, Link } from "@nextui-org/react";
+import { SendMoneyIcon } from "../icons";
 
 export function Balance(){
 
@@ -28,8 +30,6 @@ export function Balance(){
                     <BalanceChart balances={balanceInfo.balances} party={group}/>
                 </div>
                 <div>
-                    <div className="mt-6 text-xl">Suggested Reimbursements</div>
-                    <div className="text-sm text-dimmed">Here are some tips to make sure everyone gets their fair share back</div>
                     <ReimbursementList reimbursements={balanceInfo.reimbursements} party={group}/>
                 </div>
             </>
@@ -39,14 +39,24 @@ export function Balance(){
     return null;
 }
 
-function BalanceChart(props: {balances: BalanceEntry[], party: PartyInfo}) {
+function BalanceChart({balances, party}: {balances: BalanceEntry[], party: PartyInfo}) {
 
-    const maxBalance = Math.max(...Object.values(props.balances).map(b=>Math.abs(b.amount)));
+    if (party.outstandingBalance === 0) {
+        return (
+            <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
+                Nothing to show, it looks like you are all set! <br/> 
+                Or have not spent anything yet, in that case you can <Link href={`/groups/${party.id}/expenses/create`} >add</Link> expenses here.
+            </div>
+        )
+    }
+    const maxBalance = Math.max(...Object.values(balances).map(b=>Math.abs(b.amount)));
 
     return(
         <div className="w-full flex flex-col">
-            {props.balances.map( balance => {
-                const isPositive = balance.amount > 0;
+            {balances
+                //.filter(b => b.amount != 0)
+                .map( balance => {
+                const isPositive = balance.amount >= 0;
                 return(
                     <div 
                         key={balance.participantId}
@@ -64,7 +74,7 @@ function BalanceChart(props: {balances: BalanceEntry[], party: PartyInfo}) {
                             />
                             <div className="absolute text-sm self-center px-1">
                                 <span className={`font-mono font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>{balance.amount.toFixed(2)} </span>
-                                <span className="text-dimmed">{props.party.currency}</span>
+                                <span className="text-dimmed">{party.currency}</span>
                             </div>
                         </div>
                     </div>
@@ -75,8 +85,48 @@ function BalanceChart(props: {balances: BalanceEntry[], party: PartyInfo}) {
 }
 
 
-function ReimbursementList(props: {reimbursements: ReimburseEntry[], party: PartyInfo}) {
+function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEntry[], party: PartyInfo}) {
+
+    if (reimbursements.length === 0) 
+        return null;
+
     return (
-        <div></div>
+        <div className="mt-10">
+            <div className=" text-2xl">Suggested Reimbursements</div>
+            <div className="text-sm text-dimmed mb-4">Here are some tips to make sure everyone gets their fair share back</div>
+            <div className="border-1 p-2 rounded-lg ">
+            {reimbursements.map((reimburse, i) =>(
+                <div key={reimburse.fromId + reimburse.toId} className={`flex flex-row py-3 ${i > 0 && 'border-t-1'}`}>
+                    <div>
+                        <div>
+                            <span className="font-bold">{reimburse.fromName}</span>
+                            <span className="text-dimmed"> owes </span>
+                            <span className="font-bold">{reimburse.toName}</span>
+                        </div>
+                        <div className="flex flex-row items-end mt-1">
+                            <Button 
+                                isIconOnly 
+                                variant="flat" 
+                                className="float-right"
+                                as="a"
+                                href={
+                                    `/groups/${party.id}/expenses/create?title=Reimbursement&amount=${reimburse.amount}&lenderId=${reimburse.fromId}&borrowerId=${reimburse.toId}&isReimbursement=1`
+                                }
+                            >
+                                <SendMoneyIcon className="w-[24px] h-[24px] text-primary" />
+                            </Button>
+                            <div className="text-dimmed text-xs ml-2">Add the<br/> reimbursement</div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-row ml-auto">
+                        <span className="text-md font-bold font-mono">{reimburse.amount.toFixed(2)}</span>
+                        &nbsp;
+                        <span className="text-md text-dimmed">{party.currency}</span>
+                    </div>
+                </div>
+            ))}
+            </div>
+        </div>
     )
 }

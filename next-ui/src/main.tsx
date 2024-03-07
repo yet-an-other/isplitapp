@@ -1,7 +1,7 @@
+import './index.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {Layout} from './pages/Layout'
-import './index.css'
+import { Layout } from './pages/Layout'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { Home } from './pages/Home'
 import { GroupList } from './pages/GroupList'
@@ -10,6 +10,14 @@ import { Group } from './pages/Group'
 import { ExpenseList } from './pages/ExpenseList'
 import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
+
+// TODO:
+// - Change Logo
+// - Change bottom bar
+// - Create text on card if group is new
+// - Add export menu item on card
+// - Get rid of menu on group card and replace it with icons
+// - Replace listbox in expenses to one big group as in balance
 
 
 const router = createBrowserRouter([

@@ -43,8 +43,8 @@ export function ExpenseList() {
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
     return (
-        <div className="absolute text-dimmed top-[60%]">
-            It seems you have not added any expense yet... 
+        <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
+            It seems you have not added any expense yet...  <br/>
             Start with <Link href={`/groups/${groupId}/expenses/create`} >add</Link> the first expense. 
         </div>
     )
