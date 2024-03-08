@@ -41,9 +41,12 @@ COPY next-ui/ .
 RUN npm version $VERSION --no-git-tag-version
 RUN ./node_modules/.bin/env-cmd -f ./.env.${BUILD_ENV} npm run build
 
+RUN ls -la /app
+RUN ls -la /app/dist
+
 FROM base AS final
 WORKDIR /app
 COPY --from=net-build /app/publish .
-COPY --from=react-build /app/build ./wwwroot
+COPY --from=react-build /app/dist ./wwwroot
 
 ENTRYPOINT ["dotnet", "core.dll"]
