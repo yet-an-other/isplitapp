@@ -73,7 +73,9 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
                                 style={{width: `${(Math.abs(balance.amount) / maxBalance) * 100}%`}}
                             />
                             <div className="absolute text-sm self-center px-1">
-                                <span className={`font-mono font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>{balance.amount.toFixed(2)} </span>
+                                <span className={`font-mono font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                                    {balance.amount.toFixed(2)}
+                                </span>
                                 <span className="text-dimmed">{party.currency}</span>
                             </div>
                         </div>

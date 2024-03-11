@@ -13,12 +13,10 @@ import { Balance } from './pages/Balance'
 import { RootBoundary } from './pages/RootErrorBoundary'
 
 // TODO:
-// - Add global error page
-// - Unify svg icons
 // - Add export menu item on card
 // - Get rid of menu on group card and replace it with icons
 // - Replace listbox in expenses to one big group as in balance
-// - Create text on card if group is new
+// - Different dedign for the new card
 
 
 const router = createBrowserRouter([
@@ -42,10 +40,10 @@ const router = createBrowserRouter([
 ]);
 
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-
-      <RouterProvider router={router} />
-
-  </React.StrictMode>,
+ReactDOM
+  .createRoot(document.getElementById('root')!)
+  .render(
+    <React.StrictMode>
+        <RouterProvider router={router} />
+    </React.StrictMode>,
 )
