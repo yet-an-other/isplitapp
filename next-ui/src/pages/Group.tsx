@@ -15,8 +15,8 @@ import { useEffect } from "react";
 export function Group() {
     
     const navigate = useNavigate();
-    const params = useParams();
-    const groupId = params.groupId?.match(/[a-zA-Z]{16}/)?.at(0);
+    const params = useParams().groupId?.match(/[a-zA-Z]{16}/);
+    const groupId = params ? params[0] : null;
 
     useEffect(() => {
         if(!groupId){
