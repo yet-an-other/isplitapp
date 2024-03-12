@@ -41,7 +41,7 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
         return (
             <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
                 Nothing to show, it looks like you are all set! <br/> 
-                Or have not spent anything yet, in that case you can <Link href={`/groups/${party.id}/expenses/create`} >add</Link> expenses here.
+                Or have not spent anything yet, in that case you can <Link href={`/${party.id}/expenses/create`} >add</Link> expenses here.
             </div>
         )
     }
@@ -72,7 +72,7 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
                                 <span className={`font-mono font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                                     {balance.amount.toFixed(2)}
                                 </span>
-                                <span className="text-dimmed">{party.currency}</span>
+                                <span className="text-dimmed">&nbsp;{party.currency}</span>
                             </div>
                         </div>
                     </div>
@@ -108,7 +108,7 @@ function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEn
                                 className="float-right"
                                 as="a"
                                 href={
-                                    `/groups/${party.id}/expenses/create?title=Reimbursement&amount=${reimburse.amount}&lenderId=${reimburse.fromId}&borrowerId=${reimburse.toId}&isReimbursement=1`
+                                    `/${party.id}/expenses/create?title=Reimbursement&amount=${reimburse.amount}&lenderId=${reimburse.fromId}&borrowerId=${reimburse.toId}&isReimbursement=1`
                                 }
                             >
                                 <SendMoneyIcon className="w-[24px] h-[24px] text-primary" />

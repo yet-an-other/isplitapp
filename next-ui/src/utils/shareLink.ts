@@ -6,7 +6,7 @@ export async function shareLink(partyId: string) {
 
     const shareData = {
         text: 'iSplit.app link to an expense group',
-        url: `${window.location.origin}/groups/${partyId}/expenses`
+        url: `${window.location.origin}/${partyId}/expenses`
     }
     let isSuccess = false;
 

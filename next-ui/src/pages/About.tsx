@@ -23,7 +23,7 @@ const features: FeatureItem[] = [
     }
 ];
 
-export function Home() {
+export function About() {
 
     return (
         <>
@@ -34,14 +34,15 @@ export function Home() {
                 className="mt-20" 
                 variant="solid"
                 as={Link}
-                href="/groups/create"
+                href="/create"
             >
                 Create Group
             </Button>
 
             <h5 className="text-xl font-bold mt-20">Motivaition</h5>
-            <div className="text-sm text-dimmed p-4">
+            <div className="flex text-sm text-dimmed p-5 text-justify">
                 The SplitWise app has been a long-standing tool for managing shared expenses, but its recent shift towards a cumbersome UI, an increase in advertisements, and the gating of essential features behind a subscription paywall has lessened its appeal.
+                <br/>
                 Here is a yet another application that offers a free, straightforward, and intuitive way for managing shared costs. 
             </div>
             <h5 className="text-xl font-bold mt-5">Features</h5>
