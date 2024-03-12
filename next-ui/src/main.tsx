@@ -10,19 +10,18 @@ import { Group } from './pages/Group'
 import { ExpenseList } from './pages/ExpenseList'
 import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
+import { RootBoundary } from './pages/RootErrorBoundary'
 
 // TODO:
-// - Change Logo
-// - Change bottom bar
-// - Create text on card if group is new
 // - Add export menu item on card
 // - Get rid of menu on group card and replace it with icons
 // - Replace listbox in expenses to one big group as in balance
+// - Different dedign for the new card
 
 
 const router = createBrowserRouter([
   {
-    element: <Layout />,
+    element: <Layout />, errorElement: <RootBoundary />,
     children: [
       { index: true, element: <Home />},
       { path: '/', element: <Home /> },
@@ -40,10 +39,11 @@ const router = createBrowserRouter([
   },
 ]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
 
-      <RouterProvider router={router} />
-
-  </React.StrictMode>,
+ReactDOM
+  .createRoot(document.getElementById('root')!)
+  .render(
+    <React.StrictMode>
+        <RouterProvider router={router} />
+    </React.StrictMode>,
 )

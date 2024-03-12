@@ -46,7 +46,7 @@ export function GroupList() {
  */
 const EmptyList = () => {
     return (
-        <div className="absolute top-[50%] text-dimmed">
+        <div className="relative top-20 text-dimmed border-1 p-2 rounded-lg">
             It seems you have not visited any group yet... <br/> 
             You may <Link href="/groups/create" >create a new group</Link> or ask a friend to send you the link to an existing one. 
         </div>
@@ -242,19 +242,19 @@ const ListMenu = () => {
                             <ListboxItem
                                 key="create"
                                 description="Simply put the group name and currency, and you're good to go!"
-                                startContent={<PlusIcon className="h-6 w-6 text-primary" />}
+                                startContent={<PlusIcon className="h-6 w-7 mx-1 bg-primary text-white rounded-lg" />}
                                 color="primary"
                                 textValue="Create Group"
                             >
-                                <span className="text-primary">Create</span>
+                                <span className="text-foreground font-semibold">Create</span>
                             </ListboxItem>
                             <ListboxItem
                                 key="addbyurl"
                                 description="Paste a group link to join a group"
-                                startContent={<LinkIcon className="h-6 w-6 text-foreground" />}
+                                startContent={<LinkIcon className="h-6 w-7 text-foreground mx-1" />}
                                 textValue="Add by URL"
                             >
-                                <span className="text-foreground">Add by URL</span>
+                                <span className="text-foreground font-semibold">Add by URL</span>
                             </ListboxItem>
                         </Listbox>
                     </div>

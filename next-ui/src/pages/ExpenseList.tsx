@@ -1,4 +1,4 @@
-import { Button, Link, Listbox, ListboxItem } from "@nextui-org/react";
+import { Button, Divider, Link } from "@nextui-org/react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
@@ -7,7 +7,7 @@ import { ProblemError } from "../api/contract/ProblemError";
 import { fetcher } from "../api/expenseApi";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
+import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
 
 export function ExpenseList() {
   
@@ -16,15 +16,14 @@ export function ExpenseList() {
     const navigate = useNavigate();
 
   return (
-    <div className="mt-4 w-full">
-
+    <div className="w-full">
         <div className="flex w-full">
             <Button 
                 isIconOnly
-                size="sm" 
-                variant="solid"
+                size="lg" 
+                variant="shadow"
                 color="primary" 
-                className="ml-auto my-2" 
+                className="ml-auto mr-auto my-2 rounded-full" 
                 onPress={() => navigate(`/groups/${group.id}/expenses/create`)} 
             >
                 <PlusIcon className="h-7 w-7 stroke-[3px]" />
@@ -50,23 +49,37 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     )
 }
 
+
 const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]}) => {
     return (
-        <Listbox label="expenses" className="p-0">
-            {expenses.map(expense => 
-                <ListboxItem 
+        <div className="border-1 rounded-lg p-2">
+            {expenses.map((expense, i) => 
+                <div 
                     key={expense.id} 
-                    className="border-1 my-1"
-                    textValue={expense.title}
-                    href={`/groups/${group.id}/expenses/${expense.id}/edit`}
+                    className="my-1"
                 >
+
+                   {i > 0 && <Divider className="my-1"/>}
                     <div className="flex flex-row items-center">
-                        {expense.isReimbursement 
-                            ? <ReimbursementIcon className="h-5 w-5 stroke-[1px] text-success mr-2" /> 
-                            : <SpendIcon className="h-5 w-5 stroke-[1px] text-dimmed mr-2" />
-                        }
+                        <div className="min-w-7 ">
+                            {expense.isReimbursement 
+                                ? <ReimbursementIcon className="h-5 w-5 stroke-[1px] text-success mr-2" /> 
+                                : <SpendIcon className="h-5 w-5 stroke-[1px] text-dimmed mr-2" />
+                            }
+                        </div>
                         <div className="text-md font-semibold">{expense.title}</div>
+                        <Button 
+                            isIconOnly
+                            variant="light" 
+                            href={`/groups/${group.id}/expenses/${expense.id}/edit`}
+                            as="a"
+                            className="float-right ml-auto "
+                            size="sm"
+                        >
+                            <EditIcon className="w-5 h-5 stroke-2"/>
+                        </Button>
                     </div>
+
 
                     <div className="flex flex-row mt-4">
                         <div className="flex flex-col w-full ml-7">
@@ -86,8 +99,8 @@ const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]
                         </div>
                     </div>
                     <div className="flex text-xs text-dimmed justify-end">{new Date(expense.date).toDateString()}</div>
-                </ListboxItem>
+                </div>
             )}
-        </Listbox>
+        </div>
     )
 }

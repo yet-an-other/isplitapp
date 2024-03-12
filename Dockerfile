@@ -34,16 +34,19 @@ ARG HASH
 RUN mkdir -p /app
 RUN npm cache clear --force
 WORKDIR /app
-COPY isplitapp-ui/package.json /app
+COPY next-ui/package.json /app
 RUN npm install
 RUN npm install env-cmd
-COPY isplitapp-ui/ .
+COPY next-ui/ .
 RUN npm version $VERSION --no-git-tag-version
 RUN ./node_modules/.bin/env-cmd -f ./.env.${BUILD_ENV} npm run build
+
+RUN ls -la /app
+RUN ls -la /app/dist
 
 FROM base AS final
 WORKDIR /app
 COPY --from=net-build /app/publish .
-COPY --from=react-build /app/build ./wwwroot
+COPY --from=react-build /app/dist ./wwwroot
 
 ENTRYPOINT ["dotnet", "core.dll"]
