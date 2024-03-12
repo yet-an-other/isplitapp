@@ -72,7 +72,7 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
                                 <span className={`font-mono font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                                     {balance.amount.toFixed(2)}
                                 </span>
-                                <span className="text-dimmed">{party.currency}</span>
+                                <span className="text-dimmed">&nbsp;{party.currency}</span>
                             </div>
                         </div>
                     </div>

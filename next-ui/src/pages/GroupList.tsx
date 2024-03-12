@@ -17,6 +17,9 @@ export function GroupList() {
     const navigate = useNavigate();
     const { data: parties, error, isLoading } = useSWR<PartyInfo[], ProblemError>('/parties', fetcher);
 
+    if (error)
+        return <ErrorCard error={error}/>;
+
     if (!error && !isLoading && (!parties || parties.length === 0)) 
         navigate('/about');
 
@@ -28,7 +31,6 @@ export function GroupList() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
-                { error && <ErrorCard error={error}/>}
                 { isLoading && <CardSkeleton/> }
                 { !error && !isLoading && !!parties && parties.length > 0 &&
                     parties.map(party => 

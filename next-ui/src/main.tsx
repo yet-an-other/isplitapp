@@ -11,6 +11,7 @@ import { ExpenseList } from './pages/ExpenseList'
 import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
 import { RootBoundary } from './pages/RootErrorBoundary'
+import { NotFound } from './pages/NotFound'
 
 // TODO:
 // - Add export menu item on card
@@ -28,12 +29,14 @@ const router = createBrowserRouter([
       { path: '/create', element: <GroupEdit />, id: 'create'},
       { path: ':groupId', element: <Group />, children: [
         { index: true, element: <ExpenseList />, handle: "expenses"},
+        { path: 'edit', element: <GroupEdit />, handle: "edit" },
+        { path: 'balance', element: <Balance />, handle: "balance" },
         { path: 'expenses', element: <ExpenseList />, handle: "expenses" },
         { path: 'expenses/create', element: <ExpenseEdit /> },
         { path: 'expenses/:expenseId/edit', element: <ExpenseEdit />  },
-        { path: 'edit', element: <GroupEdit />, handle: "edit" },
-        { path: 'balance', element: <Balance />, handle: "balance" },
       ]},
+      { path: '/404', element: <NotFound />},
+      { path: '*', element: <NotFound /> },
     ],
   },
 ]);
