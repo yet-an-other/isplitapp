@@ -38,7 +38,13 @@ export function Home() {
             >
                 Create Group
             </Button>
-            <h5 className="text-xl font-bold mt-20">Features</h5>
+
+            <h5 className="text-xl font-bold mt-20">Motivaition</h5>
+            <div className="text-sm text-dimmed p-4">
+                The SplitWise app has been a long-standing tool for managing shared expenses, but its recent shift towards a cumbersome UI, an increase in advertisements, and the gating of essential features behind a subscription paywall has lessened its appeal.
+                Here is a yet another application that offers a free, straightforward, and intuitive way for managing shared costs. 
+            </div>
+            <h5 className="text-xl font-bold mt-5">Features</h5>
 
             <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mt-unit-10">
                 { features.map((feature, index) => 

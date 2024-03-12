@@ -25,14 +25,10 @@ export function Balance(){
 
     if (balanceInfo) {
         return (
-            <>
-                <div className="mt-6">
-                    <BalanceChart balances={balanceInfo.balances} party={group}/>
-                </div>
-                <div>
-                    <ReimbursementList reimbursements={balanceInfo.reimbursements} party={group}/>
-                </div>
-            </>
+            <div className="mt-6">
+                <BalanceChart balances={balanceInfo.balances} party={group}/>
+                <ReimbursementList reimbursements={balanceInfo.reimbursements} party={group}/>
+            </div>
         )
     }
 
