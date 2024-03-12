@@ -206,7 +206,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             try {
                 await deleteExpense(expenseId);
                 await mutate(`/parties/${group.id}`);
-                navigate(`/groups/${group.id}/expenses`);
+                navigate(`/${group.id}/expenses`);
             }
             catch(e) {
                 alertError("Failed to delete the expense. Please try again later.")
@@ -224,7 +224,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                     ? await updateExpense(expenseId, expense)
                     : await createExpense(group.id, expense);
                 await mutate(`/parties/${group.id}`);
-                navigate(`/groups/${group.id}/expenses`);
+                navigate(`/${group.id}/expenses`);
             }
             catch(e) {
                 alertError("Failed to save the expense. Please try again later.")
@@ -351,15 +351,17 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                     errorMessage={fieldError("date")}
                 />
 
-                <Checkbox
-                    size="md"
-                    isSelected={expense.isReimbursement}
-                    onChange={() => handleOnChange({name: 'isReimbursement', value: ''})}
-                >
-                    Reimbursement
-                </Checkbox>
-                <div className="text-xs text-dimmed -mt-3">
-                    Check if the expense is a reimbursement.
+                <div>
+                    <Checkbox
+                        size="md"
+                        isSelected={expense.isReimbursement}
+                        onChange={() => handleOnChange({name: 'isReimbursement', value: ''})}
+                    >
+                        Reimbursement
+                    </Checkbox>
+                    <div className="text-xs text-dimmed p-1">
+                        Check if the expense is a reimbursement.
+                    </div>
                 </div>
 
             </div>

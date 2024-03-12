@@ -1,4 +1,4 @@
-import { Button, Input, Link, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@nextui-org/react";
+import { Button, Input, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@nextui-org/react";
 import useSWR, { mutate } from "swr";
 import { fetcher, unfollowParty } from "../api/expenseApi";
 import { PartyInfo } from "../api/contract/PartyInfo";
@@ -14,7 +14,11 @@ import { ErrorCard } from "../controls/ErrorCard";
 
 export function GroupList() {
 
+    const navigate = useNavigate();
     const { data: parties, error, isLoading } = useSWR<PartyInfo[], ProblemError>('/parties', fetcher);
+
+    if (!error && !isLoading && (!parties || parties.length === 0)) 
+        navigate('/about');
 
     return (
         <div className="flex flex-col w-full px-4">
@@ -26,7 +30,6 @@ export function GroupList() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
                 { error && <ErrorCard error={error}/>}
                 { isLoading && <CardSkeleton/> }
-                { !error && !isLoading && (!parties || parties.length === 0) && <EmptyList /> }
                 { !error && !isLoading && !!parties && parties.length > 0 &&
                     parties.map(party => 
                         <GroupCard key={party.id} party={party} > 
@@ -36,19 +39,6 @@ export function GroupList() {
                 }
             </div>
             <ListMenu />
-        </div>
-    )
-}
-
-
-/**
- * EmptyList component is used to display the empty list message
- */
-const EmptyList = () => {
-    return (
-        <div className="relative top-20 text-dimmed border-1 p-2 rounded-lg">
-            It seems you have not visited any group yet... <br/> 
-            You may <Link href="/groups/create" >create a new group</Link> or ask a friend to send you the link to an existing one. 
         </div>
     )
 }
@@ -163,7 +153,7 @@ const ListMenu = () => {
 
     const handleAction = (key: React.Key ) => {
         setIsOpen(false);
-        key === 'create' && navigate('/groups/create');
+        key === 'create' && navigate('/create');
 
         key === 'addbyurl' && linkModal.onOpen();
 
@@ -176,7 +166,7 @@ const ListMenu = () => {
                 return;
             }
     
-            navigate(`/groups/${match[2]}/expenses`);
+            navigate(`/${match[2]}/expenses`);
         } 
     }
 

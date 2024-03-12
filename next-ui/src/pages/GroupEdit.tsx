@@ -70,7 +70,7 @@ export function GroupEdit() {
                 groupId && await updateParty(groupId, party);
                 const partyId = groupId ?? await createParty(party);
                 await mutate(`/parties/${partyId}`);
-                navigate(`/groups/${partyId}/expenses`);
+                navigate(`/${partyId}/expenses`);
             } 
             catch (error) {
                 alertError("Failed to save the group. Please, try again later.");

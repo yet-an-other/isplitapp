@@ -73,7 +73,7 @@ export function Group() {
                                     <Button 
                                         key={key}
                                         isDisabled={key === current} 
-                                        onPress={() => void navigate(`/groups/${groupId}/${key}`)}
+                                        onPress={() => void navigate(`/${groupId}/${key}`)}
                                     >
                                         {items[key]}
                                     </Button>
