@@ -9,7 +9,7 @@ export function FooterBar() {
 
             <div className="flex flex-row mb-6">
                 <div className="flex flex-row items-end">
-                    <LogoIcon className="h-[18px] w-[18px] ml-3 mr-1" />
+                    <LogoIcon className="h-[18px] w-[18px] stroke-none ml-3 mr-1" />
                     <div className="text-xs text-dimmed">
                         iSplitApp
                     </div>
@@ -17,7 +17,7 @@ export function FooterBar() {
                 <a href="https://github.com/yet-an-other/isplitapp">
                     <div className="flex flex-row items-end">
                         <GithubIcon className="h-[18px] w-[18px] ml-3 mr-1 mt-2" />
-                        <span className="text-xs text-dimmed">v{version}{isDev && '-dev'}</span> 
+                        <span className="text-xs text-dimmed leading-none">v{version}{isDev && '-dev'}</span> 
                     </div>
                 </a>
             </div>
