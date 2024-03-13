@@ -14,9 +14,8 @@ import { SendMoneyIcon } from "../icons";
 export function Balance(){
 
     const group = useOutletContext<PartyInfo>();
-
     const {data: balanceInfo, error, isLoading } = useSWR<BalanceInfo, ProblemError>(`/parties/${group.id}/balance`, fetcher);
-        
+
     if (error)
         return <ErrorCard error={error} />;
 
@@ -31,7 +30,6 @@ export function Balance(){
             </div>
         )
     }
-
     return null;
 }
 
