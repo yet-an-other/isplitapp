@@ -2,6 +2,11 @@ import {nextui, colors} from "@nextui-org/react";
 
 /** @type {import('tailwindcss').Config} */
 export default {
+  purge: [
+    './src/**/*.html',
+    './src/**/*.tsx',
+    './src/**/*.ts',
+  ],  
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
