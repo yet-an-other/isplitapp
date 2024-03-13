@@ -6,6 +6,7 @@ export default {
     './src/**/*.html',
     './src/**/*.tsx',
     './src/**/*.ts',
+    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}'
   ],  
   content: [
     "./index.html",
@@ -68,8 +69,21 @@ export default {
             },
             focus: {
               DEFAULT: '#5a816c',
-            }
-
+            },
+            danger: {
+              '50': '#fef3f2',
+              '100': '#fee5e2',
+              '200': '#ffcfc9',
+              '300': '#fdada4',
+              '400': '#fa7d6f',
+              '500': '#f0412d',
+              '600': '#df3623',
+              '700': '#bb2b1a',
+              '800': '#9b2619',
+              '900': '#80261c',
+              '950': '#460f09',
+              DEFAULT: '#f0412d',
+            },
           },
         },
         dark: {
