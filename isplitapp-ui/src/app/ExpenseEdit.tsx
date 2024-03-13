@@ -152,7 +152,7 @@ export default function ExpenseEdit() {
             expenseId 
                 ? await updateExpense(expenseId, expense)
                 : await createExpense(party.id, expense);
-            navigate(`/groups/${party.id}/expenses`);
+            navigate(`/${party.id}/expenses`);
             navigate(0);
         }
         catch(e) {
@@ -171,7 +171,7 @@ export default function ExpenseEdit() {
     const handleConfirmOk = async () => {
         try {
             await deleteExpense(expenseId!);
-            navigate(`/groups/${party.id}/expenses`);
+            navigate(`/${party.id}/expenses`);
             navigate(0);
         }
         catch(e) {

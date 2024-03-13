@@ -65,7 +65,6 @@ jobs:
       with:
         context: .
         file: Dockerfile
-        #file: ./isplitapp-core/core/Dockerfile
         push: true
         tags: ilaverlin/isplitapp-full:latest, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}
         build-args: |

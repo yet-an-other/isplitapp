@@ -10,11 +10,21 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { shareLink } from "../utils/shareLink";
 import { useAlerts } from "../utils/useAlerts";
+import { useEffect } from "react";
 
 export function Group() {
     
-    const { groupId } = useParams();
-    const { data: party, isLoading, error} = useSWR<PartyInfo, ProblemError>(`/parties/${groupId}`, fetcher);
+    const navigate = useNavigate();
+    const params = useParams().groupId?.match(/[a-zA-Z]{16}/);
+    const groupId = params ? params[0] : null;
+
+    useEffect(() => {
+        if(!groupId){
+            navigate("/404");
+        }
+    })
+
+    const { data: party, isLoading, error} = useSWR<PartyInfo, ProblemError>(groupId && `/parties/${groupId}`, fetcher);
     const alertSuccess = useAlerts().alertSuccess;
 
     const handleShare = async () => {
@@ -23,8 +33,7 @@ export function Group() {
             alertSuccess("The link has been successfully copied");
         }
     }
-
-    const navigate = useNavigate();
+    
     const matches = useMatches();
     const current = matches
         .filter((match) => Boolean(match.handle))
@@ -73,7 +82,7 @@ export function Group() {
                                     <Button 
                                         key={key}
                                         isDisabled={key === current} 
-                                        onPress={() => void navigate(`/groups/${groupId}/${key}`)}
+                                        onPress={() => void navigate(`/${groupId}/${key}`)}
                                     >
                                         {items[key]}
                                     </Button>

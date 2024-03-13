@@ -16,7 +16,7 @@ export const GroupCard = ({party, children, disablePress}: GroupCardProps) => {
         className="min-h-[120px] w-full" 
         isPressable = {!disablePress}
         as = "form"
-        onPress={() => navigate(`/groups/${party.id}`)}
+        onPress={() => navigate(`/${party.id}`)}
     >
         <CardHeader className="block items-start">
 

@@ -39,7 +39,7 @@ export default function ExpenseList() {
                     <Fade>Explore the group's expenses and money transfers here</Fade>
                 </Typography>
             </Box>
-            <Button variant="contained" size="small" sx={{ ml: 'auto', height: 32 }} onClick={()=> navigate(`/groups/${partyId}/expenses/create`)}>
+            <Button variant="contained" size="small" sx={{ ml: 'auto', height: 32 }} onClick={()=> navigate(`/${partyId}/expenses/create`)}>
                 Add
             </Button>
         </Stack>
@@ -80,7 +80,7 @@ const FullList =({party, expenseList}: FullListProps) => {
             <Paper elevation={0} sx={{ px: 1, my: 1 }}>
             <ListItem disableGutters>
                 <ListItemText
-                    onClick={() =>  navigate(`/groups/${party.id}/expenses/${expense.id}/edit`)}
+                    onClick={() =>  navigate(`/${party.id}/expenses/${expense.id}/edit`)}
                     disableTypography
                     primary = {
                         <Typography variant="subtitle1" sx={{mb: 2}}>

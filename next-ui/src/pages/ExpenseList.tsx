@@ -24,7 +24,7 @@ export function ExpenseList() {
                 variant="shadow"
                 color="primary" 
                 className="ml-auto mr-auto my-2 rounded-full" 
-                onPress={() => navigate(`/groups/${group.id}/expenses/create`)} 
+                onPress={() => navigate(`/${group.id}/expenses/create`)} 
             >
                 <PlusIcon className="h-7 w-7 stroke-[3px]" />
             </Button>
@@ -44,7 +44,7 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     return (
         <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
             It seems you have not added any expense yet...  <br/>
-            Start with <Link href={`/groups/${groupId}/expenses/create`} >add</Link> the first expense. 
+            Start with <Link href={`/${groupId}/expenses/create`} >add</Link> the first expense. 
         </div>
     )
 }
@@ -71,7 +71,7 @@ const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]
                         <Button 
                             isIconOnly
                             variant="light" 
-                            href={`/groups/${group.id}/expenses/${expense.id}/edit`}
+                            href={`/${group.id}/expenses/${expense.id}/edit`}
                             as="a"
                             className="float-right ml-auto "
                             size="sm"

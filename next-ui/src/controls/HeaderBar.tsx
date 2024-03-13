@@ -12,15 +12,13 @@ import {
     Switch, 
     useDisclosure 
 } from "@nextui-org/react";
-import { GroupsIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
+import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
-import { useNavigate } from "react-router-dom";
 
 export default function HeaderBar() {
 
     const {isDarkMode, toggle } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
-    const navigate = useNavigate();
 
     return (
         <>
@@ -35,15 +33,13 @@ export default function HeaderBar() {
                 <NavbarContent className="gap-4" justify="center">
                     <NavbarItem>
                         <Button
-                            onPress={() => {navigate('groups')}}
-                            href="/groups" 
+                            as="a"
+                            href="/about" 
                             color="primary" 
                             variant="light" 
                             size="md" 
-                            startContent={
-                                <GroupsIcon className="h-[24px] w-[24px] text-primary"  />
-                            }>
-                            <span className="font-bold">GROUPS</span>
+                        >
+                            <span className="font-bold">iSplitApp</span>
                         </Button>
                     </NavbarItem>
                 </NavbarContent>
