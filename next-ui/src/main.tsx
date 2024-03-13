@@ -16,31 +16,30 @@ import { NotFound } from './pages/NotFound'
 // TODO:
 // - Add export menu item on card
 // - Get rid of menu on group card and replace it with icons
+// - preffered reimbursement
 // - Different dedign for the new card
-
 
 const router = createBrowserRouter([
   {
     element: <Layout />, errorElement: <RootBoundary />,
     children: [
-      { index: true, element: <GroupList />},
+      { index: true, element: <GroupList /> },
       { path: '/', element: <GroupList /> },
       { path: '/about', element: <About /> },
-      { path: '/create', element: <GroupEdit />, id: 'create'},
+      { path: '/create', element: <GroupEdit />, id: 'create' },
       { path: ':groupId', element: <Group />, children: [
         { index: true, element: <ExpenseList />, handle: "expenses"},
         { path: 'edit', element: <GroupEdit />, handle: "edit" },
         { path: 'balance', element: <Balance />, handle: "balance" },
         { path: 'expenses', element: <ExpenseList />, handle: "expenses" },
         { path: 'expenses/create', element: <ExpenseEdit /> },
-        { path: 'expenses/:expenseId/edit', element: <ExpenseEdit />  },
+        { path: 'expenses/:expenseId/edit', element: <ExpenseEdit /> },
       ]},
-      { path: '/404', element: <NotFound />},
+      { path: '/404', element: <NotFound /> },
       { path: '*', element: <NotFound /> },
     ],
   },
 ]);
-
 
 ReactDOM
   .createRoot(document.getElementById('root')!)

@@ -1,5 +1,10 @@
 import { Button, Card, CardBody, CardHeader, Link } from "@nextui-org/react";
 
+interface FeatureItem {
+    title: string;
+    description: string;
+}
+
 const features: FeatureItem[] = [
     {
         title: "Get right to it",
@@ -45,8 +50,8 @@ export function About() {
                 <br/>
                 Here is a yet another application that offers a free, straightforward, and intuitive way for managing shared costs. 
             </div>
-            <h5 className="text-xl font-bold mt-5">Features</h5>
 
+            <h5 className="text-xl font-bold mt-5">Features</h5>
             <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mt-unit-10">
                 { features.map((feature, index) => 
                     <Card className={`max-w-[170px] h-[170px]`} key={index}>
@@ -63,9 +68,4 @@ export function About() {
             </div>
         </>
     )
-}
-
-interface FeatureItem {
-    title: string;
-    description: string;
 }
