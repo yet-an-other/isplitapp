@@ -3,13 +3,10 @@ import { GroupCard } from "../controls/GroupCard";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ProblemError } from "../api/contract/ProblemError";
 import { fetcher } from "../api/expenseApi";
-import { ShareIcon } from "../icons";
 import { Outlet, useMatches, useNavigate, useParams } from "react-router-dom";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { shareLink } from "../utils/shareLink";
-import { useAlerts } from "../utils/useAlerts";
 import { useEffect } from "react";
 
 export function Group() {
@@ -25,14 +22,6 @@ export function Group() {
     })
 
     const { data: party, isLoading, error} = useSWR<PartyInfo, ProblemError>(groupId && `/parties/${groupId}`, fetcher);
-    const alertSuccess = useAlerts().alertSuccess;
-
-    const handleShare = async () => {
-        if(party){
-            await shareLink(party.id) &&
-            alertSuccess("The link has been successfully copied");
-        }
-    }
     
     const matches = useMatches();
     const current = matches
@@ -42,7 +31,6 @@ export function Group() {
     const items = {
         expenses:"Expenses", 
         balance:"Balance", 
-        edit: "Edit"
     };
     const itemsDesc = {
         expenses: "Explore the group's expenses and money transfers here", 
@@ -59,16 +47,7 @@ export function Group() {
             { isLoading && <CardSkeleton />}
             { !error && !isLoading && !!party && 
                 <div >
-                    <GroupCard party={party} disablePress>
-                        <Button 
-                            isIconOnly 
-                            variant="light" 
-                            className="float-right" 
-                            onPress={() => void handleShare()}
-                        >
-                            <ShareIcon className="w-[24px] h-[24px]" />
-                        </Button>
-                    </GroupCard>
+                    <GroupCard party={party} disablePress />
                     <div className="mt-3">
                         <div className="flex flex-row">
                             <h1 className="text-2xl">{items[current]}</h1>

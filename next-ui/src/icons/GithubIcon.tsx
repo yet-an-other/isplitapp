@@ -1,4 +1,3 @@
-  
 import { SvgPathWrapper } from './SvgPathWrapper'
 
 export function GithubIcon(props: React.SVGProps<SVGSVGElement>){
