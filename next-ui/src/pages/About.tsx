@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Link } from "@nextui-org/react";
+import { CreateGroupMenu } from "../controls/CreateGroupMenu";
 
 interface FeatureItem {
     title: string;
@@ -66,6 +67,7 @@ export function About() {
                     </Card>
                 )}
             </div>
+            <CreateGroupMenu />
         </>
     )
 }

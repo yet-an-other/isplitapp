@@ -2,7 +2,7 @@ import './index.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Layout } from './pages/Layout'
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { About } from './pages/About'
 import { GroupList } from './pages/GroupList'
 import { GroupEdit } from './pages/GroupEdit'
@@ -13,11 +13,6 @@ import { Balance } from './pages/Balance'
 import { RootBoundary } from './pages/RootErrorBoundary'
 import { NotFound } from './pages/NotFound'
 
-// TODO:
-// - Add export menu item on card
-// - Get rid of menu on group card and replace it with icons
-// - preffered reimbursement
-// - Different dedign for the new card
 
 const router = createBrowserRouter([
   {
@@ -25,6 +20,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <GroupList /> },
       { path: '/', element: <GroupList /> },
+      { path: '/groups/*', element: <Navigate to={window.location.pathname.replace('/groups', '')} /> }, // fallback for old links
       { path: '/about', element: <About /> },
       { path: '/create', element: <GroupEdit />, id: 'create' },
       { path: ':groupId', element: <Group />, children: [
