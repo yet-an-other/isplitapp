@@ -6,6 +6,7 @@ import { unfollowParty } from "../api/expenseApi"
 import { mutate } from "swr"
 import { useAlerts } from "../utils/useAlerts"
 import { shareLink } from "../utils/shareLink"
+import { generateReport } from "../utils/generateReport"
 
 interface GroupCardProps {
     party: PartyInfo
@@ -37,7 +38,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
             >
                 <CardHeader className="block items-start">
                     <div className="float-left mr-4">
-                        <Badge content={party.totalParticipants} size="lg" className={party.outstandingBalance != 0 ? 'bg-primary-100' : 'bg-success-100'}  >
+                        <Badge content={party.totalParticipants} size="lg" className={'bg-primary-100'}>
                             <Avatar
                                 radius="sm"
                                 icon={<UsersIcon className="h-8 w-8" />}
@@ -56,9 +57,9 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     <h1 className="text-lg">{party.name}</h1>
                 </CardHeader>
                 <CardBody className="flex flex-row">
-                    <div className="whitespace-nowrap mt-auto">
-                        <span className="text-xl font-bold font-mono">{party.totalExpenses.toFixed(2)}</span>
-                        <span className="text-dimmed ml-2 text-xl">{party.currency}</span>
+                    <div className="whitespace-nowrap mt-auto leading-none">
+                        <span className="text-xl font-bold font-mono leading-none">{party.totalExpenses.toFixed(2)}</span>
+                        <span className="text-dimmed ml-2 text-xl leading-none">{party.currency}</span>
                     </div>
                     <div className="flex flex-col ml-auto">
                         <div className="whitespace-nowrap flex flex-row text-sm leading-none font-mono items-center">
@@ -70,13 +71,14 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     </div>
                 </CardBody>
                 <CardFooter className="flex -mt-2 items-end">
-                    <div className="flex flex-row bg-primary-50 rounded-lg py-1 items-center">
+                    <div className="flex flex-row bg-primary-50 rounded-lg items-center" >
                         <Button 
                             isIconOnly 
                             variant="light" 
-                            size="sm" 
+                            size="md" 
                             color="danger" 
-                            className="mx-2"
+                            radius="sm"
+                            className="rounded-r-none"
                             onPress={confirmationState.onOpen}
                         >
                             <TrashIcon className="h-5 w-5"/>
@@ -87,24 +89,31 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                                 <ArchiveIcon className="h-5 w-5"/>
                             </Button>
                         </div>
-                        <div className="w-[1px] bg-divider h-7" />
+
                         <Button
                             isDisabled={!!match}
                             isIconOnly 
                             variant="light" 
-                            size="sm" 
+                            size="md" 
                             color="primary" 
-                            className="mx-2"
+                            radius="none"
                             onPress={() => navigate(`/${party.id}/edit`)}
                         >
                             <EditIcon className="h-5 w-5"/>
                         </Button>
-                        <div className="hidden">
-                            <div className="w-[1px] bg-divider h-8" />
-                            <Button isIconOnly variant="light" size="sm" color="primary" className="mx-2">
-                                <ExportIcon className="h-5 w-5"/>
-                            </Button>
-                        </div>
+
+                        <Button 
+                            isDisabled={party.totalExpenses === 0}
+                            isIconOnly 
+                            variant="light" 
+                            size="md" 
+                            color="primary"
+                            radius="sm"
+                            className="rounded-l-none"
+                            onPress={() => void generateReport(party.id)}
+                        >
+                            <ExportIcon className="h-5 w-5"/>
+                        </Button>
                     </div>
                     <div className="text-xs text-dimmed ml-auto">{new Date(party.created).toDateString()}</div>
                 </CardFooter>
