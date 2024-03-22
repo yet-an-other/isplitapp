@@ -24,5 +24,7 @@ export class PartyInfo {
     totalParticipants: number = 0;
     
     participants: ParticipantInfo[] = [];
+
+    isArchived: boolean = false;
 }
 

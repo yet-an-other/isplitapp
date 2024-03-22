@@ -49,8 +49,7 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     )
 }
 
-
-const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]}) => {
+const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}) => {
     return (
         <div className="border-1 rounded-lg p-2">
             {expenses.map((expense, i) => 
@@ -58,7 +57,6 @@ const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]
                     key={expense.id} 
                     className="my-1"
                 >
-
                    {i > 0 && <Divider className="my-1"/>}
                     <div className="flex flex-row items-center">
                         <div className="min-w-7 ">
