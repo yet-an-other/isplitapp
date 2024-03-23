@@ -109,6 +109,7 @@ app.MapGet("/login", UserCommand.Login).WithName("Login");
 var partyApi = app.MapGroup("/parties");
 partyApi.MapPost("/", ExpenseCommand.PartyCreate).WithName("CreateParty");
 partyApi.MapPut("/{partyId}", ExpenseCommand.PartyUpdate).WithName("UpdateParty");
+partyApi.MapPut("/{partyId}/user-settings", ExpenseCommand.PartyUpdateUserSettings).WithName("UpdatePartyUserSettings");
 partyApi.MapGet("/{partyId}", ExpenseCommand.PartyGet).WithName("GetParty");
 partyApi.MapGet("/", ExpenseCommand.PartyListGet).WithName("ListParty");
 partyApi.MapGet("/{partyId}/balance", ExpenseCommand.PartyBalanceGet).WithName("GetPartyBalance");

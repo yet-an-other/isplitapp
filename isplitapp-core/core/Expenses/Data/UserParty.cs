@@ -21,4 +21,7 @@ public record UserParty
     [property: Column("party_id")]
     [property: PrimaryKey]
     public string PartyId { get; init; } = string.Empty;
+
+    [Column("is_archived")]
+    public bool IsArchived { get; init; } = false;
 }

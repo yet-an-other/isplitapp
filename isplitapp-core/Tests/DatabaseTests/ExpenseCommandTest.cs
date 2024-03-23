@@ -347,7 +347,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         // Act
         //
         var getResult = await ExpenseCommand
-            .PartyListGet(actualUserId, new GenericValidator(_serviceProvider), _db);
+            .PartyListGet(actualUserId, null, null, new GenericValidator(_serviceProvider), _db);
         
         // Check userId
         //

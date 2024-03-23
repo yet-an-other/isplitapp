@@ -1,0 +1,1 @@
+ALTER TABLE user_party DROP COLUMN is_archived;
