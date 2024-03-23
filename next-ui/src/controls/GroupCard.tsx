@@ -66,7 +66,9 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             <TransactionsIcon className="h-4 w-4 mr-2 text-dimmed" /> {party.totalTransactions}
                         </div>
                         <div className="whitespace-nowrap flex flex-row text-sm leading-none mt-1 font-mono items-center">
-                            <CashIcon className="h-4 w-4 mr-2 text-dimmed" /> {party.outstandingBalance.toFixed(2)} <span className="font-sans text-dimmed ml-1">{party.currency}</span>
+                            <CashIcon className={`h-4 w-4 mr-2 text-dimmed ${party.outstandingBalance === 0 ? 'text-success': 'text-danger'}`} /> 
+                            <span>{party.outstandingBalance.toFixed(2)} </span> 
+                            <span className="font-sans text-dimmed ml-1">{party.currency}</span>
                         </div>
                     </div>
                 </CardBody>
