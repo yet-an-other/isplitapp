@@ -26,8 +26,8 @@ jobs:
     - name: Set version var
       run: |
         echo "hash=$(echo "${{github.sha}}" | cut -c 1-7)" >> $GITHUB_ENV
-        echo "version=1.0.${{github.run_number}}" >> $GITHUB_ENV
-        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        s=${{ github.head_ref || github.ref_name }}
+        echo "branch=${s##*/}" >> $GITHUB_ENV
 
     - name: generate semver
       uses: paulhatch/semantic-version@v5.1.0
@@ -69,7 +69,7 @@ jobs:
         tags: ilaverlin/isplitapp-full:latest, ilaverlin/isplitapp-full:${{ steps.semver.outputs.version }}
         build-args: |
           BUILD_ENV=production
-          VERSION=${{ steps.semver.outputs.version }}${{ env.BRANCH_NAME != 'main' && format('-{0}', env.BRANCH_NAME) || '' }}
+          VERSION=${{ steps.semver.outputs.version }}${{ env.branch != 'main' && format('-{0}', env.branch) || '' }}
 
 
     - name: Build and push dev
