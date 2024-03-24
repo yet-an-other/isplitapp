@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Utils;
@@ -53,7 +54,7 @@ public static class ExpenseCommand
             p => new Participant { Id = IdUtil.NewId(), Name = p.Name, PartyId = partyId });
         await db.BulkCopyAsync(participants);
         
-        await UpsertUserPartyVisibility(userId, partyId, db);
+        await UpsertUserPartyVisibility(userId!, partyId, db);
         await db.CommitTransactionAsync();
         
         httpContext?.Response.Headers.TryAdd("X-Created-Id", partyId);
@@ -127,7 +128,7 @@ public static class ExpenseCommand
             .InsertWhenNotMatched()
             .MergeAsync();
         
-        await UpsertUserPartyVisibility(userId, partyId!, db);
+        await UpsertUserPartyVisibility(userId!, partyId!, db);
         await db.CommitTransactionAsync();
         
         return TypedResults.NoContent();
@@ -174,6 +175,10 @@ public static class ExpenseCommand
                 FuTotalExpenses = (from e in db.Expenses 
                     where e.PartyId == p.Id && !e.IsReimbursement 
                     select e.MuAmount).Sum().ToFuAmount(),
+                IsArchived = db.UserParty
+                    .Where(u=>u.PartyId == partyId && u.UserId == userId)
+                    .Select(u=>u.IsArchived)
+                    .FirstOrDefault(),
                 FuOutstandingBalance = db.Participants
                     .Where(pp => pp.PartyId == partyId)
                     .Select(pp =>
@@ -189,14 +194,13 @@ public static class ExpenseCommand
                     .Where(a => a > 0)
                     .Sum()
                     .ToFuAmount()
-                    
             };
 
         var party = await partyQuery.FirstOrDefaultAsync();
         if (party == null)
             return TypedResults.NotFound();
         
-        await UpsertUserPartyVisibility(userId, partyId!, db);
+        await UpsertUserPartyVisibility(userId!, partyId!, db);
         return TypedResults.Ok(party);
     }
 
@@ -204,11 +208,15 @@ public static class ExpenseCommand
     /// Returns list of parties available to a user
     /// </summary>
     /// <param name="userId">unique user id </param>
+    /// <param name="filterArchived">filter by isArchived can be 'all' (default), 'actual' and 'archived' </param>
+    /// <param name="orderBy">if orderBy is 'lastUpdate' then sorted by last update and by create time otherwise</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
     /// <returns>Response 200 and parties array </returns>
     public static async Task<Results<Ok<PartyInfo[]>, ValidationProblem>> PartyListGet(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
+        [FromQuery] string? filterArchived,
+        [FromQuery] string? orderBy,
         GenericValidator validator,
         ExpenseDb db)
     {
@@ -217,8 +225,11 @@ public static class ExpenseCommand
 
         var parties = from p in db.Parties
             join up in db.UserParty on p.Id equals up.PartyId
-            where up.UserId == userId
-            orderby p.Id descending
+            where up.UserId == userId 
+                  && (filterArchived == ArchivedFilterValues.Actual 
+                        ? !up.IsArchived 
+                        : filterArchived != ArchivedFilterValues.Archived || up.IsArchived)
+            orderby (orderBy == "lastUpdate" ? p.Updated.ToString(CultureInfo.InvariantCulture) : p.Id) descending
             select new PartyInfo
             {
                 Id = p.Id,
@@ -231,6 +242,7 @@ public static class ExpenseCommand
                 FuTotalExpenses = (from e in db.Expenses
                     where e.PartyId == p.Id && !e.IsReimbursement
                     select e.MuAmount).Sum().ToFuAmount(),
+                IsArchived = up.IsArchived,
                 FuOutstandingBalance = db.Participants
                     .Where(pp => pp.PartyId == p.Id)
                     .Select(pp =>
@@ -258,7 +270,7 @@ public static class ExpenseCommand
     /// <param name="partyId">Unique party identifier</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
-    /// <returns>Returns 204 with path if everything is ok</returns>
+    /// <returns>Returns 201 if everything is ok</returns>
     public static async Task<Results<NoContent, ValidationProblem>> PartyUnfollow(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,        
         string? partyId,
@@ -269,6 +281,33 @@ public static class ExpenseCommand
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
         await db.UserParty.DeleteAsync(up => up.PartyId == partyId && up.UserId == userId);
+        return TypedResults.NoContent();
+    }
+
+    /// <summary>
+    /// Updates user settings for specific party
+    /// </summary>
+    /// <param name="userId">unique user id</param>
+    /// <param name="partyId">unique party id</param>
+    /// <param name="settingsPayload">settings to update</param>
+    /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
+    /// <param name="db">DataContext object</param>
+    /// <returns>201 if everything is ok, or <see cref="ValidationProblem"/> otherwise</returns>
+    public static async Task<Results<NoContent, ValidationProblem>> PartyUpdateUserSettings(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,        
+        string? partyId,
+        UserPartySettingsPayload settingsPayload,
+        GenericValidator validator,
+        ExpenseDb db)
+    {
+        if (!validator.IsValid(userId, partyId, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        await db.UserParty
+            .Where(up => up.PartyId == partyId && up.UserId == userId)
+            .Set(u => u.IsArchived, settingsPayload.IsArchived)
+            .UpdateAsync();
+
         return TypedResults.NoContent();
     }
 
@@ -513,13 +552,13 @@ public static class ExpenseCommand
     /// <summary>
     /// Creates User/Party association
     /// </summary>
-    private static async Task UpsertUserPartyVisibility(string? userId, string partyId, ExpenseDb db)
+    private static async Task UpsertUserPartyVisibility(string userId, string partyId, ExpenseDb db)
     {
         await db.UserParty
             .Merge()
             .Using([new UserParty
             {
-                UserId = userId!,
+                UserId = userId,
                 PartyId = partyId
             }])
             .OnTargetKey()

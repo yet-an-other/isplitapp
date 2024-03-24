@@ -59,4 +59,9 @@ public record PartyInfo
     /// List of all participants in the party
     /// </summary>
     public ParticipantInfo[] Participants { get; init; } = [];
+
+    /// <summary>
+    /// If the party is in user's archive 
+    /// </summary>
+    public bool IsArchived { get; init; } = false;
 }

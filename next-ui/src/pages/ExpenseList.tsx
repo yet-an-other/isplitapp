@@ -42,15 +42,14 @@ export function ExpenseList() {
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
     return (
-        <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
+        <div className="mt-16 text-dimmed bg-primary-50 p-2 rounded-lg">
             It seems you have not added any expense yet...  <br/>
             Start with <Link href={`/${groupId}/expenses/create`} >add</Link> the first expense. 
         </div>
     )
 }
 
-
-const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]}) => {
+const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}) => {
     return (
         <div className="border-1 rounded-lg p-2">
             {expenses.map((expense, i) => 
@@ -58,7 +57,6 @@ const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]
                     key={expense.id} 
                     className="my-1"
                 >
-
                    {i > 0 && <Divider className="my-1"/>}
                     <div className="flex flex-row items-center">
                         <div className="min-w-7 ">
@@ -70,11 +68,13 @@ const FullList = ({group, expenses} : {group: PartyInfo, expenses: ExpenseInfo[]
                         <div className="text-md font-semibold">{expense.title}</div>
                         <Button 
                             isIconOnly
-                            variant="light" 
-                            href={`/${group.id}/expenses/${expense.id}/edit`}
-                            as="a"
-                            className="float-right ml-auto "
+                            variant="flat"
                             size="sm"
+                            radius="sm"
+                            color="primary"
+                            className="float-right ml-auto bg-primary-50"
+                            as="a" 
+                            href={`/${group.id}/expenses/${expense.id}/edit`}
                         >
                             <EditIcon className="w-5 h-5 stroke-2"/>
                         </Button>
