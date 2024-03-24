@@ -37,7 +37,7 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
 
     if (party.outstandingBalance === 0) {
         return (
-            <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
+            <div className="mt-28 text-dimmed p-2 rounded-lg bg-primary-50">
                 Nothing to show, it looks like you are all set! <br/> 
                 Or have not spent anything yet, in that case you can <Link href={`/${party.id}/expenses/create`} >add</Link> expenses here.
             </div>
@@ -102,14 +102,16 @@ function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEn
                         <div className="flex flex-row items-end mt-1">
                             <Button 
                                 isIconOnly 
-                                variant="flat" 
-                                className="float-right"
+                                variant="flat"
+                                color="primary"
+                                radius="sm" 
+                                className="float-right bg-primary-50"
                                 as="a"
                                 href={
                                     `/${party.id}/expenses/create?title=Reimbursement&amount=${reimburse.amount}&lenderId=${reimburse.fromId}&borrowerId=${reimburse.toId}&isReimbursement=1`
                                 }
                             >
-                                <SendMoneyIcon className="w-[24px] h-[24px] text-primary" />
+                                <SendMoneyIcon className="w-6 h-6" />
                             </Button>
                             <div className="text-dimmed text-xs ml-2">Add the<br/> reimbursement</div>
                         </div>

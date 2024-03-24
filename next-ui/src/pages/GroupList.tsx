@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CreateGroupMenu } from "../controls/CreateGroupMenu";
+import { Accordion, AccordionItem } from "@nextui-org/react";
 
 export function GroupList() {
 
@@ -27,28 +28,45 @@ export function GroupList() {
         const actual = parties.filter(p => !p.isArchived);
         const archived = parties.filter(p => p.isArchived);
         return (
-            <div className="flex flex-col w-full px-4">
-                <h1 className="text-2xl ">Groups</h1>
-                <div className="flex flex-row justify-between text-sm text-dimmed w-full">
-                    Recently visited groups
-                </div>
+            <div className="w-full">
+                <Accordion fullWidth defaultExpandedKeys="1" showDivider={false}>
+                    <AccordionItem 
+                        key="1" 
+                        aria-label="Groups"
+                        title="Groups"
+                        subtitle="Recently visited groups" 
+                        className="overflow-visible-section px-2"
+                        classNames={{
+                            title: "text-2xl"
+                        }}
+                    >
+                        { actual.length > 0 &&
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
+                                    { actual.map(party => <GroupCard key={party.id} party={party} />) }
+                            </div>
+                        }
+                    </AccordionItem>
 
-                { actual.length > 0 &&
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
-                            { parties.map(party => <GroupCard key={party.id} party={party} />) }
-                    </div>
-                }
-                { archived.length > 0 && 
-                    <div>
-                        <h1 className="text-2xl ">Archive</h1>
-                        <div className="flex flex-row justify-between text-sm text-dimmed w-full">
-                            Archived groups
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
-                            {parties.map(party => <GroupCard key={party.id} party={party} />)}
-                        </div>
-                    </div>
-                }
+                    {  
+                        <AccordionItem 
+                            key="2" 
+                            aria-label="Archive"
+                            title="Archive"
+                            subtitle="Archived groups" 
+                            className={`overflow-visible-section px-2 ${archived.length === 0 && 'hidden'}`}
+                            classNames={{
+                                title: "text-2xl"
+                            }}
+                        >
+                            { archived.length > 0 &&
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-5">
+                                    {archived.map(party => <GroupCard key={party.id} party={party} />)}
+                                </div>
+                            }
+                        </AccordionItem>
+                    }
+                </Accordion>
+
                 <CreateGroupMenu />
             </div>
         )

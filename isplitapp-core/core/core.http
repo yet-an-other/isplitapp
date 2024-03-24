@@ -22,7 +22,7 @@ X-USER-ID: {{authToken}}
 ###
 
 # @name get-parties
-GET {{ISplitAppCore_HostAddress}}/parties?filterArchived=actual
+GET {{ISplitAppCore_HostAddress}}/parties
 Accept: application/json
 X-USER-ID: {{authToken}}
 
@@ -31,7 +31,7 @@ X-USER-ID: {{authToken}}
 ###
 
 # @name get-parties-for-default-user
-GET {{ISplitAppCore_HostAddress}}/parties?filterArchived=actual
+GET {{ISplitAppCore_HostAddress}}/parties?filterarchived=archived  
 Accept: application/json
 X-USER-ID: {{defaultUser}}
 
@@ -43,7 +43,7 @@ Content-Type: application/json
 X-USER-ID: {{defaultUser}}
 
 {
-  "isArchived": "true",
+  "isArchived": true
 }
 
 ###
@@ -66,8 +66,8 @@ X-USER-ID: {{defaultUser}}
 
 ###
 
-#@defaultParty = CMNtqKdRjTjnjcJf
-@defaultParty = CMBQhxSsfXzPrxJJ
+@defaultParty = CNBbNkqZRZDSzCtX
+#@defaultParty = CMBQhxSsfXzPrxJJ
 
 # @name change-default-party
 PUT {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}

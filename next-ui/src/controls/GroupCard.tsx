@@ -2,7 +2,7 @@ import { Avatar, Badge, Button, Card, CardBody, CardFooter, CardHeader, Modal, M
 import { PartyInfo } from "../api/contract/PartyInfo"
 import { ArchiveIcon, CashIcon, EditIcon, ExportIcon, ShareIcon, TransactionsIcon, TrashIcon, UsersIcon } from "../icons"
 import { useMatch, useNavigate } from "react-router-dom"
-import { unfollowParty } from "../api/expenseApi"
+import { unfollowParty, updatePartySetings } from "../api/expenseApi"
 import { mutate } from "swr"
 import { useAlerts } from "../utils/useAlerts"
 import { shareLink } from "../utils/shareLink"
@@ -26,12 +26,19 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
         }
     }
 
+    const handleArchive = async () => {
+        console.log('archive')
+        await updatePartySetings(party.id, {isArchived: !party.isArchived});
+        await mutate(`/parties`);
+        //await mutate(`/parties/${party.id}?filterArchived=archived`);
+    }
+
     return (
         <>
             <UnfollowConfirmation confirmationState={confirmationState} partyId={party.id} />
 
-            <Card 
-                className="min-h-[120px] w-full" 
+            <Card
+                className={`min-h-[120px] w-full ${party.isArchived && 'text-dimmed'}`} 
                 isPressable = {!disablePress}
                 as = "form"
                 onPress={() => navigate(`/${party.id}`)}
@@ -48,11 +55,14 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     </div>
                     <Button 
                             isIconOnly 
-                            variant="light" 
-                            className="float-right" 
+                            variant="flat"
+                            color="primary"
+                            radius="sm"
+                            size="md" 
+                            className="float-right bg-primary-50" 
                             onPress={() => void handleShare()}
                         >
-                            <ShareIcon className="w-6 h-6" />
+                            <ShareIcon className="w-5 h-5" />
                         </Button>
                     <h1 className="text-lg">{party.name}</h1>
                 </CardHeader>
@@ -85,12 +95,22 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                         >
                             <TrashIcon className="h-5 w-5"/>
                         </Button>
-                        <div className="hidden">
-                            <div className="w-[1px] bg-divider h-8" />
-                            <Button isIconOnly variant="light" size="sm" color="primary" className="mx-2">
-                                <ArchiveIcon className="h-5 w-5"/>
-                            </Button>
-                        </div>
+
+                        <Button 
+                            isIconOnly 
+                            variant="light" 
+                            size="md" 
+                            color="primary" 
+                            className="mx-2"
+                            radius="none"
+                            onPress={() => void handleArchive()}
+                        >
+                            {party.isArchived
+                                ? <ArchiveIcon className="h-5 w-5"/>
+                                : <ArchiveIcon className="h-5 w-5"/>
+                            }
+                        </Button>
+
 
                         <Button
                             isDisabled={!!match}

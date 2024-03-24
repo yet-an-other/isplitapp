@@ -42,7 +42,7 @@ export function ExpenseList() {
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
     return (
-        <div className="mt-28 text-dimmed border-1 p-2 rounded-lg">
+        <div className="mt-16 text-dimmed bg-primary-50 p-2 rounded-lg">
             It seems you have not added any expense yet...  <br/>
             Start with <Link href={`/${groupId}/expenses/create`} >add</Link> the first expense. 
         </div>
@@ -68,11 +68,13 @@ const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}
                         <div className="text-md font-semibold">{expense.title}</div>
                         <Button 
                             isIconOnly
-                            variant="light" 
-                            href={`/${group.id}/expenses/${expense.id}/edit`}
-                            as="a"
-                            className="float-right ml-auto "
+                            variant="flat"
                             size="sm"
+                            radius="sm"
+                            color="primary"
+                            className="float-right ml-auto bg-primary-50"
+                            as="a" 
+                            href={`/${group.id}/expenses/${expense.id}/edit`}
                         >
                             <EditIcon className="w-5 h-5 stroke-2"/>
                         </Button>

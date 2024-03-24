@@ -2,6 +2,7 @@ import { ensureUserId } from "./userApi";
 import { PartyPayload } from "./contract/PartyPayload";
 import { ProblemError } from "./contract/ProblemError";
 import { ExpensePayload } from "./contract/ExpensePayload";
+import { PartySettingsPayload } from "./contract/PartySettingsPayload";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -45,6 +46,15 @@ export async function createParty(partyPayload: PartyPayload) {
 export async function updateParty(partyId: string, partyPayload: PartyPayload) {
     const endpoint = `/parties/${partyId}`;
     await sendRequest('PUT', endpoint, partyPayload);
+}
+
+/**
+ * Updates existing party party
+ * @param partyPayload new party data
+ */
+export async function updatePartySetings(partyId: string, partySettingsPayload: PartySettingsPayload) {
+    const endpoint = `/parties/${partyId}/settings`;
+    await sendRequest('PUT', endpoint, partySettingsPayload);
 }
 
 /**

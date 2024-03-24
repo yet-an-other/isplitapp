@@ -17,5 +17,12 @@
     }    
 }
 
-@tailwind components;
+
+@tailwind components; 
 @tailwind utilities;
+
+@layer components {
+  .overflow-visible-section > section {
+    overflow: visible !important;
+  }
+};
