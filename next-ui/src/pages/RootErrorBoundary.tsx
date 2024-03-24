@@ -18,11 +18,7 @@ export function RootBoundary() {
         if (error.status === 503) {
             return <ErrorMessage>Looks like our API is down</ErrorMessage>;
         }
-    
-        if (error.status === 418) {
-            return <ErrorMessage>🫖</ErrorMessage>;
-        }
-        }
+    }
   
     return <ErrorMessage>Something went wrong</ErrorMessage>;
 }
