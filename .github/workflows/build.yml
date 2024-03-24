@@ -26,7 +26,8 @@ jobs:
     - name: Set version var
       run: |
         echo "hash=$(echo "${{github.sha}}" | cut -c 1-7)" >> $GITHUB_ENV
-        echo "branch=${${{ github.head_ref || github.ref_name }}##*/}" >> $GITHUB_ENV
+        s=${{ github.head_ref || github.ref_name }}
+        echo "branch=${s##*/}" >> $GITHUB_ENV
 
     - name: generate semver
       uses: paulhatch/semantic-version@v5.1.0
