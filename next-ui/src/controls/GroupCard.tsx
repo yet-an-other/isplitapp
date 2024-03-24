@@ -1,6 +1,6 @@
 import { Avatar, Badge, Button, Card, CardBody, CardFooter, CardHeader, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react"
 import { PartyInfo } from "../api/contract/PartyInfo"
-import { ArchiveIcon, CashIcon, EditIcon, ExportIcon, ShareIcon, TransactionsIcon, TrashIcon, UsersIcon } from "../icons"
+import { ArchiveIcon, CashIcon, EditIcon, ExportIcon, ShareIcon, TransactionsIcon, TrashIcon, UndoIcon, UsersIcon } from "../icons"
 import { useMatch, useNavigate } from "react-router-dom"
 import { unfollowParty, updatePartySetings } from "../api/expenseApi"
 import { mutate } from "swr"
@@ -106,7 +106,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             onPress={() => void handleArchive()}
                         >
                             {party.isArchived
-                                ? <ArchiveIcon className="h-5 w-5"/>
+                                ? <UndoIcon className="h-5 w-5"/>
                                 : <ArchiveIcon className="h-5 w-5"/>
                             }
                         </Button>

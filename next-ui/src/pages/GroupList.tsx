@@ -1,4 +1,3 @@
-
 import useSWR from "swr";
 import { fetcher } from "../api/expenseApi";
 import { PartyInfo } from "../api/contract/PartyInfo";
@@ -29,42 +28,43 @@ export function GroupList() {
         const archived = parties.filter(p => p.isArchived);
         return (
             <div className="w-full">
-                <Accordion fullWidth defaultExpandedKeys="1" showDivider={false}>
+                <Accordion 
+                    fullWidth 
+                    defaultExpandedKeys="1" 
+                    showDivider={false} 
+                >
                     <AccordionItem 
                         key="1" 
                         aria-label="Groups"
                         title="Groups"
                         subtitle="Recently visited groups" 
-                        className="overflow-visible-section px-2"
+                        className="[&>section]:!overflow-y-visible px-2"
                         classNames={{
                             title: "text-2xl"
                         }}
                     >
                         { actual.length > 0 &&
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 w-full">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                     { actual.map(party => <GroupCard key={party.id} party={party} />) }
                             </div>
                         }
                     </AccordionItem>
-
-                    {  
-                        <AccordionItem 
-                            key="2" 
-                            aria-label="Archive"
-                            title="Archive"
-                            subtitle="Archived groups" 
-                            className={`overflow-visible-section px-2 ${archived.length === 0 && 'hidden'}`}
-                            classNames={{
-                                title: "text-2xl"
-                            }}
-                        >
-                            { archived.length > 0 &&
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-5">
-                                    {archived.map(party => <GroupCard key={party.id} party={party} />)}
-                                </div>
-                            }
-                        </AccordionItem>
-                    }
+                    <AccordionItem 
+                        key="2" 
+                        aria-label="Archive"
+                        title="Archive"
+                        subtitle="Archived groups" 
+                        className={`[&>section]:!overflow-y-visible px-2 ${archived.length === 0 && 'hidden'}`}
+                        classNames={{
+                            title: "text-2xl"
+                        }}
+                    >
+                        { archived.length > 0 &&
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-5">
+                                {archived.map(party => <GroupCard key={party.id} party={party} />)}
+                            </div>
+                        }
+                    </AccordionItem>
                 </Accordion>
 
                 <CreateGroupMenu />
