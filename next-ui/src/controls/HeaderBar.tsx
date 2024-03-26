@@ -14,11 +14,33 @@ import {
 } from "@nextui-org/react";
 import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
+import { useState } from "react";
+import { subscribeToPush } from "../utils/subscribeToPush";
 
 export default function HeaderBar() {
 
-    const {isDarkMode, toggle } = useDarkMode();
+    const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const [isSubscription, setSubsctiption] = useState(false);
+
+    const handleSubscription = async () => {
+
+        console.log("Subscription: ", Notification.permission);
+        if (Notification.permission !== "granted") {
+            await Notification.requestPermission()
+                .then(permission => {
+                    if (permission !== "granted") {
+                        console.log("Permission not granted");
+                        return;
+                    }
+                });
+        }
+
+        console.log("Subscribe to push");
+        await subscribeToPush();
+
+        setSubsctiption(!isSubscription);
+    }
 
     return (
         <>
@@ -73,10 +95,22 @@ export default function HeaderBar() {
                             color="primary"
                             startContent={<MoonIcon className="w-[24px] h-[24px]" />}
                             endContent={<SunIcon className="w-[24px] h-[24px]" />}
-                            onChange={() => toggle()}
+                            onChange={() => toggleDarkMode()}
                         >
                             Dark mode
                         </Switch>
+
+                        <Switch
+                            isSelected={isSubscription}
+                            size="lg"
+                            color="primary"
+                            startContent={<MoonIcon className="w-[24px] h-[24px]" />}
+                            endContent={<SunIcon className="w-[24px] h-[24px]" />}
+                            onChange={() => void handleSubscription()}
+                        >
+                            Notifications
+                        </Switch>
+
                     </ModalBody>
                     <ModalFooter>
                         

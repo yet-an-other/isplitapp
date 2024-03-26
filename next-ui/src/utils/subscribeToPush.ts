@@ -1,0 +1,42 @@
+export async function subscribeToPush() {
+    try {
+    console.log("Subscribe to push in service worker");
+    const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+  
+    console.log("Service worker registration", serviceWorkerRegistration);
+    // Check if the user has an existing subscription
+    let pushSubscription = await serviceWorkerRegistration.pushManager.getSubscription();
+    console.log("Subscribed to push notifications 0", pushSubscription);
+    if (pushSubscription) {
+      // The user is already subscribed to push notifications
+      return;
+    }
+  
+  
+      // Subscribe the user to push notifications
+      pushSubscription = await serviceWorkerRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array("BGlD279bin8DnRWlVB6rE5AEJUH8Y5X9J-1O8box3OKkBhTZ8LhB-3RUJt-sFJctufzjaICPDLZse8xE4eyy1uA")
+      });
+      console.log("Subscribed to push notifications", pushSubscription);
+    } catch (err) {
+      // The subscription wasn't successful.
+      console.error("Error", err);
+    }
+  }
+  
+  // Utility function for browser interoperability
+  function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+    
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
