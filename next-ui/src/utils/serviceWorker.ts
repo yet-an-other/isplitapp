@@ -1,7 +1,4 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 export type {};
 declare const self: ServiceWorkerGlobalScope;
 
@@ -50,5 +47,5 @@ class Message {
     title = '';
     body = '';
     icon = '';
-    actions: NotificationAction[] = [];
+    actions = '';
 }
