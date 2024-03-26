@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ "main", "stage" ]
+    branches: [ "main", "stage", "feature/*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -61,6 +61,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         
     - name: Build and push production
+      if: env.branch == 'main'
       uses: docker/build-push-action@v5
       with:
         context: .
