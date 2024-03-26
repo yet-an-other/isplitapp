@@ -95,6 +95,21 @@ export async function deleteExpense(expenseId: string) {
     return await sendRequest('DELETE', endpoint);
 }
 
+/**
+ * Subscribe user to push notifications
+ */
+export async function registerSubscription(subscriptionPayload: PushSubscription) {
+    const endpoint = `/users/subscribe`
+    return await sendRequest('POST', endpoint, subscriptionPayload);
+}
+
+/**
+ * Delete user subscription
+ */
+export async function deleteSubscription() {
+    const endpoint = `/users/subscribe`
+    return await sendRequest('DELETE', endpoint);
+}
 
 /**
  * Allowed Http methods

@@ -1,27 +1,54 @@
+import { deleteSubscription, registerSubscription } from "../api/expenseApi";
+
 export async function subscribeToPush() {
     try {
-    console.log("Subscribe to push in service worker");
-    const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+        const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+
+        // Check if the user has an existing subscription
+        //
+        if (await serviceWorkerRegistration.pushManager.getSubscription()) {
+            return true;
+        }
   
-    console.log("Service worker registration", serviceWorkerRegistration);
-    // Check if the user has an existing subscription
-    let pushSubscription = await serviceWorkerRegistration.pushManager.getSubscription();
-    console.log("Subscribed to push notifications 0", pushSubscription);
-    if (pushSubscription) {
-      // The user is already subscribed to push notifications
-      return;
-    }
-  
-  
-      // Subscribe the user to push notifications
-      pushSubscription = await serviceWorkerRegistration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array("BGlD279bin8DnRWlVB6rE5AEJUH8Y5X9J-1O8box3OKkBhTZ8LhB-3RUJt-sFJctufzjaICPDLZse8xE4eyy1uA")
-      });
-      console.log("Subscribed to push notifications", pushSubscription);
+        // Subscribe the user to push notifications
+        //
+        const pushSubscription = await serviceWorkerRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array("BGlD279bin8DnRWlVB6rE5AEJUH8Y5X9J-1O8box3OKkBhTZ8LhB-3RUJt-sFJctufzjaICPDLZse8xE4eyy1uA")
+        });
+        await registerSubscription(pushSubscription);
+
+
     } catch (err) {
-      // The subscription wasn't successful.
-      console.error("Error", err);
+
+        // The subscription wasn't successful.
+        //
+        console.error("Error", err);
+        return false;
+    }
+
+    return true;
+  }
+
+  export async function getSubscription() {
+    try {
+        const serviceWorkerRegistration = await navigator.serviceWorker.ready;
+        return await serviceWorkerRegistration.pushManager.getSubscription();
+    } catch (err) {
+        console.error("Error", err);
+        return null;
+    }
+  }
+
+  export async function unregisterSubscription() {
+    try {
+        const subscription = await getSubscription();
+        if (subscription) {
+            await subscription.unsubscribe();
+            await deleteSubscription();
+        }
+    } catch (err) {
+        console.error("Error", err);
     }
   }
   

@@ -14,32 +14,42 @@ import {
 } from "@nextui-org/react";
 import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
-import { useState } from "react";
-import { subscribeToPush } from "../utils/subscribeToPush";
+import { useEffect, useState } from "react";
+import { getSubscription, subscribeToPush, unregisterSubscription } from "../utils/subscribeToPush";
 
 export default function HeaderBar() {
 
     const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
-    const [isSubscription, setSubsctiption] = useState(false);
+    const [isSubscription, setSubscription] = useState(false);
 
-    const handleSubscription = async () => {
-
-        console.log("Subscription: ", Notification.permission);
-        if (Notification.permission !== "granted") {
-            await Notification.requestPermission()
-                .then(permission => {
-                    if (permission !== "granted") {
-                        console.log("Permission not granted");
-                        return;
-                    }
-                });
+    useEffect(() => {
+        const checkSubscription = async () => {
+            const subscription = await getSubscription();
+            setSubscription(subscription !== null);
         }
+        void checkSubscription();
+    }, []);
 
-        console.log("Subscribe to push");
-        await subscribeToPush();
+    const toggleSubscription = async () => {
 
-        setSubsctiption(!isSubscription);
+        if (isSubscription) {
+            await unregisterSubscription();
+            setSubscription(false);
+        } else {
+            if (Notification.permission !== "granted") {
+                await Notification
+                    .requestPermission()
+                    .then(permission => {
+                        if (permission !== "granted") {
+                            return;
+                        }
+                    });
+            }
+
+            const subscriptionResult = await subscribeToPush();
+            setSubscription(Notification.permission === "granted" && subscriptionResult);
+        }
     }
 
     return (
@@ -106,7 +116,7 @@ export default function HeaderBar() {
                             color="primary"
                             startContent={<MoonIcon className="w-[24px] h-[24px]" />}
                             endContent={<SunIcon className="w-[24px] h-[24px]" />}
-                            onChange={() => void handleSubscription()}
+                            onChange={() => void toggleSubscription()}
                         >
                             Notifications
                         </Switch>
