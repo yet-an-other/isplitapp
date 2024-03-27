@@ -23,7 +23,7 @@ self.addEventListener('push', function (e) {
             message.title, {
                 body: message.body,
                 icon: message.icon,
-                actions: message.actions
+                //actions: message.actions
             }
         ));
     }
@@ -44,5 +44,5 @@ class Message {
     title = '';
     body = '';
     icon = '';
-    actions: NotificationAction[] = [];
+    //actions: NotificationAction[] = [];
 }
