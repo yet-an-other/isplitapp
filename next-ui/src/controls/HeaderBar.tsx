@@ -16,12 +16,14 @@ import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
 import { getSubscription, subscribeToPush, unregisterSubscription } from "../utils/subscribeToPush";
+import { useAlerts } from "../utils/useAlerts";
 
 export default function HeaderBar() {
 
     const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [isSubscription, setSubscription] = useState(false);
+    const { alertSuccess, alertError } = useAlerts();
 
     useEffect(() => {
         const checkSubscription = async () => {
@@ -36,6 +38,7 @@ export default function HeaderBar() {
         if (isSubscription) {
             await unregisterSubscription();
             setSubscription(false);
+            alertSuccess("Notifications disabled");
         } else {
             if (Notification.permission !== "granted") {
                 await Notification
@@ -49,6 +52,11 @@ export default function HeaderBar() {
 
             const subscriptionResult = await subscribeToPush();
             setSubscription(Notification.permission === "granted" && subscriptionResult);
+            if (subscriptionResult) {
+                alertSuccess("Notifications enabled");
+            } else {
+                alertError("Notifications not enabled");
+            }
         }
     }
 

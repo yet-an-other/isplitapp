@@ -5,21 +5,18 @@ export async function subscribeToPush() {
     try {
         if (!publicKey) 
             throw new Error("VAPID public key is missing");
-        
+
         const serviceWorkerRegistration = await navigator.serviceWorker.ready;
 
         // Check if the user has an existing subscription
         //
-        if (await serviceWorkerRegistration.pushManager.getSubscription()) {
-            return true;
+        let pushSubscription = await serviceWorkerRegistration.pushManager.getSubscription();
+        if (!pushSubscription) {
+            pushSubscription = await serviceWorkerRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
         }
-  
-        // Subscribe the user to push notifications
-        //
-        const pushSubscription = await serviceWorkerRegistration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(publicKey)
-        });
         await registerSubscription(pushSubscription);
         
     } catch (err) {
