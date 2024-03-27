@@ -1,8 +1,11 @@
 import { deleteSubscription, registerSubscription } from "../api/expenseApi";
-const publicKey = import.meta.env.VAPID_PUBLIC_KEY as string;
+const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 
 export async function subscribeToPush() {
     try {
+        if (!publicKey) 
+            throw new Error("VAPID public key is missing");
+        
         const serviceWorkerRegistration = await navigator.serviceWorker.ready;
 
         // Check if the user has an existing subscription
