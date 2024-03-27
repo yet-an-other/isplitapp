@@ -13,18 +13,20 @@ cleanupOutdatedCaches();
 
 // Receive push notifications
 self.addEventListener('push', function (e) {
+    console.log('Got event', e);
     if (!Notification.permission || Notification.permission !== 'granted') {
         return;
     }
 
     if (e.data) {
         const message = e.data.json() as Message;
+        console.log('Got message', message);
         e.waitUntil(self.registration.showNotification(
             message.title, 
             {
                 body: message.body,
-                icon: message.icon,
-                actions: message.actions
+                //icon: message.icon,
+                //actions: message.actions
             } as NotificationOptions
         ));
     }
