@@ -1,6 +1,6 @@
 using System.Text.Json;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Users;
+using IB.ISplitApp.Core.Users.Data;
 using WebPush;
 
 namespace IB.ISplitApp.Core.Utils;

@@ -2,7 +2,7 @@
 using LinqToDB;
 using LinqToDB.Data;
 
-namespace IB.ISplitApp.Core.Users;
+namespace IB.ISplitApp.Core.Users.Data;
 
 public class UserDb(DataOptions<UserDb> options) : DataConnection(options.Options)
 {

@@ -5,6 +5,8 @@ using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Users;
+using IB.ISplitApp.Core.Users.Contract;
+using IB.ISplitApp.Core.Users.Data;
 using IB.ISplitApp.Core.Utils;
 
 using LinqToDB;
@@ -92,6 +94,7 @@ builder.Services.AddTransient<NotificationService>();
 //
 builder.Services.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
 builder.Services.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
+builder.Services.AddTransient<IValidator<SubscriptionPayload>, SubscriptionPayloadValidator>();
 builder.Services.AddTransient<GenericValidator>();
 
 // Add Cors

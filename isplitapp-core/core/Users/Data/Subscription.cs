@@ -1,19 +1,20 @@
+using IB.ISplitApp.Core.Users.Contract;
 using LinqToDB.Mapping;
 using WebPush;
 
-namespace IB.ISplitApp.Core.Users;
+namespace IB.ISplitApp.Core.Users.Data;
 
 [Table("subscription")]
 public record Subscription
 {
     public Subscription() {}
 
-    public Subscription(string userId, PushSubscription pushSubscription)
+    public Subscription(string userId, SubscriptionPayload subscriptionPayload)
     {
         UserId = userId;
-        PushEndpoint = pushSubscription.Endpoint;
-        Auth = pushSubscription.Auth;
-        P256Dh = pushSubscription.P256DH;
+        PushEndpoint = subscriptionPayload.Endpoint;
+        Auth = subscriptionPayload.Keys.Auth;
+        P256Dh = subscriptionPayload.Keys.P256Dh;
     }
     
     [Column("id")]

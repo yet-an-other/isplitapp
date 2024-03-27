@@ -1,3 +1,5 @@
+using IB.ISplitApp.Core.Users.Contract;
+using IB.ISplitApp.Core.Users.Data;
 using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -30,14 +32,14 @@ public static class UserCommand
     
     public static async Task<Results<NoContent, ValidationProblem>> RegisterSubscription(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
-        PushSubscription pushSubscription,
+        SubscriptionPayload subscriptionPayload,
         GenericValidator validator,
         UserDb db)
     {
-        if (!validator.IsValid(userId, out var validationResult))
+        if (!validator.IsValid(userId, subscriptionPayload, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
-        
-        await db.InsertAsync(new Subscription(userId!, pushSubscription));
+
+        await db.InsertAsync(new Subscription(userId!, subscriptionPayload));
         return TypedResults.NoContent();
     }
     
