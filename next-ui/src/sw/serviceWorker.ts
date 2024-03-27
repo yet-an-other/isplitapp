@@ -1,49 +1,48 @@
 /// <reference lib="webworker" />
-export default null;
-declare const self: ServiceWorkerGlobalScope;
+// export default null;
+//declare const self: ServiceWorkerGlobalScope;
 
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { Message } from './Message';
 
 
-// Register precache routes (static cache)
-// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-precacheAndRoute(self.__WB_MANIFEST || []);
+precacheAndRoute((self as unknown as ServiceWorkerGlobalScope).__WB_MANIFEST || []);
 
-// Clean up old cache
-cleanupOutdatedCaches();
+(function (self: ServiceWorkerGlobalScope) {
 
-// Receive push notifications
-self.addEventListener('push', function (e) {
-    if (!Notification.permission || Notification.permission !== 'granted') {
-        return;
-    }
+    // Register precache routes (static cache)
+    // precacheAndRoute(self.__WB_MANIFEST || []);
 
-    if (e.data) {
-        const message = e.data.json() as Message;
-        e.waitUntil(self.registration.showNotification(
-            message.title, {
-                body: message.body,
-                icon: message.icon,
-                //actions: message.actions
-            }
-        ));
-    }
-});
+    // Clean up old cache
+    cleanupOutdatedCaches();
 
-// Click and open notification
-self.addEventListener(
-    'notificationclick', 
-    function(event) {
-        event.notification.close();
-        self.clients.openWindow(event.action)
-            .catch(e => console.error(e)); // Open link from action
-    }, 
-    false
-);
+    // Receive push notifications
+    self.addEventListener('push', function (e) {
+        if (!Notification.permission || Notification.permission !== 'granted') {
+            return;
+        }
 
-class Message {
-    title = '';
-    body = '';
-    icon = '';
-    actions: NotificationAction[] = [];
-}
+        if (e.data) {
+            const message = e.data.json() as Message;
+            e.waitUntil(this.registration.showNotification(
+                message.title, {
+                    body: message.body,
+                    icon: message.icon,
+                    //actions: message.actions
+                }
+            ));
+        }
+    });
+
+    // Click and open notification
+    self.addEventListener(
+        'notificationclick', 
+        function(event) {
+            event.notification.close();
+            this.clients.openWindow(event.action)
+                .catch(e => console.error(e)); // Open link from action
+        }, 
+        false
+    );
+
+}).call(self as unknown as ServiceWorkerGlobalScope, self as unknown as ServiceWorkerGlobalScope);
