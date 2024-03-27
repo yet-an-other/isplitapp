@@ -26,6 +26,7 @@ self.addEventListener('push', function (e) {
             message.title, 
             {
                 body: message.body,
+                data: message.expenseId,
                 //icon: message.icon,
                 //actions: message.actions
             } 
@@ -38,7 +39,7 @@ self.addEventListener(
     'notificationclick', 
     function(event) {
         event.notification.close();
-        self.clients.openWindow(event.action)
+        self.clients.openWindow(`/${event.notification.data as string}/expenses`)
             .catch(e => console.error(e)); // Open link from action
     }, 
     false
@@ -48,5 +49,5 @@ class Message {
     title = '';
     body = '';
     icon = '';
-   // actions: NotificationAction[] = [];
+    expenseId = '';
 }

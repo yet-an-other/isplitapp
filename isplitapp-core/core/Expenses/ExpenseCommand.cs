@@ -354,7 +354,8 @@ public static class ExpenseCommand
             var message = new
             {
                 title = "New Expense",
-                body = $"{expense.Title}, ${expense.FuAmount}, Paid by {expense.LenderId}"
+                body = $"{expense.Title}\n ${expense.FuAmount}\n",
+                expenseId
             };            
             await notificationService.PushMessage(partyId!, message);
         }
