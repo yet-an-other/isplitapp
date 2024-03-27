@@ -22,16 +22,6 @@ self.addEventListener('push', function (e) {
         const message = e.data.json() as Message;
         console.log('Got message', message);
 
-
-        e.waitUntil(
-            navigator.serviceWorker.ready
-            .then(reg => reg.showNotification(message.title, {
-                body: message.body,
-                //icon: message.icon,
-                //actions: message.actions
-            }))
-        );
-
         e.waitUntil(self.registration.showNotification(
             message.title, 
             {
