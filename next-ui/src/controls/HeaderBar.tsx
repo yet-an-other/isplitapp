@@ -55,7 +55,7 @@ export default function HeaderBar() {
             if (subscriptionResult) {
                 alertSuccess("Notifications enabled");
             } else {
-                alertError("Notifications not enabled");
+                alertError(`Notifications not enabled permission: ${Notification.permission}, result: ${subscriptionResult}`);
             }
         }
     }

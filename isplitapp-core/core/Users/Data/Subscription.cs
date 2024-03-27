@@ -18,7 +18,7 @@ public record Subscription
     }
     
     [Column("id")]
-    [PrimaryKey]
+    [PrimaryKey, Identity]
     public int Id { get; init; }
 
     [Column("user_id")]
