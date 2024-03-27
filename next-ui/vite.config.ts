@@ -11,7 +11,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       manifest: false,
       strategies: 'injectManifest',
-      srcDir: 'src/sw',
+      srcDir: 'src/utils',
       filename: 'serviceWorker.ts',
       outDir: 'dist',
 
