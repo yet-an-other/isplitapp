@@ -106,6 +106,10 @@ app.MapFallbackToFile("index.html");
 
 app.MapGet("/login", UserCommand.Login).WithName("Login");
 
+var userApi = app.MapGroup("/users");
+userApi.MapPost("/subscribe", UserCommand.RegisterSubscription).WithName("Subscribe");
+userApi.MapDelete("/subscribe", UserCommand.DeleteSubscription).WithName("UnSubscribe");
+
 var partyApi = app.MapGroup("/parties");
 partyApi.MapPost("/", ExpenseCommand.PartyCreate).WithName("CreateParty");
 partyApi.MapPut("/{partyId}", ExpenseCommand.PartyUpdate).WithName("UpdateParty");

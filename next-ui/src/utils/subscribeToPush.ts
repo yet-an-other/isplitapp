@@ -1,4 +1,5 @@
 import { deleteSubscription, registerSubscription } from "../api/expenseApi";
+const publicKey = import.meta.env.VAPID_PUBLIC_KEY as string;
 
 export async function subscribeToPush() {
     try {
@@ -14,11 +15,10 @@ export async function subscribeToPush() {
         //
         const pushSubscription = await serviceWorkerRegistration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array("BGlD279bin8DnRWlVB6rE5AEJUH8Y5X9J-1O8box3OKkBhTZ8LhB-3RUJt-sFJctufzjaICPDLZse8xE4eyy1uA")
+            applicationServerKey: urlBase64ToUint8Array(publicKey)
         });
         await registerSubscription(pushSubscription);
-
-
+        
     } catch (err) {
 
         // The subscription wasn't successful.

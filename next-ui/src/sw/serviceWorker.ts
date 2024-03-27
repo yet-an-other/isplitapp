@@ -1,4 +1,5 @@
-export type {};
+/// <reference lib="webworker" />
+export default null;
 declare const self: ServiceWorkerGlobalScope;
 
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
@@ -44,5 +45,5 @@ class Message {
     title = '';
     body = '';
     icon = '';
-    //actions: NotificationAction[] = [];
+    actions: NotificationAction[] = [];
 }

@@ -25,4 +25,19 @@ public static class UserCommand
                 ? new User(IdUtil.NewId()) 
                 : new User(userId!));
     }
+    
+    public static async Task<Results<NoContent, ValidationProblem>> RegisterSubscription(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
+        string subscriptionPayload)
+    {
+
+        return TypedResults.NoContent();
+    }
+    
+    public static async Task<Results<NoContent, ValidationProblem>> DeleteSubscription(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId)
+    {
+
+        return TypedResults.NoContent();
+    }
 }
