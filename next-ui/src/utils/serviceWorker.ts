@@ -20,7 +20,8 @@ self.addEventListener('push', function (e) {
     if (e.data) {
         const message = e.data.json() as Message;
         e.waitUntil(self.registration.showNotification(
-            message.title, {
+            message.title, 
+            {
                 body: message.body,
                 icon: message.icon,
                 actions: message.actions

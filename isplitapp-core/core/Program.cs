@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Migrations;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using WebPush;
 
 var version = Assembly
     .GetEntryAssembly()
@@ -73,6 +74,19 @@ builder.Services.AddLinqToDBContext<ExpenseDb>((provider, options)
     => options
         .UsePostgreSQL(connectionString!, PostgreSQLVersion.v15)
         .UseDefaultLogging(provider));
+builder.Services.AddLinqToDBContext<UserDb>((provider, options)
+    => options
+        .UsePostgreSQL(connectionString!, PostgreSQLVersion.v15)
+        .UseDefaultLogging(provider));
+
+// Add notification config
+//
+var section = builder.Configuration.GetSection("Vapid");
+var vapidDetails = (VapidDetails)section.Get(typeof(VapidDetails))!;
+builder.Services.AddSingleton(vapidDetails);
+builder.Services.AddTransient<NotificationService>();
+
+
 
 // Add validation objects
 //

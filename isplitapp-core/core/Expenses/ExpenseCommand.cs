@@ -1,13 +1,16 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Utils;
 using IB.ISplitApp.Core.Expenses.Contract;
+using IB.ISplitApp.Core.Users;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.Tools;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using WebPush;
 
 namespace IB.ISplitApp.Core.Expenses;
 
@@ -317,20 +320,21 @@ public static class ExpenseCommand
     /// <param name="partyId">Unique party identifier</param>
     /// <param name="expense">Expense payload</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
-    /// <param name="db">DataContext object</param>
+    /// <param name="edb">DataContext object</param>
     /// <returns>Returns 201 with path if everything is ok</returns>
     public static async Task<Results<CreatedAtRoute, ValidationProblem>> ExpenseCreate(
         string? partyId,
         ExpensePayload expense,
         GenericValidator validator,
-        ExpenseDb db)
+        ExpenseDb edb,
+        NotificationService? notificationService)
     {
         if (!validator.IsValid(IdUtil.DefaultId, partyId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
-        await db.BeginTransactionAsync();
+        await edb.BeginTransactionAsync();
         string expenseId = IdUtil.NewId();
-        await db.InsertAsync(new Expense
+        await edb.InsertAsync(new Expense
         {
             Id = expenseId,
             PartyId = partyId!,
@@ -342,9 +346,20 @@ public static class ExpenseCommand
             SplitMode = expense.SplitMode
         });
 
-        await InsertBorrowersAsync(expenseId, expense, db);
-        await db.CommitTransactionAsync();
+        await InsertBorrowersAsync(expenseId, expense, edb);
+        await edb.CommitTransactionAsync();
         
+        if (notificationService != null)
+        {
+            var message = new
+            {
+                title = "New Expense",
+                body = $"{expense.Title}, ${expense.FuAmount}, Paid by {expense.LenderId}"
+            };            
+            await notificationService.PushMessage(partyId!, message);
+        }
+
+
         return TypedResults.CreatedAtRoute(
             "GetExpense", 
             new RouteValueDictionary([new KeyValuePair<string, string>("expenseId", expenseId)]));

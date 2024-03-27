@@ -28,6 +28,7 @@
       <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
       <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
       <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
+      <PackageReference Include="WebPush" Version="1.0.12" />
       <PackageReference Include="Zanaptak.IdGenerator" Version="0.4.0" />
     </ItemGroup>
 
@@ -42,6 +43,10 @@
       <EmbeddedResource Include="SqlMigrations\v2-Down.sql" />
       <None Remove="SqlMigrations\v2-Up.sql" />
       <EmbeddedResource Include="SqlMigrations\v2-Up.sql" />
+      <None Remove="SqlMigrations\v3-Down.sql" />
+      <EmbeddedResource Include="SqlMigrations\v3-Down.sql" />
+      <None Remove="SqlMigrations\v3-Up.sql" />
+      <EmbeddedResource Include="SqlMigrations\v3-Up.sql" />
     </ItemGroup>
 
     <ItemGroup>

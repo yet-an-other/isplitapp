@@ -399,7 +399,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Act
         //
-        var postExpense = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, new GenericValidator(_serviceProvider), _db);
+        var postExpense = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, new GenericValidator(_serviceProvider), _db, null);
         
         // Assert
         //
@@ -471,7 +471,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Act
         //
-        var postExpense = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, new GenericValidator(_serviceProvider), _db);
+        var postExpense = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, new GenericValidator(_serviceProvider), _db, null);
         
         // Assert
         //

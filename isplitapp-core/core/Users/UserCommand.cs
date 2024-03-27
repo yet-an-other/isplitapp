@@ -1,6 +1,8 @@
 using IB.ISplitApp.Core.Utils;
+using LinqToDB;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using WebPush;
 
 namespace IB.ISplitApp.Core.Users;
 
@@ -28,16 +30,26 @@ public static class UserCommand
     
     public static async Task<Results<NoContent, ValidationProblem>> RegisterSubscription(
         [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
-        string subscriptionPayload)
+        PushSubscription pushSubscription,
+        GenericValidator validator,
+        UserDb db)
     {
-
+        if (!validator.IsValid(userId, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+        
+        await db.InsertAsync(new Subscription(userId!, pushSubscription));
         return TypedResults.NoContent();
     }
     
     public static async Task<Results<NoContent, ValidationProblem>> DeleteSubscription(
-        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId)
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
+        GenericValidator validator,
+        UserDb db)
     {
+        if (!validator.IsValid(userId, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
+        await db.Subscriptions.DeleteAsync(s => s.UserId == userId);        
         return TypedResults.NoContent();
     }
 }

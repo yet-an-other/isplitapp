@@ -103,7 +103,7 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
         
         // Act
         //
-        var updateResult = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, validator, _db);
+        var updateResult = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, validator, _db, null);
         Assert.IsType<CreatedAtRoute>(updateResult.Result);
         var route = (CreatedAtRoute) updateResult.Result;
         route.RouteValues.TryGetValue("expenseId", out var id);
