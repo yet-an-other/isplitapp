@@ -2,7 +2,7 @@ export type {};
 declare const self: ServiceWorkerGlobalScope;
 
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
-import { NotificationAction } from './swTypes';
+import { NotificationAction, NotificationOptions } from './swTypes';
 
 
 // Register precache routes (static cache)
@@ -24,7 +24,7 @@ self.addEventListener('push', function (e) {
                 body: message.body,
                 icon: message.icon,
                 actions: message.actions
-            }
+            } as NotificationOptions
         ));
     }
 });
