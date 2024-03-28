@@ -9,7 +9,7 @@ export interface NotificationOptions {
     actions?: NotificationAction[];
     badge?: string;
     body?: string;
-    data?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    data?: CustomData; 
     dir?: NotificationDirection;
     icon?: string;
     image?: string;
@@ -20,4 +20,14 @@ export interface NotificationOptions {
     tag?: string;
     timestamp?: EpochTimeStamp;
     vibrate?: VibratePattern;
+}
+
+export class NotificationMessage {
+    title = '';
+    body = '';
+    data = {} as CustomData;
+}
+
+export class CustomData {
+    partyId = '';
 }
