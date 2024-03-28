@@ -8,9 +8,12 @@ using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Tests.DatabaseTests;
 
+[Collection("database")]
 public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDisposable
 {
     
@@ -101,9 +104,12 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
         var validator = new GenericValidator(_serviceProvider);
 
         
+        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
+        var notificationMoq = new Mock<NotificationService>(loggerMoq, null, null, null);
+        
         // Act
         //
-        var updateResult = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, validator, _db, null);
+        var updateResult = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, validator, _db, notificationMoq.Object);
         Assert.IsType<CreatedAtRoute>(updateResult.Result);
         var route = (CreatedAtRoute) updateResult.Result;
         route.RouteValues.TryGetValue("expenseId", out var id);

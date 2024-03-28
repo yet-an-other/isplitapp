@@ -321,19 +321,20 @@ public static class ExpenseCommand
     /// <param name="expense">Expense payload</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="edb">DataContext object</param>
+    /// <param name="notificationService">Service to notify participants about the change</param>
     /// <returns>Returns 201 with path if everything is ok</returns>
     public static async Task<Results<CreatedAtRoute, ValidationProblem>> ExpenseCreate(
         string? partyId,
         ExpensePayload expense,
         GenericValidator validator,
         ExpenseDb edb,
-        NotificationService? notificationService)
+        NotificationService notificationService)
     {
         if (!validator.IsValid(IdUtil.DefaultId, partyId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
         await edb.BeginTransactionAsync();
-        string expenseId = IdUtil.NewId();
+        var expenseId = IdUtil.NewId();
         await edb.InsertAsync(new Expense
         {
             Id = expenseId,
@@ -349,18 +350,8 @@ public static class ExpenseCommand
         await InsertBorrowersAsync(expenseId, expense, edb);
         await edb.CommitTransactionAsync();
         
-        if (notificationService != null)
-        {
-            var message = new
-            {
-                title = "New Expense",
-                body = $"{expense.Title}\n ${expense.FuAmount}\n",
-                expenseId
-            };            
-            await notificationService.PushMessage(partyId!, message);
-        }
-
-
+        await notificationService.PushMessage(expenseId, "New expense");
+        
         return TypedResults.CreatedAtRoute(
             "GetExpense", 
             new RouteValueDictionary([new KeyValuePair<string, string>("expenseId", expenseId)]));
@@ -374,14 +365,16 @@ public static class ExpenseCommand
     /// <param name="expense">Expense payload</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
     /// <param name="db">DataContext object</param>
+    /// <param name="notificationService">Service to notify participants about the change</param>
     /// <returns>Returns 204 with path if everything is ok</returns>
     public static async Task<Results<NoContent, NotFound, ValidationProblem>> ExpenseUpdate(
         string? expenseId,
         ExpensePayload expense,
         GenericValidator validator,
-        ExpenseDb db)
+        ExpenseDb db,
+        NotificationService notificationService)
     {
-        if (!validator.IsValid(IdUtil.DefaultId, expenseId, expense, out var validationResult))
+        if (!validator.IsValid(expenseId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
         await db.BeginTransactionAsync();
@@ -400,6 +393,8 @@ public static class ExpenseCommand
         await db.Borrowers.Where(b => b.ExpenseId == expenseId).DeleteAsync();
         await InsertBorrowersAsync(expenseId!, expense, db);
         await db.CommitTransactionAsync();
+        
+        await notificationService.PushMessage(expenseId!, "Expense updated");
         
         return TypedResults.NoContent();
     }

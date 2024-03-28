@@ -39,7 +39,13 @@ public static class UserCommand
         if (!validator.IsValid(userId, subscriptionPayload, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
-        await db.InsertAsync(new Subscription(userId!, subscriptionPayload));
+        await db.Subscriptions
+            .Merge()
+            .Using([new Subscription(userId!, subscriptionPayload)])
+            .On(t=> t.PushEndpoint, s =>s.PushEndpoint)
+            .InsertWhenNotMatched()
+            .MergeAsync();
+        // await db.InsertAsync(new Subscription(userId!, subscriptionPayload));
         return TypedResults.NoContent();
     }
     

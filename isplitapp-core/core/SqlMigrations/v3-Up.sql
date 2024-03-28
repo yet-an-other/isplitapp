@@ -10,3 +10,4 @@ CREATE TABLE subscription(
 );
 
 CREATE UNIQUE INDEX idx_subscription_endpoint ON subscription (push_endpoint);
+-- CREATE UNIQUE INDEX idx_subscription_user_id ON subscription (user_id);
