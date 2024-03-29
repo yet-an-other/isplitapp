@@ -33,6 +33,17 @@ export default function HeaderBar() {
 
     const toggleSubscription = async () => {
 
+        // handle iOS notifications
+        //
+        const w = window as unknown as Window;
+        if (w.webkit?.messageHandlers?.toggleNotification) { 
+            w.webkit.messageHandlers.toggleNotification.postMessage({
+                "message": `${isSubscription ? "unsubscribe" : "subscribe"}`
+            });
+            setSubscription(!isSubscription);
+            return
+        }
+
         if (isSubscription) {
             await unregisterSubscription();
             setSubscription(false);
@@ -110,7 +121,7 @@ export default function HeaderBar() {
                             Dark mode
                         </Switch>
 
-                        {!((window as unknown as Window).webkit) &&
+                        {//!((window as unknown as Window).webkit) &&
                             <Switch
                                 isSelected={isSubscription}
                                 size="lg"
@@ -132,6 +143,18 @@ export default function HeaderBar() {
     )
 }
 
-class Window {
-    webkit: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+interface Window {
+    webkit: Webkit;
+}
+
+interface Webkit {
+    messageHandlers: MessageHandler; 
+}
+
+interface MessageHandler {
+    toggleNotification: INotify;
+}
+
+interface INotify {
+    postMessage: (message: { message: string }) => void;
 }

@@ -244,5 +244,18 @@ extension ViewController: WKScriptMessageHandler {
         if message.name == "push-token" {
             handleFCMToken()
         }
+      
+      print("received message")
+      if message.name == "toggle-notification" {
+          
+          guard let dict = message.body as? [String : AnyObject] else {
+              return
+          }
+          
+          print(dict)
+      }
   }
+    
 }
+
+
