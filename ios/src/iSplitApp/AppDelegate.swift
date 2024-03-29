@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       //      completionHandler: {_, _ in })
 
 // TODO: if we're using Firebase, uncomment next string
-        // application.registerForRemoteNotifications()
+        application.registerForRemoteNotifications()
 
         // [END register_for_notifications]
         return true

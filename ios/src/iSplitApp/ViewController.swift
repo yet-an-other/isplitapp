@@ -246,11 +246,16 @@ extension ViewController: WKScriptMessageHandler {
         }
       
       print("received message")
-      if message.name == "toggle-notification" {
+      if message.name == "toggleNotification" {
           
           guard let dict = message.body as? [String : AnyObject] else {
               return
           }
+          
+          let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+          UNUserNotificationCenter.current().requestAuthorization(
+               options: authOptions,
+               completionHandler: {_, _ in })
           
           print(dict)
       }
