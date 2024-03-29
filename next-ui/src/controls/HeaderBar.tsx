@@ -110,17 +110,18 @@ export default function HeaderBar() {
                             Dark mode
                         </Switch>
 
-                        <Switch
-                            isSelected={isSubscription}
-                            size="lg"
-                            color="primary"
-                            startContent={<MoonIcon className="w-[24px] h-[24px]" />}
-                            endContent={<SunIcon className="w-[24px] h-[24px]" />}
-                            onChange={() => void toggleSubscription()}
-                        >
-                            Notifications
-                        </Switch>
-
+                        {!((window as unknown as Window).webkit) &&
+                            <Switch
+                                isSelected={isSubscription}
+                                size="lg"
+                                color="primary"
+                                startContent={<MoonIcon className="w-[24px] h-[24px]" />}
+                                endContent={<SunIcon className="w-[24px] h-[24px]" />}
+                                onChange={() => void toggleSubscription()}
+                            >
+                                Notifications
+                            </Switch>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         
@@ -129,4 +130,8 @@ export default function HeaderBar() {
             </Modal>
         </>
     )
+}
+
+class Window {
+    webkit: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }

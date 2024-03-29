@@ -55,7 +55,7 @@ public class NotificationService(ILogger<NotificationService> logger, VapidDetai
             var message = new Message
             {
                 Title = title,
-                Body = $"{expense.Title}\n {expense.Amount}\n Paid by {expense.LenderName}",
+                Body = $"{expense.Title}\n {expense.Amount} {expense.Currency}\n Paid by {expense.LenderName}",
                 Data = new CustomData
                 {
                     PartyId = expense.PartyId
