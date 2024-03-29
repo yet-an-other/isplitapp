@@ -40,9 +40,7 @@ export default function HeaderBar() {
             w.webkit.messageHandlers.toggleNotification.postMessage({
                 "message": `${isSubscription ? "unsubscribe" : "subscribe"}`
             });
-            //setSubscription(!isSubscription);
-            const subscriptionResult = await subscribeToPush();
-            setSubscription(subscriptionResult);
+            setSubscription(!isSubscription);
             return
         }
 

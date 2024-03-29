@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
 // TODO: if we're using Firebase, uncomment next string
-        //FirebaseApp.configure()
+        FirebaseApp.configure()
 
         // [START set_messaging_delegate]
         Messaging.messaging().delegate = self

@@ -257,6 +257,8 @@ extension ViewController: WKScriptMessageHandler {
                options: authOptions,
                completionHandler: {_, _ in })
           
+          handleFCMToken()
+          
           print(dict)
       }
   }
