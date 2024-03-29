@@ -1,6 +1,11 @@
 import { deleteSubscription, registerSubscription } from "../api/expenseApi";
 const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 
+
+export async function subscribeIos() {
+    return true;
+}
+
 export async function subscribeToPush() {
     try {
         if (!publicKey) 

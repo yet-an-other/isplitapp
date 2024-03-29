@@ -15,7 +15,11 @@ import {
 import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
-import { getSubscription, subscribeToPush, unregisterSubscription } from "../utils/subscribeToPush";
+import { getSubscription, subscribeIos, subscribeToPush, unregisterSubscription } from "../utils/subscribeToPush";
+
+interface RegisterEvent extends Event {
+    fcmToken: string;
+}
 
 export default function HeaderBar() {
 
@@ -30,6 +34,17 @@ export default function HeaderBar() {
         }
         void checkSubscription();
     }, []);
+
+    addEventListener('register-subscription', (e) => {
+
+        alert((e as RegisterEvent).fcmToken);
+
+        void (async () => {
+            if ((e as RegisterEvent).fcmToken){
+                setSubscription(await subscribeIos((e as RegisterEvent).fcmToken));
+            }
+        })();
+    });
 
     const toggleSubscription = async () => {
 
