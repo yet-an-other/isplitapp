@@ -136,7 +136,7 @@ func handlePushState() {
 func checkViewAndEvaluate(event: String, detail: String) {
     if (!iSplitApp.webView.isHidden && !iSplitApp.webView.isLoading ) {
         DispatchQueue.main.async(execute: {
-            iSplitApp.webView.evaluateJavaScript("this.dispatchEvent(new CustomEvent('\(event)', { fcmToken: \(detail) }))")
+            iSplitApp.webView.evaluateJavaScript("this.dispatchEvent(new CustomEvent('\(event)', { detail: { fcmToken: \(detail) }}))")
         })
     }
     else {
@@ -144,6 +144,7 @@ func checkViewAndEvaluate(event: String, detail: String) {
             checkViewAndEvaluate(event: event, detail: detail)
         }
     }
+    print("send message");
 }
 
 func handleFCMToken(){
@@ -155,7 +156,6 @@ func handleFCMToken(){
             } else if let token = token {
                 print("FCM registration token: \(token)")
                 checkViewAndEvaluate(event: "register-subscription", detail: "'\(token)'")
-                checkViewAndEvaluate(event: "register-subscription", detail: "test")
             }
         }   
     })

@@ -37,18 +37,21 @@ export default function HeaderBar() {
         void checkSubscription();
     }, []);
 
-    addEventListener('register-subscription', (e) => {
-        e.stopPropagation();
+    const handleIosRegister = async (e: RegisterEvent) => {
+        const fcmToken = e.detail.fcmToken;
+        alert(fcmToken);
 
-        const fcmToken = (e as RegisterEvent).detail;
-        alert(fcmToken.fcmToken);
+        if (fcmToken){
+            setSubscription(await subscribeIos(fcmToken));
+        }        
+    }
 
-        void (async () => {
-            if (fcmToken.fcmToken){
-                setSubscription(await subscribeIos(fcmToken.fcmToken));
-            }
-        })();
-    }, false);
+    useEffect(() => {
+        addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        return () => {
+            removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        }
+    }, []);
 
     const toggleSubscription = async () => {
 
