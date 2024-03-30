@@ -18,7 +18,9 @@ import { useEffect, useState } from "react";
 import { getSubscription, subscribeIos, subscribeToPush, unregisterSubscription } from "../utils/subscribeToPush";
 
 interface RegisterEvent extends Event {
-    fcmToken: string;
+    detail: {
+        fcmToken: string;
+    }
 }
 
 export default function HeaderBar() {
@@ -36,15 +38,17 @@ export default function HeaderBar() {
     }, []);
 
     addEventListener('register-subscription', (e) => {
+        e.stopPropagation();
 
-        alert((e as RegisterEvent).fcmToken);
+        const fcmToken = (e as RegisterEvent).detail;
+        alert(fcmToken.fcmToken);
 
         void (async () => {
-            if ((e as RegisterEvent).fcmToken){
-                setSubscription(await subscribeIos((e as RegisterEvent).fcmToken));
+            if (fcmToken.fcmToken){
+                setSubscription(await subscribeIos(fcmToken.fcmToken));
             }
         })();
-    });
+    }, false);
 
     const toggleSubscription = async () => {
 

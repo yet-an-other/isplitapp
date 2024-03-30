@@ -155,6 +155,7 @@ func handleFCMToken(){
             } else if let token = token {
                 print("FCM registration token: \(token)")
                 checkViewAndEvaluate(event: "register-subscription", detail: "'\(token)'")
+                checkViewAndEvaluate(event: "register-subscription", detail: "test")
             }
         }   
     })
