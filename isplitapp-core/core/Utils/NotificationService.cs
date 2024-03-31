@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Users.Data;
@@ -8,9 +10,10 @@ using WebPush;
 
 namespace IB.ISplitApp.Core.Utils;
 
-public class NotificationService(ILogger<NotificationService> logger, VapidDetails vapidDetails, ExpenseDb edb, UserDb udb)
+public class NotificationService(
+    ILogger<NotificationService> logger, FirebaseApp firebaseApp, VapidDetails vapidDetails, ExpenseDb edb, UserDb udb)
 {
-    private class Message
+    private class WebMessage
     {
         [JsonPropertyName("title")] 
         public string Title { get; init; } = string.Empty;
@@ -52,7 +55,7 @@ public class NotificationService(ILogger<NotificationService> logger, VapidDetai
             if (expense == null)
                 return;
 
-            var message = new Message
+            var webMessage = new WebMessage
             {
                 Title = title,
                 Body = $"{expense.Title}\n {expense.Amount} {expense.Currency}\n Paid by {expense.LenderName}",
@@ -62,6 +65,19 @@ public class NotificationService(ILogger<NotificationService> logger, VapidDetai
                 }
             };
 
+            var iosMessage = new Message
+            {
+                Notification = new Notification
+                {
+                    Title = webMessage.Title,
+                    Body = webMessage.Body
+                },
+                Data = new Dictionary<string, string>
+                {
+                    { "partyId", webMessage.Data.PartyId }
+                }
+            };
+            
             // Send message
             //
             var pushClient = new WebPushClient();
@@ -72,10 +88,20 @@ public class NotificationService(ILogger<NotificationService> logger, VapidDetai
 
             foreach (var subscription in subscriptions)
             {
-                await pushClient.SendNotificationAsync(
-                    subscription.PushSubscription(),
-                    JsonSerializer.Serialize(message),
-                    vapidDetails);
+                if (subscription.IsIos)
+                {
+                    iosMessage.Token = subscription.DeviceFcmToken;
+                    var result = await FirebaseMessaging.DefaultInstance.SendAsync(iosMessage);
+                    logger.LogInformation("iOS notification send {result}", result);
+                }
+                else
+                {
+                    await pushClient.SendNotificationAsync(
+                        subscription.PushSubscription(),
+                        JsonSerializer.Serialize(webMessage),
+                        vapidDetails);    
+                }
+                
             }
         }
         catch (Exception exception)

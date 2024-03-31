@@ -12,6 +12,8 @@ public record Subscription
     public Subscription(string userId, SubscriptionPayload subscriptionPayload)
     {
         UserId = userId;
+        IsIos = subscriptionPayload.IsIos;
+        DeviceFcmToken = subscriptionPayload.DeviceFcmToken;
         PushEndpoint = subscriptionPayload.Endpoint;
         Auth = subscriptionPayload.Keys.Auth;
         P256Dh = subscriptionPayload.Keys.P256Dh;
@@ -23,6 +25,12 @@ public record Subscription
 
     [Column("user_id")]
     public string UserId { get; init; } = string.Empty;
+
+    [Column("is_ios")]
+    public bool IsIos { get; init; } = false;
+
+    [Column("device_fcm_token")] 
+    public string DeviceFcmToken { get; init; } = string.Empty;
     
     [Column("push_endpoint")]
     public string PushEndpoint { get; init; } = string.Empty;

@@ -247,13 +247,11 @@ extension ViewController: WKScriptMessageHandler {
       
       
       if message.name == "checkPermission" {
-          print("handle permission status")
-          handlePermissionStatus()
+          checkPermissionStatus()
       }
       
       if message.name == "toggleNotification" {
-          print("handle permission")
-          handlePermission()
+          requestNotificationPermission()
       }
   }
     

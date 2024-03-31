@@ -4,8 +4,14 @@ const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function subscribeIos(fcmToken: string) {
-    console.log("iOS token", fcmToken);
-    return true;
+    try {
+        await registerSubscription({ isIos: true, deviceFcmToken: fcmToken });
+        return true;
+    }
+    catch (err) {
+        console.error("Error", err);
+        return false;
+    }
 }
 
 export async function subscribeToPush() {

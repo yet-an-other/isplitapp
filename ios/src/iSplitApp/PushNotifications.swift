@@ -175,31 +175,34 @@ func sendPushToWebView(userInfo: [AnyHashable: Any]){
 
 
 
-
+/**
+ Call the JS event in the react app
+ */
 func dispatchToJs<T: Codable>(event: String, data: T) {
-    if (!iSplitApp.webView.isHidden && !iSplitApp.webView.isLoading ) {
-        
-        do {
-            let jsonData = try JSONEncoder().encode(data)
-            let json = String(data: jsonData, encoding: .utf8)!
-            print("send: \(json)")
-            DispatchQueue.main.async(execute: {
+    DispatchQueue.main.async {
+        if (!iSplitApp.webView.isHidden && !iSplitApp.webView.isLoading ) {
+            do {
+                let jsonData = try JSONEncoder().encode(data)
+                let json = String(data: jsonData, encoding: .utf8)!
                 iSplitApp.webView.evaluateJavaScript("this.dispatchEvent(new CustomEvent('\(event)', { detail: \(json) }))")
-            })
-        } catch {
-            print("dispatch error")
-            return
+            } catch {
+                print("dispatch error")
+                return
+            }
         }
-    }
-    else {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            dispatchToJs(event: event, data: data)
+        else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                dispatchToJs(event: event, data: data)
+            }
         }
     }
 }
 
-func handleFcmToken() {
-    DispatchQueue.main.async(execute: {
+/**
+ * Get actual token and push it into the react app
+ */
+func pushActualFcmToken() {
+    DispatchQueue.main.async {
         
         UNUserNotificationCenter.current().getNotificationSettings () { settings in
             
@@ -217,7 +220,7 @@ func handleFcmToken() {
                         data: RegistrationResult(isRegistrationSuccess: false, error: error.localizedDescription)
                     )
                 } else if let token = token {
-                    print("FCM registration token: \(token)")
+                    print("Success fetching FCM registration token: \(token)")
                     dispatchToJs(
                         event:"register-subscription",
                         data: RegistrationResult(isRegistrationSuccess: true, fcmToken: token)
@@ -225,48 +228,36 @@ func handleFcmToken() {
                 }
             }
         }
-    })
+    }
 }
 
-func handlePermission() {
+/**
+ * Request notification permission if status is not determined and push the result to the react app
+ */
+func requestNotificationPermission() {
     UNUserNotificationCenter.current().getNotificationSettings () { settings in
-            switch settings.authorizationStatus {
-            case .notDetermined:
-                let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-                UNUserNotificationCenter.current().requestAuthorization(
-                    options: authOptions,
-                    completionHandler: { (success, error) in
-                        if error == nil {
-                            if success == true {
-                                DispatchQueue.main.async {
-                                  UIApplication.shared.registerForRemoteNotifications()
-                                }
-                                dispatchPermissionGranted()
-                                handleFcmToken()
-                            }
-                            else {
-                                dispatchPermissionDenied()
-                            }
-                        }
-                        else {
-                            dispatchPermissionDenied()
-                        }
+        
+        if (settings.authorizationStatus == .notDetermined) {
+            UNUserNotificationCenter.current().requestAuthorization(
+                options:  [.alert, .badge, .sound],
+                completionHandler: { (success, error) in
+                    if error == nil && success == true {
+                        dispatchPermissionGranted()
+                        pushActualFcmToken()
                     }
-                )
-            case .denied:
-                dispatchPermissionDenied()
-            case .authorized, .ephemeral, .provisional:
-                dispatchToJs(
-                    event:"permission-status",
-                    data: PermissionStatus(permissionStatus: "granted")
-                )
-            @unknown default:
-                return;
-            }
+                    else {
+                        dispatchPermissionDenied(reason: error?.localizedDescription)
+                    }
+                }
+            )
         }
+    }
 }
 
-func handlePermissionStatus() {
+/**
+ * Check permission status and push the result into the react app
+ */
+func checkPermissionStatus() {
     UNUserNotificationCenter.current().getNotificationSettings () { settings in
         switch settings.authorizationStatus {
         case .notDetermined:
@@ -288,10 +279,10 @@ func dispatchPermissionGranted() {
     )
 }
 
-func dispatchPermissionDenied() {
+func dispatchPermissionDenied(reason: String? = "") {
     dispatchToJs(
         event:"permission-status",
-        data: PermissionStatus(permissionStatus: "denied")
+        data: PermissionStatus(permissionStatus: "denied", reason: reason)
     )
 }
 
@@ -310,4 +301,5 @@ struct RegistrationResult: Codable {
 
 struct PermissionStatus: Codable {
     var permissionStatus: String
+    var reason: String?
 }

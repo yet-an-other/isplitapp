@@ -19,7 +19,6 @@ import { getSubscription, subscribeIos, subscribeToPush, unregisterSubscription 
 
 interface RegisterEvent extends Event {
     detail: {
-        isGranted: boolean;
         isRegistrationSuccess: boolean;
         fcmToken: string;
         error: string;
@@ -29,6 +28,7 @@ interface RegisterEvent extends Event {
 interface CheckPermissionEvent extends Event {
     detail: {
         permissionStatus: "granted" | "denied" | "not-determined";
+        reason: string;
     }
 }
 
@@ -62,14 +62,17 @@ export default function HeaderBar() {
         if (e.detail.permissionStatus !== "not-determined"){
             setSubsToggleDisabled(true);
             setSubscription(e.detail.permissionStatus === "granted");
+            if (e.detail.permissionStatus === "denied" && e.detail.reason) {
+                console.warn("Notifications are disabled", e.detail.reason)
+            }
         }
     }
 
-    const handleIosRegister = async (e: RegisterEvent) => {
-        const fcmToken = e.detail.fcmToken;
-
-        if (e.detail.isRegistrationSuccess && fcmToken) {
-            await subscribeIos(fcmToken)
+    const handleIosRegister = async ({ detail }: RegisterEvent) => {
+        if (detail.isRegistrationSuccess && detail.fcmToken) {
+            await subscribeIos(detail.fcmToken)
+        } else {
+            console.warn("Failed to register for notifications", detail.error);
         }
     }
 
@@ -98,14 +101,10 @@ export default function HeaderBar() {
             await unregisterSubscription();
             setSubscription(false);
         } else {
-            if (Notification.permission !== "granted") {
-                await Notification
-                    .requestPermission()
-                    .then(permission => {
-                        if (permission !== "granted") {
-                            return;
-                        }
-                    });
+
+            if (Notification.permission !== "granted" && 
+                await Notification.requestPermission() !== "granted" ) {
+                return;
             }
 
             const subscriptionResult = await subscribeToPush();
@@ -185,7 +184,7 @@ export default function HeaderBar() {
                             </Switch>
                             <span className="text-xs text-dimmed">
                                 { isSubsToggleDisabled 
-                                 ? "To switch on or off notifications, go to the settings -> notifications -> iSplitApp."
+                                 ? "To switch on or off notifications, you need to open Settings -> Notifications -> iSplitApp, toggle the notifications switch and reload iSplitApp."
                                  : "This enables notifications about new or changed expenses in your group."
                                 }
                             </span>

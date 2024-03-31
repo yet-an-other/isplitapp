@@ -4,7 +4,6 @@ using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using WebPush;
 
 namespace IB.ISplitApp.Core.Users;
 
@@ -42,10 +41,11 @@ public static class UserCommand
         await db.Subscriptions
             .Merge()
             .Using([new Subscription(userId!, subscriptionPayload)])
-            .On(t=> t.PushEndpoint, s =>s.PushEndpoint)
+            .On(t=> t.UserId, s => s.UserId)
             .InsertWhenNotMatched()
+            .UpdateWhenMatched()
             .MergeAsync();
-        // await db.InsertAsync(new Subscription(userId!, subscriptionPayload));
+
         return TypedResults.NoContent();
     }
     

@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
 using FluentValidation;
+using Google.Apis.Auth.OAuth2;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Contract;
@@ -86,7 +88,16 @@ builder.Services.AddLinqToDBContext<UserDb>((provider, options)
 var section = builder.Configuration.GetSection("Vapid");
 var vapidDetails = (VapidDetails)section.Get(typeof(VapidDetails))!;
 builder.Services.AddSingleton(vapidDetails);
+var fbkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "secret/fbkey.json");
+Console.WriteLine($"fbkey path: {fbkeyPath}");
+builder.Services.AddSingleton<FirebaseApp>(
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.FromFile(fbkeyPath)
+    })
+);
 builder.Services.AddTransient<NotificationService>();
+
 
 
 

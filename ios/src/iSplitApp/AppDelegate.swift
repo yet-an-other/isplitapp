@@ -9,31 +9,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window : UIWindow?
 
     func application(_ application: UIApplication,
-                       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-// TODO: if we're using Firebase, uncomment next string
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         FirebaseApp.configure()
-
-        // [START set_messaging_delegate]
         Messaging.messaging().delegate = self
-        // [END set_messaging_delegate]
-        // Register for remote notifications. This shows a permission dialog on first run, to
-        // show the dialog at a more appropriate time move this registration accordingly.
-        // [START register_for_notifications]
-   
         UNUserNotificationCenter.current().delegate = self
-
-      //  let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-      //  UNUserNotificationCenter.current().requestAuthorization(
-      //      options: authOptions,
-      //      completionHandler: {_, _ in })
-
-// TODO: if we're using Firebase, uncomment next string
         application.registerForRemoteNotifications()
-
-        // [END register_for_notifications]
         return true
-      }
+    }
 
       // [START receive_message]
       func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
@@ -136,7 +119,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let dataDict:[String: String] = ["token": fcmToken ?? ""]
         NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
         //handleFCMToken()
-          handleFcmToken()
+          pushActualFcmToken()
         // TODO: If necessary send token to application server.
         // Note: This callback is fired at each app startup and whenever a new token is generated.
       }
