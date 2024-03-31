@@ -9,11 +9,6 @@ func createWebView(container: UIView, WKSMH: WKScriptMessageHandler, WKND: WKNav
     let config = WKWebViewConfiguration()
     let userContentController = WKUserContentController()
 
-    userContentController.add(WKSMH, name: "print")
-    userContentController.add(WKSMH, name: "push-subscribe")
-    userContentController.add(WKSMH, name: "push-permission-request")
-    userContentController.add(WKSMH, name: "push-permission-state")
-    userContentController.add(WKSMH, name: "push-token")
     userContentController.add(WKSMH, name: "toggleNotification")
     userContentController.add(WKSMH, name: "checkPermission")
 
@@ -178,9 +173,6 @@ extension ViewController: WKUIDelegate, WKDownloadDelegate {
                         // not tested
                         downloadAndOpenFile(url: requestUrl.absoluteURL)
                     }
-                    // if (requestUrl.absoluteString.contains("base64")){
-                    //     downloadAndOpenBase64File(base64String: requestUrl.absoluteString)
-                    // }
                 }
             }
         }

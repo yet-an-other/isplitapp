@@ -75,6 +75,13 @@ public class NotificationService(
                 Data = new Dictionary<string, string>
                 {
                     { "partyId", webMessage.Data.PartyId }
+                },
+                Apns = new ApnsConfig
+                {
+                    Aps = new Aps
+                    {
+                        Sound = "default"
+                    }
                 }
             };
             
@@ -90,9 +97,18 @@ public class NotificationService(
             {
                 if (subscription.IsIos)
                 {
-                    iosMessage.Token = subscription.DeviceFcmToken;
-                    var result = await FirebaseMessaging.DefaultInstance.SendAsync(iosMessage);
-                    logger.LogInformation("iOS notification send {result}", result);
+                    try
+                    {
+                        iosMessage.Token = subscription.DeviceFcmToken;
+                        var result = await FirebaseMessaging.DefaultInstance.SendAsync(iosMessage);
+                        logger.LogInformation("iOS notification send {result}", result);
+                    }
+                    catch (FirebaseMessagingException fbException)
+                    {
+                        logger.LogWarning(fbException, "ErrorCode: {errorCode}", fbException.ErrorCode);
+                        if (fbException.ErrorCode == ErrorCode.NotFound)
+                            await udb.Subscriptions.DeleteAsync(s => s.UserId == subscription.UserId);
+                    }
                 }
                 else
                 {

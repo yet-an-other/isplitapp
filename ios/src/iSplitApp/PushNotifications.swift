@@ -198,6 +198,19 @@ func dispatchToJs<T: Codable>(event: String, data: T) {
     }
 }
 
+func openPath(urlPath: String) {
+    DispatchQueue.main.async {
+        if (!iSplitApp.webView.isHidden && !iSplitApp.webView.isLoading ) {
+            iSplitApp.webView.evaluateJavaScript("window.location.replace('\(urlPath)')")
+        }
+        else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                openPath(urlPath: urlPath)
+            }
+        }
+    }
+}
+
 /**
  * Get actual token and push it into the react app
  */
