@@ -19,7 +19,16 @@ import { getSubscription, subscribeIos, subscribeToPush, unregisterSubscription 
 
 interface RegisterEvent extends Event {
     detail: {
+        isGranted: boolean;
+        isRegistrationSuccess: boolean;
         fcmToken: string;
+        error: string;
+    }
+}
+
+interface CheckPermissionEvent extends Event {
+    detail: {
+        permissionStatus: "granted" | "denied" | "not-determined";
     }
 }
 
@@ -28,28 +37,48 @@ export default function HeaderBar() {
     const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [isSubscription, setSubscription] = useState(false);
+    const [isSubsToggleDisabled, setSubsToggleDisabled] = useState(false);
 
     useEffect(() => {
         const checkSubscription = async () => {
+
+            // handle iOS 
+            //
+            const w = window as unknown as Window;
+            if (w.webkit?.messageHandlers?.checkPermission) { 
+                w.webkit.messageHandlers.checkPermission.postMessage({
+                    "message": "check-permission"
+                });
+                return
+            }
+
             const subscription = await getSubscription();
             setSubscription(subscription !== null);
         }
         void checkSubscription();
     }, []);
 
+    const handleIosStatus = (e: CheckPermissionEvent) => {
+        if (e.detail.permissionStatus !== "not-determined"){
+            setSubsToggleDisabled(true);
+            setSubscription(e.detail.permissionStatus === "granted");
+        }
+    }
+
     const handleIosRegister = async (e: RegisterEvent) => {
         const fcmToken = e.detail.fcmToken;
-        alert(fcmToken);
 
-        if (fcmToken){
-            setSubscription(await subscribeIos(fcmToken));
-        }        
+        if (e.detail.isRegistrationSuccess && fcmToken) {
+            await subscribeIos(fcmToken)
+        }
     }
 
     useEffect(() => {
         addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        addEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
         return () => {
             removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+            removeEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
         }
     }, []);
 
@@ -62,7 +91,6 @@ export default function HeaderBar() {
             w.webkit.messageHandlers.toggleNotification.postMessage({
                 "message": `${isSubscription ? "unsubscribe" : "subscribe"}`
             });
-            setSubscription(!isSubscription);
             return
         }
 
@@ -143,9 +171,10 @@ export default function HeaderBar() {
                             Dark mode
                         </Switch>
 
-                        {//!((window as unknown as Window).webkit) &&
+
                             <Switch
                                 isSelected={isSubscription}
+                                isDisabled={isSubsToggleDisabled}
                                 size="lg"
                                 color="primary"
                                 startContent={<MoonIcon className="w-[24px] h-[24px]" />}
@@ -154,7 +183,13 @@ export default function HeaderBar() {
                             >
                                 Notifications
                             </Switch>
-                        }
+                            <span className="text-xs text-dimmed">
+                                { isSubsToggleDisabled 
+                                 ? "To switch on or off notifications, go to the settings -> notifications -> iSplitApp."
+                                 : "This enables notifications about new or changed expenses in your group."
+                                }
+                            </span>
+                        
                     </ModalBody>
                     <ModalFooter>
                         
@@ -166,17 +201,13 @@ export default function HeaderBar() {
 }
 
 interface Window {
-    webkit: Webkit;
+    webkit: {
+        messageHandlers: {
+            toggleNotification: INotify;
+            checkPermission: INotify;
+        }
+    };
 }
-
-interface Webkit {
-    messageHandlers: MessageHandler; 
-}
-
-interface MessageHandler {
-    toggleNotification: INotify;
-}
-
 interface INotify {
     postMessage: (message: { message: string }) => void;
 }

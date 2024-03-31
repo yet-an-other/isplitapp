@@ -245,21 +245,15 @@ extension ViewController: WKScriptMessageHandler {
             handleFCMToken()
         }
       
-      print("received message")
+      
+      if message.name == "checkPermission" {
+          print("handle permission status")
+          handlePermissionStatus()
+      }
+      
       if message.name == "toggleNotification" {
-          
-          guard let dict = message.body as? [String : AnyObject] else {
-              return
-          }
-          
-          let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-          UNUserNotificationCenter.current().requestAuthorization(
-               options: authOptions,
-               completionHandler: {_, _ in })
-          
-          handleFCMToken()
-          
-          print(dict)
+          print("handle permission")
+          handlePermission()
       }
   }
     

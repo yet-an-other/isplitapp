@@ -172,3 +172,142 @@ func sendPushToWebView(userInfo: [AnyHashable: Any]){
     }
     checkViewAndEvaluate(event: "push-notification", detail: json)
 }
+
+
+
+
+func dispatchToJs<T: Codable>(event: String, data: T) {
+    if (!iSplitApp.webView.isHidden && !iSplitApp.webView.isLoading ) {
+        
+        do {
+            let jsonData = try JSONEncoder().encode(data)
+            let json = String(data: jsonData, encoding: .utf8)!
+            print("send: \(json)")
+            DispatchQueue.main.async(execute: {
+                iSplitApp.webView.evaluateJavaScript("this.dispatchEvent(new CustomEvent('\(event)', { detail: \(json) }))")
+            })
+        } catch {
+            print("dispatch error")
+            return
+        }
+    }
+    else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            dispatchToJs(event: event, data: data)
+        }
+    }
+}
+
+func handleFcmToken() {
+    DispatchQueue.main.async(execute: {
+        
+        UNUserNotificationCenter.current().getNotificationSettings () { settings in
+            
+            if settings.authorizationStatus == .denied ||
+                settings.authorizationStatus == .notDetermined {
+                print("Notification permissions are not granted")
+                return
+            }
+            
+            Messaging.messaging().token { token, error in
+                if let error = error {
+                    print("Error fetching FCM registration token: \(error)")
+                    dispatchToJs(
+                        event:"register-subscription",
+                        data: RegistrationResult(isRegistrationSuccess: false, error: error.localizedDescription)
+                    )
+                } else if let token = token {
+                    print("FCM registration token: \(token)")
+                    dispatchToJs(
+                        event:"register-subscription",
+                        data: RegistrationResult(isRegistrationSuccess: true, fcmToken: token)
+                    )
+                }
+            }
+        }
+    })
+}
+
+func handlePermission() {
+    UNUserNotificationCenter.current().getNotificationSettings () { settings in
+            switch settings.authorizationStatus {
+            case .notDetermined:
+                let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+                UNUserNotificationCenter.current().requestAuthorization(
+                    options: authOptions,
+                    completionHandler: { (success, error) in
+                        if error == nil {
+                            if success == true {
+                                DispatchQueue.main.async {
+                                  UIApplication.shared.registerForRemoteNotifications()
+                                }
+                                dispatchPermissionGranted()
+                                handleFcmToken()
+                            }
+                            else {
+                                dispatchPermissionDenied()
+                            }
+                        }
+                        else {
+                            dispatchPermissionDenied()
+                        }
+                    }
+                )
+            case .denied:
+                dispatchPermissionDenied()
+            case .authorized, .ephemeral, .provisional:
+                dispatchToJs(
+                    event:"permission-status",
+                    data: PermissionStatus(permissionStatus: "granted")
+                )
+            @unknown default:
+                return;
+            }
+        }
+}
+
+func handlePermissionStatus() {
+    UNUserNotificationCenter.current().getNotificationSettings () { settings in
+        switch settings.authorizationStatus {
+        case .notDetermined:
+            dispatchPermissionNotDetermined()
+        case .denied:
+            dispatchPermissionDenied()
+        case .authorized, .ephemeral, .provisional:
+            dispatchPermissionGranted()
+        @unknown default:
+            return;
+        }
+    }
+}
+
+func dispatchPermissionGranted() {
+    dispatchToJs(
+        event:"permission-status",
+        data: PermissionStatus(permissionStatus: "granted")
+    )
+}
+
+func dispatchPermissionDenied() {
+    dispatchToJs(
+        event:"permission-status",
+        data: PermissionStatus(permissionStatus: "denied")
+    )
+}
+
+func dispatchPermissionNotDetermined() {
+    dispatchToJs(
+        event:"permission-status",
+        data: PermissionStatus(permissionStatus: "not-determined")
+    )
+}
+
+struct RegistrationResult: Codable {
+    var isRegistrationSuccess: Bool
+    var fcmToken: String?
+    var error: String?
+}
+
+struct PermissionStatus: Codable {
+    var permissionStatus: String
+}
