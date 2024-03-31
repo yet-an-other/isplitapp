@@ -1,3 +1,4 @@
+import { IosSubscriptionPayload } from "../api/contract/IosSubscriptionPayload";
 import { deleteSubscription, registerSubscription } from "../api/expenseApi";
 const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 
@@ -5,7 +6,7 @@ const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function subscribeIos(fcmToken: string) {
     try {
-        await registerSubscription({ isIos: true, deviceFcmToken: fcmToken });
+        await registerSubscription({ isIos: true, deviceFcmToken: fcmToken } as IosSubscriptionPayload);
         return true;
     }
     catch (err) {
