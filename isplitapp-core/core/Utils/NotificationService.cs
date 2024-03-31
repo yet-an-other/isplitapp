@@ -93,7 +93,7 @@ public class NotificationService(
                 where up.PartyId == expense.PartyId
                 select s;
 
-            foreach (var subscription in subscriptions)
+            foreach (var subscription in await subscriptions.ToArrayAsync())
             {
                 if (subscription.IsIos)
                 {
