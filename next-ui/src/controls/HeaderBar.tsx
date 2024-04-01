@@ -15,7 +15,7 @@ import {
 import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
-import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/subscribeToPush";
+import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
 
 interface RegisterEvent extends Event {
     detail: {
