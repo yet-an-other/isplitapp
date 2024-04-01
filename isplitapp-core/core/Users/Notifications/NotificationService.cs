@@ -42,7 +42,6 @@ public class NotificationService(
             
             // Get subscribers list
             //
-            
             var subscriptions = await (from s in udb.Subscriptions
                 join up in edb.UserParty on s.UserId equals up.UserId
                 where up.PartyId == messageData.PartyId && s.UserId != userId // exclude device which made changes

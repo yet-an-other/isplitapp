@@ -12,7 +12,7 @@ import {
     Switch, 
     useDisclosure 
 } from "@nextui-org/react";
-import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
+import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
@@ -163,8 +163,8 @@ export default function HeaderBar() {
                             isSelected={isDarkMode}
                             size="lg"
                             color="primary"
-                            startContent={<MoonIcon className="w-[24px] h-[24px]" />}
-                            endContent={<SunIcon className="w-[24px] h-[24px]" />}
+                            startContent={<SunIcon />}
+                            endContent={<MoonIcon />}
                             onChange={() => toggleDarkMode()}
                         >
                             Dark mode
@@ -176,16 +176,16 @@ export default function HeaderBar() {
                                 isDisabled={isSubsToggleDisabled}
                                 size="lg"
                                 color="primary"
-                                startContent={<MoonIcon className="w-[24px] h-[24px]" />}
-                                endContent={<SunIcon className="w-[24px] h-[24px]" />}
+                                startContent={<BellIcon />}
+                                endContent={<BellRingIcon />}
                                 onChange={() => void toggleSubscription()}
                             >
                                 Notifications
                             </Switch>
-                            <span className="text-xs text-dimmed">
+                            <span className="text-xs text-dimmed -mt-1">
                                 { isSubsToggleDisabled 
                                  ? "To switch on or off notifications, you need to open Settings -> Notifications -> iSplitApp, toggle the notifications switch and reload iSplitApp."
-                                 : "This enables notifications about new or changed expenses in your group."
+                                 : "Enable notifications about new or changed expenses in your groups."
                                 }
                             </span>
                         
