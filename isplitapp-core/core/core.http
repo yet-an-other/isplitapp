@@ -102,13 +102,13 @@ Accept: application/json
 Content-Type: application/json
 
 {
-  "title": "My first expense",
+  "title": "My first expense 2",
   "amount": "180",
-  "lenderId": "CMNtqSfBDHsqPskN",
+  "lenderId": "CNBbNktpttCbSXTN",
   "date": "{{$datetime iso8601}}",
   "borrowers": [
-    { "participantId": "CMNtqSfBXhkskPPP" },
-    { "participantId": "CMNtqSfBDHsqPskN" }
+    { "participantId": "CNBbNktpttCbSXTN" },
+    { "participantId": "CNBbNktpnXTqFBdC" }
   ]
 }
 
@@ -229,3 +229,35 @@ Accept: application/json
 
 GET http://localhost:5096/apple-app-site-association
 Accept: application/json
+
+
+
+###
+
+POST {{ISplitAppCore_HostAddress}}/users/subscribe
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+{
+
+  "endpoint":"https://fcm.googleapis.com/fcm/send/clt-Xw7kCrw:APA91bHOv1dFZ6WOmmkjEshaNArbLPgReQ_dDuqwwtzK5m6cGxuMxIAHbrwSjVrjCxY3KMuJSQKM-dKkmWpNIJnkEO2Pgs6u66x4vwd0_tnjaFlK5RtcAbA8uKMXVIect8rVmr97WaG2",
+  "expirationTime":null,
+  "keys":
+    {
+      "p256dh":"BG6yFAJrBkdCf-fTPTFyPLdsL6b2jvs3CZnjwpRAhknOEfXouv-FXfue6iEL4TdYn6HMOts8i6f44Hwgwhx1qMo",
+      "auth":"drqoE9vRegkpm5gjPqU2eg"
+    }
+}
+
+### 
+
+POST {{ISplitAppCore_HostAddress}}/users/subscribe
+Accept: application/json
+Content-Type: application/json
+X-USER-ID: {{defaultUser}}
+
+{
+  "isIos": true,
+  "deviceFcmToken": "cl"
+}

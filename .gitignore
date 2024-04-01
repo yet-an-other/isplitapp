@@ -424,3 +424,4 @@ fabric.properties
 .DS_Store
 *.local
 dist/
+secret/

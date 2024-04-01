@@ -12,13 +12,105 @@ import {
     Switch, 
     useDisclosure 
 } from "@nextui-org/react";
-import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
+import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
+import { useEffect, useState } from "react";
+import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
+
+interface RegisterEvent extends Event {
+    detail: {
+        isRegistrationSuccess: boolean;
+        fcmToken: string;
+        error: string;
+    }
+}
+
+interface CheckPermissionEvent extends Event {
+    detail: {
+        permissionStatus: "granted" | "denied" | "not-determined";
+        reason: string;
+    }
+}
 
 export default function HeaderBar() {
 
-    const {isDarkMode, toggle } = useDarkMode();
+    const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const [isSubscription, setSubscription] = useState(false);
+    const [isSubsToggleDisabled, setSubsToggleDisabled] = useState(false);
+
+    useEffect(() => {
+        const checkSubscription = async () => {
+
+            // handle iOS 
+            //
+            const w = window as unknown as Window;
+            if (w.webkit?.messageHandlers?.checkPermission) { 
+                w.webkit.messageHandlers.checkPermission.postMessage({
+                    "message": "check-permission"
+                });
+                return
+            }
+
+            const subscription = await getSubscription();
+            setSubscription(subscription !== null);
+        }
+        void checkSubscription();
+    }, []);
+
+    const handleIosStatus = (e: CheckPermissionEvent) => {
+        if (e.detail.permissionStatus !== "not-determined"){
+            setSubsToggleDisabled(true);
+            setSubscription(e.detail.permissionStatus === "granted");
+            if (e.detail.permissionStatus === "denied" && e.detail.reason) {
+                console.warn("Notifications are disabled", e.detail.reason)
+            }
+        }
+    }
+
+    const handleIosRegister = async ({ detail }: RegisterEvent) => {
+        if (detail.isRegistrationSuccess && detail.fcmToken) {
+            await subscribeForIosPush(detail.fcmToken)
+        } else {
+            console.warn("Failed to register for notifications", detail.error);
+        }
+    }
+
+    useEffect(() => {
+        addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        addEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
+        return () => {
+            removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+            removeEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
+        }
+    }, []);
+
+    const toggleSubscription = async () => {
+
+        // handle iOS notifications
+        //
+        const w = window as unknown as Window;
+        if (w.webkit?.messageHandlers?.toggleNotification) { 
+            w.webkit.messageHandlers.toggleNotification.postMessage({
+                "message": `${isSubscription ? "unsubscribe" : "subscribe"}`
+            });
+            return
+        }
+
+        if (isSubscription) {
+            await unsubscribeWebPush();
+            setSubscription(false);
+        } else {
+
+            if (Notification.permission !== "granted" && 
+                await Notification.requestPermission() !== "granted" ) {
+                return;
+            }
+
+            const subscriptionResult = await subscribeForWebPush();
+            setSubscription(Notification.permission === "granted" && subscriptionResult);
+        }
+    }
 
     return (
         <>
@@ -71,12 +163,32 @@ export default function HeaderBar() {
                             isSelected={isDarkMode}
                             size="lg"
                             color="primary"
-                            startContent={<MoonIcon className="w-[24px] h-[24px]" />}
-                            endContent={<SunIcon className="w-[24px] h-[24px]" />}
-                            onChange={() => toggle()}
+                            startContent={<SunIcon />}
+                            endContent={<MoonIcon />}
+                            onChange={() => toggleDarkMode()}
                         >
                             Dark mode
                         </Switch>
+
+
+                            <Switch
+                                isSelected={isSubscription}
+                                isDisabled={isSubsToggleDisabled}
+                                size="lg"
+                                color="primary"
+                                startContent={<BellIcon />}
+                                endContent={<BellRingIcon />}
+                                onChange={() => void toggleSubscription()}
+                            >
+                                Notifications
+                            </Switch>
+                            <span className="text-xs text-dimmed -mt-1">
+                                { isSubsToggleDisabled 
+                                 ? "To switch on or off notifications, you need to open Settings -> Notifications -> iSplitApp, toggle the notifications switch and reload iSplitApp."
+                                 : "Enable notifications about new or changed expenses in your groups."
+                                }
+                            </span>
+                        
                     </ModalBody>
                     <ModalFooter>
                         
@@ -85,4 +197,16 @@ export default function HeaderBar() {
             </Modal>
         </>
     )
+}
+
+interface Window {
+    webkit: {
+        messageHandlers: {
+            toggleNotification: INotify;
+            checkPermission: INotify;
+        }
+    };
+}
+interface INotify {
+    postMessage: (message: { message: string }) => void;
 }

@@ -3,6 +3,7 @@ import { PartyPayload } from "./contract/PartyPayload";
 import { ProblemError } from "./contract/ProblemError";
 import { ExpensePayload } from "./contract/ExpensePayload";
 import { PartySettingsPayload } from "./contract/PartySettingsPayload";
+import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -95,6 +96,21 @@ export async function deleteExpense(expenseId: string) {
     return await sendRequest('DELETE', endpoint);
 }
 
+/**
+ * Subscribe user to push notifications
+ */
+export async function registerSubscription(subscriptionPayload: PushSubscription | IosSubscriptionPayload) {
+    const endpoint = `/users/subscribe`
+    return await sendRequest('POST', endpoint, subscriptionPayload);
+}
+
+/**
+ * Delete user subscription
+ */
+export async function deleteSubscription() {
+    const endpoint = `/users/subscribe`
+    return await sendRequest('DELETE', endpoint);
+}
 
 /**
  * Allowed Http methods

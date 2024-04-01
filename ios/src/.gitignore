@@ -90,3 +90,4 @@ fastlane/test_output
 iOSInjectionProject/
 /Podfile.lock
 /Pods
+GoogleService-Info.plist

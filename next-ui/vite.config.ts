@@ -10,6 +10,11 @@ export default defineConfig({
     VitePWA({ 
       registerType: 'autoUpdate',
       manifest: false,
+      strategies: 'injectManifest',
+      srcDir: 'src/utils',
+      filename: 'serviceWorker.ts',
+      outDir: 'dist',
+
 
       // add this to cache all the imports
       //

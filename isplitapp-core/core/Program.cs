@@ -1,10 +1,15 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
 using FluentValidation;
+using Google.Apis.Auth.OAuth2;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Users;
+using IB.ISplitApp.Core.Users.Contract;
+using IB.ISplitApp.Core.Users.Data;
+using IB.ISplitApp.Core.Users.Notifications;
 using IB.ISplitApp.Core.Utils;
 
 using LinqToDB;
@@ -15,6 +20,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Migrations;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using WebPush;
 
 var version = Assembly
     .GetEntryAssembly()
@@ -73,11 +79,33 @@ builder.Services.AddLinqToDBContext<ExpenseDb>((provider, options)
     => options
         .UsePostgreSQL(connectionString!, PostgreSQLVersion.v15)
         .UseDefaultLogging(provider));
+builder.Services.AddLinqToDBContext<UserDb>((provider, options)
+    => options
+        .UsePostgreSQL(connectionString!, PostgreSQLVersion.v15)
+        .UseDefaultLogging(provider));
+
+// Add notification config
+//
+var section = builder.Configuration.GetSection("Vapid");
+var vapidDetails = (VapidDetails)section.Get(typeof(VapidDetails))!;
+builder.Services.AddSingleton(vapidDetails);
+
+var fbkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "secret/fbkey.json");
+builder.Services.AddSingleton(
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.FromFile(fbkeyPath)
+    })
+);
+
+builder.Services.AddTransient<NotificationService>();
+
 
 // Add validation objects
 //
 builder.Services.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
 builder.Services.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
+builder.Services.AddTransient<IValidator<SubscriptionPayload>, SubscriptionPayloadValidator>();
 builder.Services.AddTransient<GenericValidator>();
 
 // Add Cors
@@ -105,6 +133,10 @@ app.UseRouting();
 app.MapFallbackToFile("index.html");
 
 app.MapGet("/login", UserCommand.Login).WithName("Login");
+
+var userApi = app.MapGroup("/users");
+userApi.MapPost("/subscribe", UserCommand.RegisterSubscription).WithName("Subscribe");
+userApi.MapDelete("/subscribe", UserCommand.DeleteSubscription).WithName("UnSubscribe");
 
 var partyApi = app.MapGroup("/parties");
 partyApi.MapPost("/", ExpenseCommand.PartyCreate).WithName("CreateParty");

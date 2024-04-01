@@ -37,7 +37,7 @@ class ViewController: UIViewController, WKNavigationDelegate, UIDocumentInteract
         initToolbarView()
         loadRootUrl()
     
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification , object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         
     }
 
@@ -227,22 +227,23 @@ extension UIColor {
     }
 }
 
+// Hadle requests form the react app
+//
 extension ViewController: WKScriptMessageHandler {
-  func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == "print" {
-            printView(webView: iSplitApp.webView)
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        
+        // check current permissions and return result to the react app
+        //
+        if message.name == "checkPermission" {
+            checkPermissionStatus()
         }
-        if message.name == "push-subscribe" {
-            handleSubscribeTouch(message: message)
+        
+        // try to get notification permissions and return result to the react app
+        //
+        if message.name == "toggleNotification" {
+            requestNotificationPermission()
         }
-        if message.name == "push-permission-request" {
-            handlePushPermission()
-        }
-        if message.name == "push-permission-state" {
-            handlePushState()
-        }
-        if message.name == "push-token" {
-            handleFCMToken()
-        }
-  }
+    }
 }
+
+

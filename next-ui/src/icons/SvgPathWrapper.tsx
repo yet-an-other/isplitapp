@@ -6,7 +6,9 @@ import { twMerge } from "tailwind-merge";
  * @param className defaults for the specific svg 
  * @param children set of path attributes
  */
-export function SvgPathWrapper({iconProps, className, children}: {iconProps: SVGProps<SVGSVGElement>, className?: string, children: ReactElement | ReactElement[]} ) {
+export function SvgPathWrapper(
+    {iconProps, className, children}: {iconProps: SVGProps<SVGSVGElement>, className?: string, children: ReactElement | ReactElement[]} ) {
+
     return (
         <svg {...iconProps}
             className={twMerge('w-[24px] h-[24px] stroke-2 fill-none', className, iconProps.className)}

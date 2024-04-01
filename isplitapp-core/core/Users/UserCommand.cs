@@ -1,4 +1,7 @@
+using IB.ISplitApp.Core.Users.Contract;
+using IB.ISplitApp.Core.Users.Data;
 using IB.ISplitApp.Core.Utils;
+using LinqToDB;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,5 +27,37 @@ public static class UserCommand
             .Ok(!IdUtil.IsValidId(userId) 
                 ? new User(IdUtil.NewId()) 
                 : new User(userId!));
+    }
+    
+    public static async Task<Results<NoContent, ValidationProblem>> RegisterSubscription(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
+        SubscriptionPayload subscriptionPayload,
+        GenericValidator validator,
+        UserDb db)
+    {
+        if (!validator.IsValid(userId, subscriptionPayload, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        await db.Subscriptions
+            .Merge()
+            .Using([new Subscription(userId!, subscriptionPayload)])
+            .On(t=> t.UserId, s => s.UserId)
+            .InsertWhenNotMatched()
+            .UpdateWhenMatched()
+            .MergeAsync();
+
+        return TypedResults.NoContent();
+    }
+    
+    public static async Task<Results<NoContent, ValidationProblem>> DeleteSubscription(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
+        GenericValidator validator,
+        UserDb db)
+    {
+        if (!validator.IsValid(userId, out var validationResult))
+            return TypedResults.ValidationProblem(validationResult.ToDictionary());
+
+        await db.Subscriptions.DeleteAsync(s => s.UserId == userId);        
+        return TypedResults.NoContent();
     }
 }

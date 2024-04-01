@@ -2,15 +2,19 @@ using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Expenses.Data;
+using IB.ISplitApp.Core.Users.Notifications;
 using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Tests.DatabaseTests;
 
+[Collection("database")]
 public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDisposable
 {
     
@@ -101,9 +105,13 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
         var validator = new GenericValidator(_serviceProvider);
 
         
+        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
+        var notificationMoq = new Mock<NotificationService>(loggerMoq, null, null, null);
+        
         // Act
         //
-        var updateResult = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, validator, _db);
+        var updateResult = await ExpenseCommand.ExpenseCreate(
+            IdUtil.DefaultId, actualPartyId, expense, validator, _db, notificationMoq.Object);
         Assert.IsType<CreatedAtRoute>(updateResult.Result);
         var route = (CreatedAtRoute) updateResult.Result;
         route.RouteValues.TryGetValue("expenseId", out var id);
