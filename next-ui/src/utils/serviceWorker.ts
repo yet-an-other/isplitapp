@@ -2,6 +2,7 @@ export type {};
 declare const self: ServiceWorkerGlobalScope;
 
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { clientsClaim } from 'workbox-core'
 import { NotificationMessage, CustomData } from './swTypes';
 
 
@@ -48,3 +49,8 @@ self.addEventListener(
     }, 
     false
 );
+
+
+
+await self.skipWaiting()
+clientsClaim()
