@@ -3,6 +3,7 @@ using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Contract;
+using IB.ISplitApp.Core.Users.Notifications;
 using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using LinqToDB.Data;
@@ -357,7 +358,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         Assert.IsType<Ok<PartyInfo[]>>(getResult.Result);
         var partyList = (getResult.Result as Ok<PartyInfo[]>)!.Value;
         
-        Assert.Equal(2, partyList.Length);
+        Assert.Equal(2, partyList!.Length);
         Assert.Contains(partyList, pl => pl.Id == actualParty1Id);
         Assert.Contains(partyList, pl => pl.Id == actualParty2Id);
     }
@@ -401,12 +402,12 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         };
 
         var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
-        var notificationMoq = new Mock<NotificationService>(loggerMoq, null, null, null);
+        var notificationMoq = new Mock<NotificationService>(loggerMoq, null!, null!, null!);
         
         // Act
         //
         var postExpense = await ExpenseCommand.ExpenseCreate(
-            actualPartyId, expense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
+            IdUtil.DefaultId, actualPartyId, expense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
         
         // Assert
         //
@@ -482,7 +483,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         // Act
         //
         var postExpense = await ExpenseCommand.ExpenseCreate(
-            actualPartyId, expense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
+            IdUtil.DefaultId, actualPartyId, expense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
         
         // Assert
         //
@@ -583,7 +584,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         // Act
         //
         var postExpense = await ExpenseCommand
-            .ExpenseUpdate(expenseId, changedExpense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
+            .ExpenseUpdate(IdUtil.DefaultId, expenseId, changedExpense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
         
         // Assert
         //

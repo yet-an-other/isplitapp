@@ -40,7 +40,9 @@ self.addEventListener(
     function(event) {
         event.notification.close();
         const customData = event.notification.data as CustomData;
-        const url = `/${customData.partyId}/expenses`;
+        const url = (customData?.partyId)
+            ? `/${customData.partyId}/expenses`
+            : '/';
         self.clients.openWindow(url)
             .catch(e => console.error(e)); // Open link from action
     }, 

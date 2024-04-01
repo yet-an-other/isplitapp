@@ -15,7 +15,7 @@ import {
 import { LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
-import { getSubscription, subscribeIos, subscribeToPush, unregisterSubscription } from "../utils/subscribeToPush";
+import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/subscribeToPush";
 
 interface RegisterEvent extends Event {
     detail: {
@@ -70,7 +70,7 @@ export default function HeaderBar() {
 
     const handleIosRegister = async ({ detail }: RegisterEvent) => {
         if (detail.isRegistrationSuccess && detail.fcmToken) {
-            await subscribeIos(detail.fcmToken)
+            await subscribeForIosPush(detail.fcmToken)
         } else {
             console.warn("Failed to register for notifications", detail.error);
         }
@@ -98,7 +98,7 @@ export default function HeaderBar() {
         }
 
         if (isSubscription) {
-            await unregisterSubscription();
+            await unsubscribeWebPush();
             setSubscription(false);
         } else {
 
@@ -107,7 +107,7 @@ export default function HeaderBar() {
                 return;
             }
 
-            const subscriptionResult = await subscribeToPush();
+            const subscriptionResult = await subscribeForWebPush();
             setSubscription(Notification.permission === "granted" && subscriptionResult);
         }
     }

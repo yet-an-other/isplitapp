@@ -1,16 +1,14 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Utils;
 using IB.ISplitApp.Core.Expenses.Contract;
-using IB.ISplitApp.Core.Users;
+using IB.ISplitApp.Core.Users.Notifications;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.Tools;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using WebPush;
 
 namespace IB.ISplitApp.Core.Expenses;
 
@@ -317,6 +315,7 @@ public static class ExpenseCommand
     /// <summary>
     /// Create new expense in the provided party
     /// </summary>
+    /// <param name="userId">user made changes</param>
     /// <param name="partyId">Unique party identifier</param>
     /// <param name="expense">Expense payload</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
@@ -324,13 +323,14 @@ public static class ExpenseCommand
     /// <param name="notificationService">Service to notify participants about the change</param>
     /// <returns>Returns 201 with path if everything is ok</returns>
     public static async Task<Results<CreatedAtRoute, ValidationProblem>> ExpenseCreate(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
         string? partyId,
         ExpensePayload expense,
         GenericValidator validator,
         ExpenseDb edb,
         NotificationService notificationService)
     {
-        if (!validator.IsValid(IdUtil.DefaultId, partyId, expense, out var validationResult))
+        if (!validator.IsValid(userId, partyId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
         
         await edb.BeginTransactionAsync();
@@ -350,17 +350,18 @@ public static class ExpenseCommand
         await InsertBorrowersAsync(expenseId, expense, edb);
         await edb.CommitTransactionAsync();
         
-        await notificationService.PushMessage(expenseId, "New expense");
+        await notificationService.PushExpenseUpdateMessage(userId!, expenseId, "New expense");
         
         return TypedResults.CreatedAtRoute(
             "GetExpense", 
             new RouteValueDictionary([new KeyValuePair<string, string>("expenseId", expenseId)]));
     }
 
-    
+
     /// <summary>
     /// Updates specific expense
     /// </summary>
+    /// <param name="userId">user made changes</param>
     /// <param name="expenseId">Unique id of expense to update</param>
     /// <param name="expense">Expense payload</param>
     /// <param name="validator">Generic validation object <see cref="GenericValidator"/></param>
@@ -368,13 +369,14 @@ public static class ExpenseCommand
     /// <param name="notificationService">Service to notify participants about the change</param>
     /// <returns>Returns 204 with path if everything is ok</returns>
     public static async Task<Results<NoContent, NotFound, ValidationProblem>> ExpenseUpdate(
+        [FromHeader(Name = IdUtil.UserHeaderName)] string? userId,
         string? expenseId,
         ExpensePayload expense,
         GenericValidator validator,
         ExpenseDb db,
         NotificationService notificationService)
     {
-        if (!validator.IsValid(expenseId, expense, out var validationResult))
+        if (!validator.IsValid(userId, expenseId, expense, out var validationResult))
             return TypedResults.ValidationProblem(validationResult.ToDictionary());
 
         await db.BeginTransactionAsync();
@@ -394,7 +396,7 @@ public static class ExpenseCommand
         await InsertBorrowersAsync(expenseId!, expense, db);
         await db.CommitTransactionAsync();
         
-        await notificationService.PushMessage(expenseId!, "Expense updated");
+        await notificationService.PushExpenseUpdateMessage(userId!, expenseId!, "Expense updated");
         
         return TypedResults.NoContent();
     }

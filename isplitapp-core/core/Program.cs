@@ -9,6 +9,7 @@ using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Users;
 using IB.ISplitApp.Core.Users.Contract;
 using IB.ISplitApp.Core.Users.Data;
+using IB.ISplitApp.Core.Users.Notifications;
 using IB.ISplitApp.Core.Utils;
 
 using LinqToDB;
@@ -88,17 +89,16 @@ builder.Services.AddLinqToDBContext<UserDb>((provider, options)
 var section = builder.Configuration.GetSection("Vapid");
 var vapidDetails = (VapidDetails)section.Get(typeof(VapidDetails))!;
 builder.Services.AddSingleton(vapidDetails);
+
 var fbkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "secret/fbkey.json");
-Console.WriteLine($"fbkey path: {fbkeyPath}");
-builder.Services.AddSingleton<FirebaseApp>(
+builder.Services.AddSingleton(
     FirebaseApp.Create(new AppOptions
     {
         Credential = GoogleCredential.FromFile(fbkeyPath)
     })
 );
+
 builder.Services.AddTransient<NotificationService>();
-
-
 
 
 // Add validation objects

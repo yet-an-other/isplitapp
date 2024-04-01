@@ -2,6 +2,7 @@ using FluentValidation;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Expenses.Data;
+using IB.ISplitApp.Core.Users.Notifications;
 using IB.ISplitApp.Core.Utils;
 using LinqToDB;
 using LinqToDB.Data;
@@ -109,7 +110,8 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
         
         // Act
         //
-        var updateResult = await ExpenseCommand.ExpenseCreate(actualPartyId, expense, validator, _db, notificationMoq.Object);
+        var updateResult = await ExpenseCommand.ExpenseCreate(
+            IdUtil.DefaultId, actualPartyId, expense, validator, _db, notificationMoq.Object);
         Assert.IsType<CreatedAtRoute>(updateResult.Result);
         var route = (CreatedAtRoute) updateResult.Result;
         route.RouteValues.TryGetValue("expenseId", out var id);

@@ -3,8 +3,7 @@ import { deleteSubscription, registerSubscription } from "../api/expenseApi";
 const publicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
 
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function subscribeIos(fcmToken: string) {
+export async function subscribeForIosPush(fcmToken: string) {
     try {
         await registerSubscription({ isIos: true, deviceFcmToken: fcmToken } as IosSubscriptionPayload);
         return true;
@@ -15,7 +14,7 @@ export async function subscribeIos(fcmToken: string) {
     }
 }
 
-export async function subscribeToPush() {
+export async function subscribeForWebPush() {
     try {
         if (!publicKey) 
             throw new Error("VAPID public key is missing");
@@ -54,7 +53,7 @@ export async function subscribeToPush() {
     }
   }
 
-  export async function unregisterSubscription() {
+  export async function unsubscribeWebPush() {
     try {
         const subscription = await getSubscription();
         if (subscription) {
