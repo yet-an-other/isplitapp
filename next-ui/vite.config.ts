@@ -15,7 +15,6 @@ export default defineConfig({
       filename: 'serviceWorker.ts',
       outDir: 'dist',
 
-
       // add this to cache all the imports
       //
       workbox: {
