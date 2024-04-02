@@ -15,7 +15,7 @@ interface GroupCardProps {
 
 export const GroupCard = ({party, disablePress}: GroupCardProps) => {
     const navigate = useNavigate();
-    const { alertSuccess } = useAlerts();
+    const { alertSuccess, alertInfo } = useAlerts();
     const match = useMatch('/:groupId/edit');
     const confirmationState = useDisclosure();
 
@@ -27,10 +27,10 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
     }
 
     const handleArchive = async () => {
-        console.log('archive')
         await updatePartySetings(party.id, {isArchived: !party.isArchived});
         await mutate(`/parties`);
-        //await mutate(`/parties/${party.id}?filterArchived=archived`);
+        await mutate(`/parties/${party.id}`);
+        alertInfo(`The group '${party.name}' has been moved ${party.isArchived ? 'OUT of Archive' : 'INTO Archive'}`);
     }
 
     return (

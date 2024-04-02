@@ -6,7 +6,6 @@ const isDev = import.meta.env.DEV;
 export function FooterBar() {
     return (
         <div className={`h-24 flex flex-col items-center justify-end w-full bg-gray-50  dark:bg-zinc-900`}>
-
             <div className="flex flex-row mb-6">
                 <div className="flex flex-row items-end">
                     <LogoIcon className="h-[18px] w-[18px] stroke-none ml-3 mr-1" />

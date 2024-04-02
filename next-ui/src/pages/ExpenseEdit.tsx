@@ -50,7 +50,7 @@ export function ExpenseEdit() {
         expenseId ? `/expenses/${expenseId}` : null, 
         fetcher
     );
-    useEffect(() => { !!fetchedExpense && setExpense(fetchedExpense) }, [fetchedExpense]);
+    useEffect(() => { !!fetchedExpense && setExpense({...fetchedExpense, date: new Date(fetchedExpense.date)}) }, [fetchedExpense]);
 
     if (expenseId && error)
         return (<ErrorCard error={error} />)
@@ -345,6 +345,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                         description: "text-dimmed",
                         input: "text-[16px]"
                     }}
+                    name="date"
                     value={new Date(expense.date).toISOString().split('T')[0]}
                     onChange={e => handleOnChange({name: "date", value: e.target.value})}
                     isInvalid={!!fieldError("date")}

@@ -17,7 +17,7 @@ module.exports = {
     project: ['./tsconfig.json', './tsconfig.node.json'],
     tsconfigRootDir: __dirname,
   },  
-  ignorePatterns: [ 'tailwind.config.js', 'postcss.config.js', '.eslintrc.cjs'],
+  ignorePatterns: [ 'tailwind.config.js', 'postcss.config.js', '.eslintrc.cjs', 'public/sw.js'],
   plugins: ['react-refresh'],
   rules: {
     'react-refresh/only-export-components': [
