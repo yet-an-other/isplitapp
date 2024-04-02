@@ -386,7 +386,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 3.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.isplit;
 				PRODUCT_NAME = iSplitApp;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -425,7 +425,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 3.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.isplit;
 				PRODUCT_NAME = iSplitApp;
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "iSplitApp-profile";
