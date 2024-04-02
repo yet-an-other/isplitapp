@@ -52,5 +52,5 @@ self.addEventListener(
 
 
 
-await self.skipWaiting()
+self.skipWaiting().catch(e => console.error(e));
 clientsClaim()
