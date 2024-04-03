@@ -8,11 +8,26 @@ import { fetcher } from "../api/expenseApi";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
+import { useEffect, useState } from "react";
+
+
+const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
 
 export function ExpenseList() {
   
-    const group = useOutletContext<PartyInfo>();
-    const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(`/parties/${group.id}/expenses`, fetcher);
+    const group = useOutletContext<PartyInfo>();    
+    const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
+        `/parties/${group.id}/expenses`, 
+        fetcher, 
+        {
+            onSuccess: (data) => {
+                if (data && data.length > 0) {
+                    const lastExpense = data[0].id;
+                    localStorage.setItem(lastViewedName(group), lastExpense)
+                }
+            }
+        }
+    );
     const navigate = useNavigate();
 
   return (
@@ -32,13 +47,13 @@ export function ExpenseList() {
         { error && <ErrorCard error={error}/>}
         { isLoading && <CardSkeleton/> }
         { !error && !isLoading && (!expenses || expenses.length === 0) && <EmptyList groupId={group.id}/> }
-        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses}/> }
+        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses} /> }
     </div>
   );
 }
 
 /**
- * EmptyList component is used to display the empty list message
+ * To display the empty list message
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
     return (
@@ -49,7 +64,14 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     )
 }
 
-const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}) => {
+const FullList = ({group, expenses }: {group: PartyInfo, expenses: ExpenseInfo[]}) => {
+
+    const  [lastViewed, setLastViewed] = useState("");
+
+    useEffect(() => {
+        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? "");
+    }, [group])
+
     return (
         <div className="border-1 rounded-lg p-2">
             {expenses.map((expense, i) => 
@@ -57,7 +79,7 @@ const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}
                     key={expense.id} 
                     className="my-1"
                 >
-                   {i > 0 && <Divider className="my-1"/>}
+                   {i > 0 && <Divider className="my-1 mb-2"/>}
                     <div className="flex flex-row items-center">
                         <div className="min-w-7 ">
                             {expense.isReimbursement 
@@ -80,7 +102,6 @@ const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}
                         </Button>
                     </div>
 
-
                     <div className="flex flex-row mt-4">
                         <div className="flex flex-col w-full ml-7">
                             <div>
@@ -98,7 +119,10 @@ const FullList = ({group, expenses}: {group: PartyInfo, expenses: ExpenseInfo[]}
                             <div className="text-md text-dimmed">{group.currency}</div>
                         </div>
                     </div>
-                    <div className="flex text-xs text-dimmed justify-end">{new Date(expense.date).toDateString()}</div>
+                    <div className="flex flex-row justify-end items-center">
+                        <div className={`h-2 w-2 mr-1 rounded-full ${expense.id > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
+                        <div className="flex text-xs text-dimmed ">{new Date(expense.date).toDateString()}</div>
+                    </div>
                 </div>
             )}
         </div>

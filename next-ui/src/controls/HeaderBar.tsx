@@ -16,6 +16,7 @@ import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon } fro
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
+import { useNavigate } from "react-router-dom";
 
 interface RegisterEvent extends Event {
     detail: {
@@ -38,6 +39,7 @@ export default function HeaderBar() {
     const {isOpen, onOpen, onClose} = useDisclosure();
     const [isSubscription, setSubscription] = useState(false);
     const [isSubsToggleDisabled, setSubsToggleDisabled] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const checkSubscription = async () => {
@@ -116,20 +118,24 @@ export default function HeaderBar() {
         <>
             <Navbar isBordered maxWidth="full">
                 <NavbarBrand>
-                    <a href="/">
+                    <Button 
+                        isIconOnly 
+                        variant="light" 
+                        onPress={() => navigate("/")}
+                        className="-ml-2 data-[hover=true]:bg-transparent"
+                    >
                         <LogoIcon 
                             className="h-[32px] w-[32px] stroke-none dark:text-gray-200"
                         />
-                    </a>
+                    </Button>
                 </NavbarBrand>
                 <NavbarContent className="gap-4" justify="center">
                     <NavbarItem>
                         <Button
-                            as="a"
-                            href="/about" 
                             color="primary" 
                             variant="light" 
-                            size="md" 
+                            size="md"
+                            onPress={() => navigate("/about")} 
                         >
                             <span className="font-bold">iSplitApp</span>
                         </Button>

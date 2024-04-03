@@ -60,7 +60,7 @@ export const AlertsWrapper = ({ children }: {children: ReactNode}) => {
 }
 
 const classNames = {
-    info: 'bg-primary-50 border-primary-500 text-primary-700', //'bg-blue-50 border-blue-500 text-blue-700',
+    info: 'bg-primary-50 border-primary-500 text-primary-500', //'bg-blue-50 border-blue-500 text-blue-700',
     success: 'bg-green-50 border-green-500 text-green-700',
     warning: 'bg-yellow-50 border-yellow-500 text-yellow-700',
     error: 'bg-red-50 border-red-500 text-red-700',
