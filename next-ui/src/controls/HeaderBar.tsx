@@ -18,101 +18,13 @@ import { useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
 import { useNavigate } from "react-router-dom";
 
-interface RegisterEvent extends Event {
-    detail: {
-        isRegistrationSuccess: boolean;
-        fcmToken: string;
-        error: string;
-    }
-}
-
-interface CheckPermissionEvent extends Event {
-    detail: {
-        permissionStatus: "granted" | "denied" | "not-determined";
-        reason: string;
-    }
-}
 
 export default function HeaderBar() {
 
     const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
-    const [isSubscription, setSubscription] = useState(false);
-    const [isSubsToggleDisabled, setSubsToggleDisabled] = useState(false);
+
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const checkSubscription = async () => {
-
-            // handle iOS 
-            //
-            const w = window as unknown as Window;
-            if (w.webkit?.messageHandlers?.checkPermission) { 
-                w.webkit.messageHandlers.checkPermission.postMessage({
-                    "message": "check-permission"
-                });
-                return
-            }
-
-            const subscription = await getSubscription();
-            setSubscription(subscription !== null);
-        }
-        void checkSubscription();
-    }, []);
-
-    const handleIosStatus = (e: CheckPermissionEvent) => {
-        if (e.detail.permissionStatus !== "not-determined"){
-            setSubsToggleDisabled(true);
-            setSubscription(e.detail.permissionStatus === "granted");
-            if (e.detail.permissionStatus === "denied" && e.detail.reason) {
-                console.warn("Notifications are disabled", e.detail.reason)
-            }
-        }
-    }
-
-    const handleIosRegister = async ({ detail }: RegisterEvent) => {
-        if (detail.isRegistrationSuccess && detail.fcmToken) {
-            await subscribeForIosPush(detail.fcmToken)
-        } else {
-            console.warn("Failed to register for notifications", detail.error);
-        }
-    }
-
-    useEffect(() => {
-        addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
-        addEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
-        return () => {
-            removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
-            removeEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
-        }
-    }, []);
-
-    const toggleSubscription = async () => {
-
-        // handle iOS notifications
-        //
-        const w = window as unknown as Window;
-        if (w.webkit?.messageHandlers?.toggleNotification) { 
-            w.webkit.messageHandlers.toggleNotification.postMessage({
-                "message": `${isSubscription ? "unsubscribe" : "subscribe"}`
-            });
-            return
-        }
-
-        if (isSubscription) {
-            await unsubscribeWebPush();
-            setSubscription(false);
-        } else {
-
-            if (Notification.permission !== "granted" && 
-                await Notification.requestPermission() !== "granted" ) {
-                return;
-            }
-
-            const subscriptionResult = await subscribeForWebPush();
-            setSubscription(Notification.permission === "granted" && subscriptionResult);
-        }
-    }
 
     return (
         <>
@@ -165,6 +77,7 @@ export default function HeaderBar() {
                         </div>
                     </ModalHeader>
                     <ModalBody>
+
                         <Switch
                             isSelected={isDarkMode}
                             size="lg"
@@ -176,24 +89,7 @@ export default function HeaderBar() {
                             Dark mode
                         </Switch>
 
-
-                            <Switch
-                                isSelected={isSubscription}
-                                isDisabled={isSubsToggleDisabled}
-                                size="lg"
-                                color="primary"
-                                startContent={<BellIcon />}
-                                endContent={<BellRingIcon />}
-                                onChange={() => void toggleSubscription()}
-                            >
-                                Notifications
-                            </Switch>
-                            <span className="text-xs text-dimmed -mt-1">
-                                { isSubsToggleDisabled 
-                                 ? "To switch on or off notifications, you need to open Settings -> Notifications -> iSplitApp, toggle the notifications switch and reload iSplitApp."
-                                 : "Enable notifications about new or changed expenses in your groups."
-                                }
-                            </span>
+                        <NotificationSwitch />
                         
                     </ModalBody>
                     <ModalFooter>
@@ -205,6 +101,135 @@ export default function HeaderBar() {
     )
 }
 
+/**
+ * A switch to enable or disable notifications
+ */
+function NotificationSwitch() {
+
+    const [isSubscribed, setSubscribed] = useState(false);
+    const [isSwitchDisabled, setSwitchDisabled] = useState(false);
+
+    // Set the initial state of switch based on known data
+    //
+    useEffect(() => {
+        const checkSubscription = async () => {
+
+            // handle iOS (send message to the app and await response in the handleIosStatus listener)
+            //
+            const w = window as unknown as Window;
+            if (w.webkit?.messageHandlers?.checkPermission) { 
+                w.webkit.messageHandlers.checkPermission.postMessage({
+                    "message": "check-permission"
+                });
+                return
+            }
+
+            const subscription = await getSubscription();
+            setSubscribed(subscription !== null);
+        }
+        void checkSubscription();
+    }, []);
+
+
+    // Handle the response from the iOS app regarding the notification permission status
+    //
+    const handleIosStatus = (e: CheckPermissionEvent) => {
+        if (e.detail.permissionStatus !== "not-determined"){
+            setSwitchDisabled(true);
+            setSubscribed(e.detail.permissionStatus === "granted");
+            if (e.detail.permissionStatus === "denied" && e.detail.reason) {
+                console.warn("Notifications are disabled", e.detail.reason)
+            }
+        }
+    }
+
+    // Handle the response from the iOS app regarding the registration for notifications
+    //
+    const handleIosRegister = async ({ detail }: RegisterEvent) => {
+        if (detail.isRegistrationSuccess && detail.fcmToken) {
+            await subscribeForIosPush(detail.fcmToken)
+        } else {
+            console.warn("Failed to register for notifications", detail.error);
+        }
+    }
+
+    // Add event listeners for the iOS app messages
+    //
+    useEffect(() => {
+        addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        addEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
+        return () => {
+            removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+            removeEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
+        }
+    }, []);
+
+    // Toggle the subscription for notifications
+    //
+    const toggleSubscription = async () => {
+
+        // handle iOS notifications
+        //
+        const w = window as unknown as Window;
+        if (w.webkit?.messageHandlers?.toggleNotification) { 
+            w.webkit.messageHandlers.toggleNotification.postMessage({
+                "message": `${isSubscribed ? "unsubscribe" : "subscribe"}`
+            });
+            return
+        }
+
+        // handle web notifications
+        //
+        if (isSubscribed) {
+            await unsubscribeWebPush();
+            setSubscribed(false);
+        } else {
+            if (Notification.permission !== "granted" && 
+                await Notification.requestPermission() !== "granted" ) {
+                return;
+            }
+            const subscriptionResult = await subscribeForWebPush();
+            setSubscribed(Notification.permission === "granted" && subscriptionResult);
+        }
+    }
+
+    return (
+        <>
+            <Switch
+                isSelected={isSubscribed}
+                isDisabled={isSwitchDisabled}
+                size="lg"
+                color="primary"
+                startContent={<BellIcon />}
+                endContent={<BellRingIcon />}
+                onChange={() => void toggleSubscription()}
+            >
+                Notifications
+            </Switch>
+            <span className="text-xs text-dimmed -mt-1">
+                { isSwitchDisabled 
+                ? "To switch on or off notifications, you need to open Settings -> Notifications -> iSplitApp, toggle the notifications switch and reload iSplitApp."
+                : "Enable to be notified about the new or changed expenses in your groups."
+                }
+            </span>
+        </>
+    )
+}
+
+interface RegisterEvent extends Event {
+    detail: {
+        isRegistrationSuccess: boolean;
+        fcmToken: string;
+        error: string;
+    }
+}
+
+interface CheckPermissionEvent extends Event {
+    detail: {
+        permissionStatus: "granted" | "denied" | "not-determined";
+        reason: string;
+    }
+}
 interface Window {
     webkit: {
         messageHandlers: {
