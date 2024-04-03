@@ -14,8 +14,9 @@ import { useEffect, useState } from "react";
 const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
 
 export function ExpenseList() {
-  
-    const group = useOutletContext<PartyInfo>();    
+
+    const navigate = useNavigate();
+    const group = useOutletContext<PartyInfo>();
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
         `/parties/${group.id}/expenses`, 
         fetcher, 
@@ -28,7 +29,6 @@ export function ExpenseList() {
             }
         }
     );
-    const navigate = useNavigate();
 
   return (
     <div className="w-full">

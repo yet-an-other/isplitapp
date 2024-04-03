@@ -8,17 +8,23 @@ import { CardSkeleton } from "../controls/CardSkeleton";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CreateGroupMenu } from "../controls/CreateGroupMenu";
 import { Accordion, AccordionItem } from "@nextui-org/react";
+import { useEffect } from "react";
 
 export function GroupList() {
 
     const navigate = useNavigate();
     const { data: parties, error, isLoading } = useSWR<PartyInfo[], ProblemError>('/parties', fetcher);
 
+    useEffect(() => {
+        if (!error && !isLoading && (!parties || parties.length === 0))
+            navigate('/about');
+    },[])
+
     if (error)
         return <ErrorCard error={error}/>;
 
-    if (!error && !isLoading && (!parties || parties.length === 0)) 
-        navigate('/about');
+    
+    
 
     if (isLoading)
         return <CardSkeleton />;
