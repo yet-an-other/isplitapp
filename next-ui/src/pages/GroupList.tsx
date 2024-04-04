@@ -18,13 +18,12 @@ export function GroupList() {
     useEffect(() => {
         if (!error && !isLoading && (!parties || parties.length === 0))
             navigate('/about');
-    },[])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[parties])
 
     if (error)
         return <ErrorCard error={error}/>;
-
-    
-    
 
     if (isLoading)
         return <CardSkeleton />;

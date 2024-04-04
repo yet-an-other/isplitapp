@@ -8,7 +8,7 @@ import { fetcher } from "../api/expenseApi";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 
 const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
@@ -17,12 +17,15 @@ export function ExpenseList() {
 
     const navigate = useNavigate();
     const group = useOutletContext<PartyInfo>();
+    const  [lastViewed, setLastViewed] = useState("");    
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
         `/parties/${group.id}/expenses`, 
         fetcher, 
         {
             onSuccess: (data) => {
                 if (data && data.length > 0) {
+                    if (!lastViewed)
+                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? "");
                     const lastExpense = data[0].id;
                     localStorage.setItem(lastViewedName(group), lastExpense)
                 }
@@ -47,7 +50,7 @@ export function ExpenseList() {
         { error && <ErrorCard error={error}/>}
         { isLoading && <CardSkeleton/> }
         { !error && !isLoading && (!expenses || expenses.length === 0) && <EmptyList groupId={group.id}/> }
-        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses} /> }
+        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses} lastViewed={lastViewed} /> }
     </div>
   );
 }
@@ -64,13 +67,7 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     )
 }
 
-const FullList = ({group, expenses }: {group: PartyInfo, expenses: ExpenseInfo[]}) => {
-
-    const  [lastViewed, setLastViewed] = useState("");
-
-    useEffect(() => {
-        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? "");
-    }, [group])
+const FullList = ({group, expenses, lastViewed }: {group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string}) => {
 
     return (
         <div className="border-1 rounded-lg p-2">
