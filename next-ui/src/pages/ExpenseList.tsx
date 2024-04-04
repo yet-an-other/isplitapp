@@ -15,17 +15,18 @@ const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
 
 export function ExpenseList() {
 
+    const maxId = "XXXXXXXXXXXXXXXX";
     const navigate = useNavigate();
     const group = useOutletContext<PartyInfo>();
-    const  [lastViewed, setLastViewed] = useState("");    
+    const  [lastViewed, setLastViewed] = useState(maxId);    
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
         `/parties/${group.id}/expenses`, 
         fetcher, 
         {
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    if (!lastViewed)
-                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? "");
+                    if (lastViewed === maxId)
+                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? maxId);
                     const lastExpense = data[0].id;
                     localStorage.setItem(lastViewedName(group), lastExpense)
                 }
