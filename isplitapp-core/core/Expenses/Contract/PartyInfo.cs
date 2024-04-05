@@ -64,4 +64,9 @@ public record PartyInfo
     /// If the party is in user's archive 
     /// </summary>
     public bool IsArchived { get; init; } = false;
+    
+    /// <summary>
+    /// Timestamp of last update
+    /// </summary>
+    public string UpdateTimestamp { get; init; } = ToyId.TimestampMin;
 }

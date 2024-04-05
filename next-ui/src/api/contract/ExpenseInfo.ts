@@ -3,21 +3,23 @@ import { SplitMode } from "./SplitMode"
 
 export class ExpenseInfo {
 
-    id: string = ""
+    id = ""
     
-    title: string = "" 
+    title = "" 
     
-    amount: number = 0
+    amount = 0
 
     date: Date = new Date()
 
-    lenderId: string = ""
+    lenderId = ""
     
-    lenderName: string = ""
+    lenderName = ""
     
-    isReimbursement: boolean = false
+    isReimbursement = false
 
     splitMode: SplitMode = "Evenly"
+
+    updateTimestamp = "zzzzzzzzz"
     
     borrowers: BorrowerInfo[] = [];
 }

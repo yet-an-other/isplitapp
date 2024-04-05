@@ -39,4 +39,10 @@ public record Party
     /// </summary>
     [Column("updated")]
     public DateTime Updated { get; init; } = DateTime.UtcNow;
+    
+    /// <summary>
+    /// timestamp of last update
+    /// </summary>
+    [Column("update_timestamp")]
+    public string UpdateTimestamp { get; init; } = ToyId.TimestampMax;
 }

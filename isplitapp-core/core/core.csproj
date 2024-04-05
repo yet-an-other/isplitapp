@@ -48,6 +48,10 @@
       <EmbeddedResource Include="SqlMigrations\v3-Down.sql" />
       <None Remove="SqlMigrations\v3-Up.sql" />
       <EmbeddedResource Include="SqlMigrations\v3-Up.sql" />
+      <None Remove="SqlMigrations\v4-Down.sql" />
+      <EmbeddedResource Include="SqlMigrations\v4-Down.sql" />
+      <None Remove="SqlMigrations\v4-Up.sql" />
+      <EmbeddedResource Include="SqlMigrations\v4-Up.sql" />
     </ItemGroup>
 
     <ItemGroup>

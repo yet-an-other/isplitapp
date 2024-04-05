@@ -48,6 +48,11 @@ public record Expense
     [Column("lender_id")]
     public string LenderId { get; init; } = string.Empty;
     
+    /// <summary>
+    /// timestamp of last update
+    /// </summary>
+    [Column("update_timestamp")]
+    public string UpdateTimestamp { get; init; } = ToyId.TimestampMax;
     
     /// <summary>
     /// Is this a compensation?
