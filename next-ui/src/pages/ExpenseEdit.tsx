@@ -46,11 +46,18 @@ export function ExpenseEdit() {
     }
 
     const [expense, setExpense] = useState<ExpensePayload>(paramsExpense);
-    const {data: fetchedExpense, error, isLoading } = useSWR<ExpenseInfo, ProblemError>(
+    const { error, isLoading } = useSWR<ExpenseInfo, ProblemError>(
         expenseId ? `/expenses/${expenseId}` : null, 
-        fetcher
+        fetcher,
+        {
+            onSuccess: (data) => {
+                if (data) {
+                    setExpense({...data, date: new Date(`${data.date.toString()}Z`)});
+                }
+            }
+        }
     );
-    useEffect(() => { !!fetchedExpense && setExpense({...fetchedExpense, date: new Date(fetchedExpense.date)}) }, [fetchedExpense]);
+    //useEffect(() => { !!fetchedExpense && setExpense({...fetchedExpense, date: new Date(fetchedExpense.date)}) }, [fetchedExpense]);
 
     if (expenseId && error)
         return (<ErrorCard error={error} />)
