@@ -15,19 +15,19 @@ const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
 
 export function ExpenseList() {
 
-    const maxId = "XXXXXXXXXXXXXXXX";
+    const timestampMax = "zzzzzzzzz";
     const navigate = useNavigate();
     const group = useOutletContext<PartyInfo>();
-    const  [lastViewed, setLastViewed] = useState(maxId);    
+    const  [lastViewed, setLastViewed] = useState(timestampMax);    
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
         `/parties/${group.id}/expenses`, 
         fetcher, 
         {
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    if (lastViewed === maxId)
-                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? maxId);
-                    const lastExpense = data[0].id;
+                    if (lastViewed === timestampMax)
+                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? timestampMax);
+                    const lastExpense = data.reduce((acc, cur) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur).updateTimestamp;
                     localStorage.setItem(lastViewedName(group), lastExpense)
                 }
             }
@@ -72,7 +72,9 @@ const FullList = ({group, expenses, lastViewed }: {group: PartyInfo, expenses: E
 
     return (
         <div className="border-1 rounded-lg p-2">
-            {expenses.map((expense, i) => 
+            {expenses
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                .map((expense, i) => 
                 <div 
                     key={expense.id} 
                     className="my-1"
@@ -118,7 +120,7 @@ const FullList = ({group, expenses, lastViewed }: {group: PartyInfo, expenses: E
                         </div>
                     </div>
                     <div className="flex flex-row justify-end items-center">
-                        <div className={`h-2 w-2 mr-1 rounded-full ${expense.id > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
+                        <div className={`h-2 w-2 mr-1 rounded-full ${expense.updateTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
                         <div className="flex text-xs text-dimmed ">{new Date(expense.date).toDateString()}</div>
                     </div>
                 </div>

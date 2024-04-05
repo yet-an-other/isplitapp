@@ -39,6 +39,8 @@ public record ExpenseInfo
     
     public bool IsReimbursement { get; init; }
     
+    public string UpdateTimestamp { get; init; } = ToyId.TimestampMin;
+    
     public BorrowerInfo[] Borrowers { get; set; } = [];
     
     public SplitMode SplitMode { get; init; } = SplitMode.Evenly;

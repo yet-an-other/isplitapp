@@ -46,7 +46,8 @@ public static class ExpenseCommand
             Name = party.Name,
             Currency = party.Currency,
             Created = DateTime.UtcNow,
-            Updated = DateTime.UtcNow
+            Updated = DateTime.UtcNow,
+            UpdateTimestamp = ToyId.Timestamp()
         });
         
         // Create Participants
@@ -96,6 +97,7 @@ public static class ExpenseCommand
             .Set(g => g.Name, party.Name)
             .Set(g => g.Currency, party.Currency)
             .Set(g => g.Updated, DateTime.UtcNow)
+            .Set(g => g.UpdateTimestamp, ToyId.Timestamp())
             .UpdateAsync();
 
         if (rowsAffected == 0)
@@ -160,7 +162,8 @@ public static class ExpenseCommand
                 Name = p.Name,
                 Currency = p.Currency,
                 Created = p.Created,
-                Updated = p.Updated,                
+                Updated = p.Updated,
+                UpdateTimestamp = p.UpdateTimestamp,
                 Participants = (
                     from pp in db.Participants 
                     where pp.PartyId == p.Id 
@@ -238,6 +241,7 @@ public static class ExpenseCommand
                 Currency = p.Currency,
                 Created = p.Created,
                 Updated = p.Updated,
+                UpdateTimestamp = p.UpdateTimestamp,
                 TotalParticipants = (from pp in db.Participants where pp.PartyId == p.Id select p.Id).Count(),
                 TotalTransactions = (from e in db.Expenses where e.PartyId == p.Id select e.Id).Count(),
                 FuTotalExpenses = (from e in db.Expenses
@@ -344,7 +348,8 @@ public static class ExpenseCommand
             Date = expense.Date,
             IsReimbursement = expense.IsReimbursement,
             LenderId = expense.LenderId,
-            SplitMode = expense.SplitMode
+            SplitMode = expense.SplitMode,
+            UpdateTimestamp = ToyId.Timestamp()
         });
 
         await InsertBorrowersAsync(expenseId, expense, edb);
@@ -387,6 +392,7 @@ public static class ExpenseCommand
             .Set(e => e.Date, expense.Date)
             .Set(e => e.IsReimbursement, expense.IsReimbursement)
             .Set(e => e.SplitMode, expense.SplitMode)
+            .Set(e=>e.UpdateTimestamp, ToyId.Timestamp())
             .UpdateAsync();
 
         if (rows == 0)
@@ -426,6 +432,7 @@ public static class ExpenseCommand
                 Title = e.Title,
                 LenderId = e.LenderId,
                 SplitMode = e.SplitMode,
+                UpdateTimestamp = e.UpdateTimestamp,
                 LenderName = db.Participants
                     .Where(p => p.Id == e.LenderId)
                     .Select(p => p.Name).Single(),
@@ -476,6 +483,7 @@ public static class ExpenseCommand
                 Title = e.Title,
                 LenderId = e.LenderId,
                 SplitMode = e.SplitMode,
+                UpdateTimestamp = e.UpdateTimestamp,
                 LenderName = db.Participants
                     .Where(p => p.Id == e.LenderId)
                     .Select(p => p.Name).Single(),

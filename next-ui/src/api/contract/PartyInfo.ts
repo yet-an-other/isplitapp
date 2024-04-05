@@ -26,5 +26,7 @@ export class PartyInfo {
     participants: ParticipantInfo[] = [];
 
     isArchived: boolean = false;
+
+    updateTimestamp = "zzzzzzzzz";
 }
 
