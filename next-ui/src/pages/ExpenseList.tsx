@@ -11,7 +11,7 @@ import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
 import { useState } from "react";
 
 
-const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
+const lastViewedName = (group: PartyInfo) => `ts::${group.id}`;
 
 export function ExpenseList() {
 
