@@ -57,7 +57,6 @@ export function ExpenseEdit() {
             }
         }
     );
-    //useEffect(() => { !!fetchedExpense && setExpense({...fetchedExpense, date: new Date(fetchedExpense.date)}) }, [fetchedExpense]);
 
     if (expenseId && error)
         return (<ErrorCard error={error} />)

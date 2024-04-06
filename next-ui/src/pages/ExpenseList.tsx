@@ -15,18 +15,18 @@ const lastViewedName = (group: PartyInfo) => `lv::${group.id}`;
 
 export function ExpenseList() {
 
-    const timestampMin = "000000000";
+    const timestampMax = "zzzzzzzzz";
     const navigate = useNavigate();
     const group = useOutletContext<PartyInfo>();
-    const  [lastViewed, setLastViewed] = useState(timestampMin);    
+    const  [lastViewed, setLastViewed] = useState(timestampMax);    
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
         `/parties/${group.id}/expenses`, 
         fetcher, 
         {
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    if (lastViewed === timestampMin)
-                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? timestampMin);
+                    if (lastViewed === timestampMax)
+                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? timestampMax);
                     const lastExpense = data.reduce((acc, cur) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur).updateTimestamp;
                     localStorage.setItem(lastViewedName(group), lastExpense)
                 }
