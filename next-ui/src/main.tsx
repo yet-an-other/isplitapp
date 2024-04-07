@@ -12,9 +12,11 @@ import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
 import { RootBoundary } from './pages/RootErrorBoundary'
 import { NotFound } from './pages/NotFound'
-import { setupLogger } from './utils/logExporter'
+import { initLogExporter } from './utils/logExporter'
+import { initTelemetry } from './utils/telemetryExporter'
 
-setupLogger();
+initLogExporter();
+initTelemetry();
 
 const router = createBrowserRouter([
   {

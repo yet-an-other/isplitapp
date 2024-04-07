@@ -13,10 +13,12 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 const VERSION = import.meta.env.VITE_VERSION as string;
 const w = window as unknown as { webkit: unknown};
 
-export function setupLogger() {
+export function initLogExporter() {
+
     // exporter options. see all options in OTLPExporterConfigBase
+    //
     const collectorOptions = {
-        url: `${API_URL}:4318/v1/logs`, // url is optional and can be omitted - default is http://localhost:4318/v1/logs
+        url: `${API_URL}:4318/v1/logs`,
         headers: {}, // an optional object containing custom headers to be sent with each request
         concurrencyLimit: 1, // an optional limit on pending requests
     };
@@ -67,6 +69,9 @@ export function setupLogger() {
             severityNumber: severityNumber,
             severityText: SeverityNumber[severityNumber],
             body: format(args[0] as string, args),
+            attributes: {
+                "deviceId": localStorage.getItem('user-id') ?? 'unknown',
+            }
         });
     }    
 }
