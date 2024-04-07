@@ -12,7 +12,9 @@ import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
 import { RootBoundary } from './pages/RootErrorBoundary'
 import { NotFound } from './pages/NotFound'
+import { setupLogger } from './utils/logExporter'
 
+setupLogger();
 
 const router = createBrowserRouter([
   {
@@ -36,6 +38,8 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
+console.log('routes: %o', router.routes);
 
 ReactDOM
   .createRoot(document.getElementById('root')!)
