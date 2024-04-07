@@ -12,11 +12,11 @@ import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
 import { RootBoundary } from './pages/RootErrorBoundary'
 import { NotFound } from './pages/NotFound'
-import { initLogExporter } from './utils/logExporter'
-import { initTelemetry } from './utils/telemetryExporter'
+import { initLogExporter, initTraceExporter } from './utils/openTelemetry'
+
 
 initLogExporter();
-initTelemetry();
+initTraceExporter();
 
 const router = createBrowserRouter([
   {
@@ -40,8 +40,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
-
-console.log('routes: %o', router.routes);
 
 ReactDOM
   .createRoot(document.getElementById('root')!)
