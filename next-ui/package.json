@@ -17,6 +17,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.50.0",
     "@opentelemetry/instrumentation-document-load": "^0.37.0",
     "@opentelemetry/instrumentation-fetch": "^0.50.0",
+    "@opentelemetry/propagator-b3": "^1.23.0",
     "@opentelemetry/sdk-trace-web": "^1.23.0",
     "format-util": "^1.0.5",
     "framer-motion": "^11.0.5",

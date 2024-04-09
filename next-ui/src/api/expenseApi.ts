@@ -5,6 +5,7 @@ import { ExpensePayload } from "./contract/ExpensePayload";
 import { PartySettingsPayload } from "./contract/PartySettingsPayload";
 import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
 
+
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 /**
@@ -12,8 +13,8 @@ const API_URL = import.meta.env.VITE_API_URL as string;
  * @returns json
  */
 export async function fetcher(key: string) {
+    
     const userId = await ensureUserId();
-
     const requestOptions = {
         method: 'GET',
         headers: { 
@@ -21,11 +22,10 @@ export async function fetcher(key: string) {
             'X-USER-ID': userId
         },
     };
-
     const response = await fetch(`${API_URL}${key}`, requestOptions);
     if (!response.ok)
         throw new ProblemError(await response.json())
-
+    
     return response.json();
 }
 

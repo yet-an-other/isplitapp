@@ -3,6 +3,10 @@ import { ParticipantInfo } from "../api/contract/ParticipantInfo";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { fetcher } from "../api/expenseApi";
 
+/**
+ * Generate a CSV report for a party
+ * @param partyId 
+ */
 export async function generateReport(partyId: string) {
     const csvDelimiter = ';';
     const party = await fetcher(`/parties/${partyId}`) as PartyInfo;

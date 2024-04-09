@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
@@ -18,8 +19,12 @@ using LinqToDB.AspNet.Logging;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.AspNetCore.HttpLogging;
 using Migrations;
+using Npgsql;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Extensions.Propagators;
 using WebPush;
 
 var version = Assembly
@@ -47,11 +52,26 @@ builder.Services.AddHttpLogging(o =>
 
 // Setup telemetry
 //
-builder.Services.AddOpenTelemetry()
+var activitySource = new ActivitySource("iSplitAppCore");
+var otelCollectorEndpoint = builder.Configuration["OtelCollectorEndpoint"];
+if (otelCollectorEndpoint == null)
+    throw new ArgumentException("Can't find 'OtelCollectorEndpoint' in config");
+builder.Services
+    .AddOpenTelemetry()
     .ConfigureResource(resource => resource.AddService("iSplitAppCore"))
     .WithMetrics(metrics => metrics
         .AddAspNetCoreInstrumentation()
-        .AddOtlpExporter());
+        .AddMeter("Microsoft.AspNetCore.Hosting")
+        .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+        .AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(otelCollectorEndpoint)))
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation();
+        tracing.AddNpgsql();
+        tracing.AddSource(activitySource.Name);
+        Sdk.SetDefaultTextMapPropagator(new B3Propagator());
+        tracing.AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(otelCollectorEndpoint));
+    });
 
 // All exceptions should be in ProblemDetails format
 // ValidationException should return 400 and detailed message
@@ -146,7 +166,6 @@ partyApi.MapGet("/{partyId}", ExpenseCommand.PartyGet).WithName("GetParty");
 partyApi.MapGet("/", ExpenseCommand.PartyListGet).WithName("ListParty");
 partyApi.MapGet("/{partyId}/balance", ExpenseCommand.PartyBalanceGet).WithName("GetPartyBalance");
 partyApi.MapDelete("/{partyId}", ExpenseCommand.PartyUnfollow).WithName("UnfollowParty");
-
 partyApi.MapPost("/{partyId}/expenses", ExpenseCommand.ExpenseCreate).WithName("CreateExpense");
 partyApi.MapGet("/{partyId}/expenses", ExpenseCommand.PartyExpenseListGet).WithName("GetPartyExpenseList");
 
@@ -154,7 +173,6 @@ var expenseApi = app.MapGroup("/expenses");
 expenseApi.MapPut("/{expenseId}", ExpenseCommand.ExpenseUpdate).WithName("UpdateExpense");
 expenseApi.MapGet("/{expenseId}", ExpenseCommand.ExpenseGet).WithName("GetExpense");
 expenseApi.MapDelete("/{expenseId}", ExpenseCommand.ExpenseDelete).WithName("DeleteExpense");
-
 
 app.UseCors();
 
