@@ -50,5 +50,7 @@ self.addEventListener(
     false
 );
 
+// Enforce immediate activation
+//
 self.skipWaiting().catch(e => console.error(e));
 clientsClaim()
