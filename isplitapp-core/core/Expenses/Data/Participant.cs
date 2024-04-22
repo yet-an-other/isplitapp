@@ -1,3 +1,4 @@
+using IB.Utils.Ids;
 using LinqToDB.Mapping;
 
 namespace IB.ISplitApp.Core.Expenses.Data;
@@ -13,13 +14,13 @@ public record Participant
     /// </summary>
     [PrimaryKey] 
     [Column("id")] 
-    public string Id { get; init; } = string.Empty;
+    public Auid Id { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Link to a party
     /// </summary>
     [Column("party_id")]
-    public string PartyId { get; init; } = string.Empty;
+    public Auid PartyId { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Name of the participant

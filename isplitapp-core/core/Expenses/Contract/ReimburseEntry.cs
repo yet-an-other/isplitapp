@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using IB.Utils.Ids;
+
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
@@ -10,7 +12,7 @@ public record ReimburseEntry
     /// <summary>
     /// Borrower id
     /// </summary>
-    public string FromId { get; init; } = default!;
+    public Auid FromId { get; init; } = Auid.Empty;
 
     /// <summary>
     /// Borrower Name
@@ -20,7 +22,7 @@ public record ReimburseEntry
     /// <summary>
     /// Lender ID
     /// </summary>
-    public string ToId { get; init; } = default!;
+    public Auid ToId { get; init; } = Auid.Empty;
 
     /// <summary>
     /// Lender name

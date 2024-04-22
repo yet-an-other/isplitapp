@@ -7,11 +7,11 @@ public class V4Migration: Migration
 {
     public override void Up()
     {
-        Execute.EmbeddedScript("core.SqlMigrations.v4-Up.sql");
+        Execute.EmbeddedScript("Migrations.SqlMigrations.v4-Up.sql");
     }
 
     public override void Down()
     {
-        Execute.EmbeddedScript("core.SqlMigrations.v4-Down.sql");
+        Execute.EmbeddedScript("Migrations.SqlMigrations.v4-Down.sql");
     }
 }

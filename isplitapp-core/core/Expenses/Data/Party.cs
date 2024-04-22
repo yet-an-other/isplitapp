@@ -1,4 +1,4 @@
-using IB.ISplitApp.Core.Utils;
+using IB.Utils.Ids;
 using LinqToDB.Mapping;
 
 namespace IB.ISplitApp.Core.Expenses.Data;
@@ -14,7 +14,7 @@ public record Party
     /// </summary>
     [PrimaryKey]
     [Column("id")]
-    public string Id { get; init; } = IdUtil.NewId();
+    public Auid Id { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Name of the party
@@ -31,18 +31,18 @@ public record Party
     /// <summary>
     /// When the party was created in UTC time
     /// </summary>
-    [Column("created")]
+    [Column("created", DbType = "timestamptz")]
     public DateTime Created { get; init; } = DateTime.UtcNow;
     
     /// <summary>
     /// Last time the party was updated in UTC
     /// </summary>
-    [Column("updated")]
+    [Column("updated", DbType = "timestamptz")]
     public DateTime Updated { get; init; } = DateTime.UtcNow;
     
     /// <summary>
     /// timestamp of last update
     /// </summary>
-    [Column("update_timestamp")]
-    public string UpdateTimestamp { get; init; } = ToyId.TimestampMax;
+    [Column("timestamp")]
+    public string Timestamp { get; init; } = AuidFactory.MinTimestamp;
 }

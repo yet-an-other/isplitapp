@@ -17,27 +17,27 @@ Accept: application/json
 # @name get-parties
 GET {{ISplitAppCore_HostAddress}}/parties
 Accept: application/json
-X-USER-ID: {{authToken}}
+X-Device-Id: {{authToken}}
 
 ###
 
 # @name get-parties
 GET {{ISplitAppCore_HostAddress}}/parties
 Accept: application/json
-X-USER-ID: {{authToken}}
+X-Device-Id: {{authToken}}
 
 
 
 ###
 
 # @name get-parties-for-default-user
-GET {{ISplitAppCore_HostAddress}}/parties?filterarchived=archived  
+GET {{ISplitAppCore_HostAddress}}/parties  
 Accept: application/json
 X-USER-ID: {{defaultUser}}
 
 ###
 
-PUT {{ISplitAppCore_HostAddress}}/parties/CNBbNkqZRZDSzCtX/user-settings
+PUT {{ISplitAppCore_HostAddress}}/parties/0CNBbNkqZRZ/settings
 Accept: application/json
 Content-Type: application/json
 X-USER-ID: {{defaultUser}}
@@ -66,7 +66,7 @@ X-USER-ID: {{defaultUser}}
 
 ###
 
-@defaultParty = CNBbNkqZRZDSzCtX
+@defaultParty = 0CNBbNkqZRZ
 #@defaultParty = CMBQhxSsfXzPrxJJ
 
 # @name change-default-party
@@ -100,27 +100,28 @@ X-USER-ID: {{defaultUser}}
 POST {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/expenses
 Accept: application/json
 Content-Type: application/json
+X-USER-ID: {{defaultUser}}
 
 {
   "title": "My first expense 2",
   "amount": "180",
-  "lenderId": "CNBbNktpttCbSXTN",
+  "lenderId": "0CNBbNktptt",
   "date": "{{$datetime iso8601}}",
   "borrowers": [
-    { "participantId": "CNBbNktpttCbSXTN" },
-    { "participantId": "CNBbNktpnXTqFBdC" }
+    { "participantId": "0CNBbNktptt" },
+    { "participantId": "0CNBbNktpnX" }
   ]
 }
 
 ###
 
 # @name get-expense
-GET {{ISplitAppCore_HostAddress}}/expenses/CMNtqzZDJzcRPKjb
+GET {{ISplitAppCore_HostAddress}}/expenses/0CNcrfscXDh
 Accept: application/json
 Content-Type: application/json
 
 ###
-GET {{ISplitAppCore_HostAddress}}/parties/CMBQhxSsfXzPrxJJ/expenses
+GET {{ISplitAppCore_HostAddress}}/parties/{{defaultParty}}/expenses
 Accept: application/json
 Content-Type: application/json
 
@@ -159,6 +160,7 @@ X-USER-ID: {{defaultUser}}
   ]
 }
 
+###
 @ubparty = CMPrdJZTRmznqmdd
 ###
 

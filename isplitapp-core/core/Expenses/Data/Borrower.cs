@@ -1,3 +1,4 @@
+using IB.Utils.Ids;
 using LinqToDB.Mapping;
 
 namespace IB.ISplitApp.Core.Expenses.Data;
@@ -12,13 +13,13 @@ public record Borrower
     /// Reference to expense
     /// </summary>
     [Column("expense_id")] 
-    public string ExpenseId { get; init; } = string.Empty;
+    public Auid ExpenseId { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Reference to participant
     /// </summary>
     [Column("participant_id")]
-    public string ParticipantId { get; init; } = string.Empty;
+    public Auid ParticipantId { get; init; } = Auid.Empty;
 
     /// <summary>
     /// Participant's part of money form the expense in "MicroUnits"

@@ -7,19 +7,10 @@ import { Outlet, useMatches, useNavigate, useParams } from "react-router-dom";
 import { Button, ButtonGroup } from "@nextui-org/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { useEffect } from "react";
 
-export function Group() {
-    
+export function Group() {    
     const navigate = useNavigate();
-    const params = useParams().groupId?.match(/[a-zA-Z]{16}/);
-    const groupId = params ? params[0] : null;
-
-    useEffect(() => {
-        if(!groupId){
-            navigate("/404");
-        }
-    })
+    const { groupId } = useParams();
 
     const { data: party, isLoading, error} = useSWR<PartyInfo, ProblemError>(groupId && `/parties/${groupId}`, fetcher);
     

@@ -1,8 +1,7 @@
-
 using System.Text.Json.Serialization;
 using FluentValidation;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Utils;
+using IB.Utils.Ids;
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
@@ -12,7 +11,7 @@ namespace IB.ISplitApp.Core.Expenses.Contract;
 /// </summary>
 public record BorrowerPayload 
 {
-    public string ParticipantId { get; init; } = string.Empty;
+    public Auid ParticipantId { get; init; } = Auid.Empty;
     
     [JsonPropertyName("amount")]
     public decimal FuAmount { get; init; } = 0;
@@ -26,8 +25,7 @@ public class BorrowerRequestValidator : AbstractValidator<BorrowerPayload>
 {
     public BorrowerRequestValidator(SplitMode splitMode)
     {
-        RuleFor(b => b.ParticipantId).NotEmpty().Must(IdUtil.IsValidId)
-            .WithMessage("Must be correct participantId");
+        RuleFor(b => b.ParticipantId).NotEmpty();
 
         switch (splitMode)
         {
@@ -43,6 +41,8 @@ public class BorrowerRequestValidator : AbstractValidator<BorrowerPayload>
                 break;
             case SplitMode.Evenly:
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(splitMode), splitMode, null);
         }
     }
 }

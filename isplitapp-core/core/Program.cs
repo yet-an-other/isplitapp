@@ -1,39 +1,27 @@
-using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using FirebaseAdmin;
 using FluentValidation;
-using Google.Apis.Auth.OAuth2;
-using IB.ISplitApp.Core.Expenses;
-using IB.ISplitApp.Core.Expenses.Data;
+using IB.ISplitApp.Core.Devices.Contract;
 using IB.ISplitApp.Core.Expenses.Contract;
-using IB.ISplitApp.Core.Users;
-using IB.ISplitApp.Core.Users.Contract;
-using IB.ISplitApp.Core.Users.Data;
-using IB.ISplitApp.Core.Users.Notifications;
-using IB.ISplitApp.Core.Utils;
-
-using LinqToDB;
-using LinqToDB.AspNet;
-using LinqToDB.AspNet.Logging;
-using LinqToDB.DataProvider.PostgreSQL;
+using IB.ISplitApp.Core.Infrastructure;
+using IB.Utils.Ids;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.Primitives;
 using Migrations;
-using Npgsql;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Extensions.Propagators;
-using WebPush;
+
+using CorsUtil = IB.ISplitApp.Core.Infrastructure.CorsUtil;
+
 
 var version = Assembly
     .GetEntryAssembly()
     ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-    ?.InformationalVersion; 
+    ?.InformationalVersion;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
+// Setup Id generator
+//
+builder.Services.AddSingleton<AuidFactory>();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
@@ -52,26 +40,8 @@ builder.Services.AddHttpLogging(o =>
 
 // Setup telemetry
 //
-var activitySource = new ActivitySource("iSplitAppCore");
-var otelCollectorEndpoint = builder.Configuration["OtelCollectorEndpoint"];
-if (otelCollectorEndpoint == null)
-    throw new ArgumentException("Can't find 'OtelCollectorEndpoint' in config");
-builder.Services
-    .AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService("iSplitAppCore"))
-    .WithMetrics(metrics => metrics
-        .AddAspNetCoreInstrumentation()
-        .AddMeter("Microsoft.AspNetCore.Hosting")
-        .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
-        .AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(otelCollectorEndpoint)))
-    .WithTracing(tracing =>
-    {
-        tracing.AddAspNetCoreInstrumentation();
-        tracing.AddNpgsql();
-        tracing.AddSource(activitySource.Name);
-        Sdk.SetDefaultTextMapPropagator(new B3Propagator());
-        tracing.AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = new Uri(otelCollectorEndpoint));
-    });
+builder.Services.AddTelemetry(builder.Configuration);
+
 
 // All exceptions should be in ProblemDetails format
 // ValidationException should return 400 and detailed message
@@ -94,39 +64,21 @@ builder.Services.AddOpenApiDocument(c =>
 
 // Add Database context
 //
-var connectionString = builder.Configuration.GetConnectionString("isplitapp");
-builder.Services.AddLinqToDBContext<ExpenseDb>((provider, options)
-    => options
-        .UsePostgreSQL(connectionString!, PostgreSQLVersion.v15)
-        .UseDefaultLogging(provider));
-builder.Services.AddLinqToDBContext<UserDb>((provider, options)
-    => options
-        .UsePostgreSQL(connectionString!, PostgreSQLVersion.v15)
-        .UseDefaultLogging(provider));
+var connectionString = builder.Configuration.GetConnectionString("isplitapp")!;
+builder.Services.AddLinq2Db(connectionString);
 
 // Add notification config
 //
-var section = builder.Configuration.GetSection("Vapid");
-var vapidDetails = (VapidDetails)section.Get(typeof(VapidDetails))!;
-builder.Services.AddSingleton(vapidDetails);
-
-var fbkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "secret/fbkey.json");
-builder.Services.AddSingleton(
-    FirebaseApp.Create(new AppOptions
-    {
-        Credential = GoogleCredential.FromFile(fbkeyPath)
-    })
-);
-
-builder.Services.AddTransient<NotificationService>();
-
+builder.Services.AddFirebase(builder.Configuration);
 
 // Add validation objects
 //
 builder.Services.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
 builder.Services.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
 builder.Services.AddTransient<IValidator<SubscriptionPayload>, SubscriptionPayloadValidator>();
-builder.Services.AddTransient<GenericValidator>();
+builder.Services.AddTransient<RequestValidator>();
+
+builder.Services.AddEndpoints();
 
 // Add Cors
 //
@@ -137,42 +89,43 @@ builder.Services.AddCors(options =>
         .AllowCredentials()
         .AllowAnyMethod()
         .AllowAnyHeader()        
-        .WithExposedHeaders("X-Created-Id")
         .SetPreflightMaxAge(TimeSpan.FromDays(20)));
 });
 
+// App builder /////////////////////
+//
 var app = builder.Build();
 
 app.UseDefaultFiles();
-app.UseStaticFiles(new StaticFileOptions
+app.UseStaticFiles(
+    new StaticFileOptions
     {
         ServeUnknownFileTypes = true,
         DefaultContentType = "application/json"
     });
+
+// map legacy header to a new one
+//
+app.Use((context, next) =>
+{
+    var legacyHeaders = context.Request.Headers[HeaderName.User];
+    if (legacyHeaders != StringValues.Empty)
+    {
+        var legacyHeader = legacyHeaders.FirstOrDefault();
+        if (!string.IsNullOrEmpty(legacyHeader) && 
+            legacyHeader.Length == 16 &&
+            (legacyHeader.StartsWith("CN") || legacyHeader.StartsWith("CM") || legacyHeader.StartsWith("CK")))
+        {
+            context.Request.Headers[HeaderName.Device] = $"0{legacyHeader[..10]}";
+        }
+    }
+    return next(context);
+});
+
 app.UseRouting();
 app.MapFallbackToFile("index.html");
 
-app.MapGet("/login", UserCommand.Login).WithName("Login");
-
-var userApi = app.MapGroup("/users");
-userApi.MapPost("/subscribe", UserCommand.RegisterSubscription).WithName("Subscribe");
-userApi.MapDelete("/subscribe", UserCommand.DeleteSubscription).WithName("UnSubscribe");
-
-var partyApi = app.MapGroup("/parties");
-partyApi.MapPost("/", ExpenseCommand.PartyCreate).WithName("CreateParty");
-partyApi.MapPut("/{partyId}", ExpenseCommand.PartyUpdate).WithName("UpdateParty");
-partyApi.MapPut("/{partyId}/settings", ExpenseCommand.PartyUpdateUserSettings).WithName("UpdatePartySettings");
-partyApi.MapGet("/{partyId}", ExpenseCommand.PartyGet).WithName("GetParty");
-partyApi.MapGet("/", ExpenseCommand.PartyListGet).WithName("ListParty");
-partyApi.MapGet("/{partyId}/balance", ExpenseCommand.PartyBalanceGet).WithName("GetPartyBalance");
-partyApi.MapDelete("/{partyId}", ExpenseCommand.PartyUnfollow).WithName("UnfollowParty");
-partyApi.MapPost("/{partyId}/expenses", ExpenseCommand.ExpenseCreate).WithName("CreateExpense");
-partyApi.MapGet("/{partyId}/expenses", ExpenseCommand.PartyExpenseListGet).WithName("GetPartyExpenseList");
-
-var expenseApi = app.MapGroup("/expenses");
-expenseApi.MapPut("/{expenseId}", ExpenseCommand.ExpenseUpdate).WithName("UpdateExpense");
-expenseApi.MapGet("/{expenseId}", ExpenseCommand.ExpenseGet).WithName("GetExpense");
-expenseApi.MapDelete("/{expenseId}", ExpenseCommand.ExpenseDelete).WithName("DeleteExpense");
+app.MapEndpoints();
 
 app.UseCors();
 
@@ -184,7 +137,7 @@ app.Use(async (ctx, next) =>
     await next();
 });
 
-// Use NSwag instead of Swashbuckle as NSwag is supporting AOT
+// Use NSwag instead of Swashbuckle 
 //
 app.UseOpenApi();
 app.UseSwaggerUi();
@@ -197,8 +150,8 @@ app.UseHttpLogging();
 
 // Run db migrations
 //
-var migrationRunner = new MigrationRunner(connectionString!);
-migrationRunner.EnsureDatabase();
+var migrationRunner = new MigrationRunner(connectionString);
+await migrationRunner.EnsureDatabase();
 migrationRunner.RunMigrationsUp();
 
 app.Run();
@@ -208,7 +161,7 @@ app.Run();
 [JsonSourceGenerationOptions(
     WriteIndented = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-[JsonSerializable(typeof(User))]
+[JsonSerializable(typeof(DeviceInfo))]
 [JsonSerializable(typeof(ExpensePayload[]))]
 [JsonSerializable(typeof(ExpenseInfo[]))]
 [JsonSerializable(typeof(PartyPayload[]))]

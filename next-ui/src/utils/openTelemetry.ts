@@ -21,7 +21,6 @@ import {
   SEMRESATTRS_OS_TYPE
 } from '@opentelemetry/semantic-conventions';
 
-import format from 'format-util';
 
 
 const OTELCOL_URL = import.meta.env.VITE_OTEL_COLLECTOR_URL as string;
@@ -82,16 +81,21 @@ export function initLogExporter() {
     }    
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const emit = (severityNumber: SeverityNumber, ...args: [any?, ...any[]]) =>{
+    const emit = (severityNumber: SeverityNumber, ...args: [any?, ...any[]]) => {
+
+      try {
         logger.emit({
             severityNumber: severityNumber,
             severityText: SeverityNumber[severityNumber],
-            body: format(args[0] as string, args),
+            body: args, // format(args[0] as string, args),
             attributes: {
-                "deviceId": localStorage.getItem('user-id') ?? 'unknown',
+                "deviceId": localStorage.getItem('device-id') ?? 'unknown',
             }
         });
-    }    
+      } catch (e) {
+        console.error(`Error in emit: ${e as string}`);
+      }
+    }
 }
 
 export let traceProvider: WebTracerProvider;

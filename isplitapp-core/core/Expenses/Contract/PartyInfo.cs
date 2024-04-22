@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using IB.ISplitApp.Core.Utils;
+using IB.Utils.Ids;
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
@@ -11,7 +11,7 @@ public record PartyInfo
     /// <summary>
     /// Unique party ID 
     /// </summary>
-    public string Id { get; init; } = IdUtil.DefaultId;
+    public Auid Id { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Name of the party
@@ -68,5 +68,5 @@ public record PartyInfo
     /// <summary>
     /// Timestamp of last update
     /// </summary>
-    public string UpdateTimestamp { get; init; } = ToyId.TimestampMin;
+    public string UpdateTimestamp { get; init; } = AuidFactory.MinTimestamp;
 }

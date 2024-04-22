@@ -1,12 +1,13 @@
-
 using System.Text.Json.Serialization;
+using IB.Utils.Ids;
+
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
 
 public record BorrowerInfo 
 {
-    public string ParticipantId { get; init; } = string.Empty;
+    public Auid ParticipantId { get; init; } = Auid.Empty;
     
     public string ParticipantName { get; init; } = string.Empty;
 

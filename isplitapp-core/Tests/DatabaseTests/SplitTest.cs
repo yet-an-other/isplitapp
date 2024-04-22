@@ -1,9 +1,14 @@
 using FluentValidation;
+using IB.ISplitApp.Core.Devices.Contract;
+using IB.ISplitApp.Core.Devices.Notifications;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Users.Notifications;
-using IB.ISplitApp.Core.Utils;
+using IB.ISplitApp.Core.Expenses.Endpoints;
+using IB.ISplitApp.Core.Infrastructure;
+
+using IB.Utils.Ids;
+using IB.Utils.Ids.Converters;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
@@ -20,18 +25,33 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
     
     private readonly ExpenseDb _db;
     private readonly IServiceProvider _serviceProvider;
+    private readonly AuidFactory _auidFactory = new ();
+    private readonly RequestValidator _validator;
+    private readonly NotificationService _ns;
     
     public SplitTest(DatabaseFixture databaseFixture)
     {
         _db = new ExpenseDb(
             new DataOptions<ExpenseDb>(
                 new DataOptions()
+                    .UseMappingSchema(Linq2DbConverter.AuidInt64MappingSchema())
                     .UsePostgreSQL(databaseFixture.ConnectionString, PostgreSQLVersion.v15)));
+        
+        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
+        var notificationMoq = new Mock<NotificationService>(loggerMoq, null!, null!, null!);
 
         var collection = new ServiceCollection();
         collection.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
         collection.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
+        collection.AddTransient<IValidator<SubscriptionPayload>, SubscriptionPayloadValidator>();
+        collection.AddSingleton(notificationMoq.Object);
+        
+        collection.AddSingleton(_auidFactory);
+        collection.AddSingleton(_db);
+        collection.AddTransient<RequestValidator>(sp => new RequestValidator(sp));
         _serviceProvider = collection.BuildServiceProvider();
+        _validator = _serviceProvider.GetRequiredService<RequestValidator>();
+        _ns = _serviceProvider.GetRequiredService<NotificationService>();
     }
     
     public void Dispose()
@@ -49,18 +69,16 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
     {
         // Arrange
         //
-        
-        var userId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
-        var lenderId = IdUtil.NewId();
-        var borrowerId = IdUtil.NewId();
+        var actualPartyId = _auidFactory.NewId();
+        var lenderId = _auidFactory.NewId();
+        var borrowerId = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
             Currency = "EUR",
             Name = "Actual",
         };
-        var aParticipants = new List<Participant>( 
+        List<Participant> aParticipants =  
         [
             new Participant
             {
@@ -74,7 +92,7 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
                 PartyId = actualPartyId,
                 Name = "actual-deleted"
             }
-        ]); 
+        ]; 
         
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
@@ -88,13 +106,13 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
             SplitMode = SplitMode.ByShare,
             Borrowers = new List<BorrowerPayload>
             {
-                new BorrowerPayload()
+                new()
                 {
                     ParticipantId = lenderId,
                     Share = 2,
                     Percent = 0
                 },
-                new BorrowerPayload()
+                new()
                 {
                     ParticipantId = borrowerId,
                     Share = 3,
@@ -102,25 +120,28 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
                 }
             }.ToArray()
         };
-        var validator = new GenericValidator(_serviceProvider);
-
-        
-        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
-        var notificationMoq = new Mock<NotificationService>(loggerMoq, null, null, null);
         
         // Act
         //
-        var updateResult = await ExpenseCommand.ExpenseCreate(
-            IdUtil.DefaultId, actualPartyId, expense, validator, _db, notificationMoq.Object);
-        Assert.IsType<CreatedAtRoute>(updateResult.Result);
-        var route = (CreatedAtRoute) updateResult.Result;
+
+        var endpointPut = new ExpenseCreate();
+        var endpointGet = new ExpenseGet();
+
+        var updateResult = await (endpointPut.Endpoint.DynamicInvoke(_auidFactory.NewId().ToString(), actualPartyId.ToString(), expense,
+            _validator, _auidFactory, _ns, _db) as Task<CreatedAtRoute>)!;
+        
+
+        Assert.IsType<CreatedAtRoute>(updateResult);
+        var route = (CreatedAtRoute) updateResult;
         route.RouteValues.TryGetValue("expenseId", out var id);
-        var result = await ExpenseCommand.ExpenseGet(id as string,validator, _db);
+
+
+        var result = await (endpointGet.Endpoint.DynamicInvoke(id, _validator, _db) as Task<Results<Ok<ExpenseInfo>, NotFound>>)!;
         
         // Assert
         //
         var re = (result.Result as Ok<ExpenseInfo>)!.Value;
-        Assert.Equal(SplitMode.ByShare, re.SplitMode);
+        Assert.Equal(SplitMode.ByShare, re!.SplitMode);
         Assert.Equal(1000, re.FuAmount);
         Assert.Equal(400, re.Borrowers[0].FuAmount);
         Assert.Equal(2, re.Borrowers[0].Share);

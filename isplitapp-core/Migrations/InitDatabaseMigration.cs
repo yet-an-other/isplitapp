@@ -7,11 +7,11 @@ public class InitDatabaseMigration: Migration
 {
     public override void Up()
     {
-        Execute.EmbeddedScript("core.SqlMigrations.InitDatabase-UP.sql");
+        Execute.EmbeddedScript("Migrations.SqlMigrations.InitDatabase-UP.sql");
     }
 
     public override void Down()
     {
-        Execute.EmbeddedScript("core.SqlMigrations.InitDatabase-Down.sql");
+        Execute.EmbeddedScript("Migrations.SqlMigrations.InitDatabase-Down.sql");
     }
 }
