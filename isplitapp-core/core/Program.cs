@@ -42,7 +42,6 @@ builder.Services.AddHttpLogging(o =>
 //
 builder.Services.AddTelemetry(builder.Configuration);
 
-
 // All exceptions should be in ProblemDetails format
 // ValidationException should return 400 and detailed message
 //
@@ -50,6 +49,7 @@ builder.Services.AddProblemDetails(o => o.CustomizeProblemDetails = ctx =>
 {
     ctx.ProblemDetails.Extensions.Add("trace-id", ctx.HttpContext.TraceIdentifier);
     ctx.ProblemDetails.Extensions.Add("instance", $"{ctx.HttpContext.Request.Method} {ctx.HttpContext.Request.Path}");
+    
 });
 
 // add nswag service for api documentation
@@ -144,7 +144,7 @@ app.UseSwaggerUi();
 
 // Handle and log errors
 //
-app.UseExceptionHandler();
+app.UseExceptionHandler(RequestValidator.ValidationProblemHandler);
 app.UseStatusCodePages();
 app.UseHttpLogging();
 

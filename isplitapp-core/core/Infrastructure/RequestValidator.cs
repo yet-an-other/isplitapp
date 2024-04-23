@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using IB.Utils.Ids;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace IB.ISplitApp.Core.Infrastructure;
 
@@ -34,6 +35,7 @@ public class RequestValidator(IServiceProvider serviceProvider)
     /// <returns>True if parsing was successful</returns>
     public RequestValidator TryParseId(string? sid, out Auid auid, string idName = "")
     {
+        sid = TransformLegacyId(sid);
         if (Auid.TryFromString(sid!, out auid))
             return this;
         
@@ -69,6 +71,53 @@ public class RequestValidator(IServiceProvider serviceProvider)
     {
         if (!IsValid)
             throw new ValidationException(ValidationResult.Errors);
+    }
+
+    public static void ValidationProblemHandler(IApplicationBuilder exApp)
+    {
+        exApp.Run(async context =>
+        {
+            if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
+            {
+                var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+                if (exceptionHandlerFeature?.Error is ValidationException validationException)
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    await problemDetailsService.WriteAsync(new ProblemDetailsContext
+                    {
+                        HttpContext = context,
+                        ProblemDetails =
+                        {
+                            Title = "One or more validation errors occurred.",
+                            Extensions =
+                                new Dictionary<string, object?>
+                                {
+                                    {
+                                        "errors",
+                                        validationException.Errors
+                                            .GroupBy(x => x.PropertyName)
+                                            .ToDictionary(
+                                                g => g.Key,
+                                                g => g.Select(x => x.ErrorMessage))
+                                    }
+
+                                },
+                            Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private string? TransformLegacyId(string? legacyId)
+    {
+        if (legacyId?.Length == 16 &&
+            (legacyId.StartsWith("CN") ||
+             legacyId.StartsWith("CM") ||
+             legacyId.StartsWith("CK")))
+            return $"0{legacyId[..10]}";
+        return legacyId;
     }
 }
 
