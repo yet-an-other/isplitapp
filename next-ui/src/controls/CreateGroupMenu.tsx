@@ -23,10 +23,10 @@ export function CreateGroupMenu() {
 
         if (key === 'confirmed' && groupLink) {
             linkModal.onClose();
-            const match = groupLink.match("(^|/)([a-zA-Z]{16})($|/)");
+            const match = groupLink.match("(^|/)([0-9a-zA-Z]{11})($|/)");
             setGroupLink("");
             if (!match?.[2]){
-                alertError("Cannot find party id");
+                alertError("Unable to parse the link and find party id");
                 return;
             }
     

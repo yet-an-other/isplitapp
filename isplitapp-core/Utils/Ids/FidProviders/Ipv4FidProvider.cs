@@ -1,14 +1,14 @@
-using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging;
 
 namespace IB.Utils.Ids.FidProviders;
 
 /// <summary>
 /// Factory id provider based on IP v4 address of machine or container where the service is running
 /// </summary>
-public class Ipv4FidProvider: IFidProvider
+public class Ipv4FidProvider(ILogger<Ipv4FidProvider>? logger = null) : IFidProvider
 {
     /// <summary>
     /// Returns unique id based on ip address
@@ -37,7 +37,7 @@ public class Ipv4FidProvider: IFidProvider
                 if (IPAddress.IsLoopback(address.Address))
                     continue;
 
-                Debug.WriteLine("Use ip: {0}", address.Address.ToString());
+                logger?.LogInformation("Use ip: {0}", address.Address.ToString());
                 return Bytes2Uint(address.Address.GetAddressBytes()) & maxFactoryId;
             }
         }

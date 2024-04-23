@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using IB.Utils.Ids.Converters;
 using IB.Utils.Ids.FidProviders;
 using IB.Utils.Ids.TimeSources;
+using Microsoft.Extensions.Logging;
 
 namespace IB.Utils.Ids;
 
@@ -23,8 +24,61 @@ public class AuidFactory
     private readonly object _lockObj = new();
     
     private Auid _maxAuid;
+    
+    /// <summary>
+    /// Creates a new <see cref="AuidFactory"/> with all default settings
+    /// FactoryId is automatically generated based on ip address
+    /// IdStructure is comprise out of 41 bit for timestamp, 12 bit for factory id, and 10 bit for sequence
+    /// The Time source is based on Stopwatch with 0.001s (1 millisecond) accuracy 
+    /// </summary>
+    public AuidFactory(ILoggerFactory? loggerFactory = null)
+        : this(
+            new Ipv4FidProvider(loggerFactory?.CreateLogger<Ipv4FidProvider>()), 
+            new AuidStructure(), 
+            new SwTimeSource(), 
+            loggerFactory?.CreateLogger<AuidFactory>())
+    {}
 
+    /// <summary>
+    /// Creates a new <see cref="AuidFactory"/> with specific const factoryId
+    /// </summary>
+    /// <param name="factoryId">Unique factoryId in range from <see cref="AuidStructure"/></param>
+    /// <param name="logger"><see cref="ILogger{AuidFactory}"/> can be null</param>
+    public AuidFactory(uint factoryId, ILogger<AuidFactory>? logger = null)
+        : this(new ConstFidProvider(factoryId), new AuidStructure(), new SwTimeSource(), logger)
+    {}
+    
+    /// <summary>
+    /// Creates a new <see cref="AuidFactory"/>
+    /// </summary>
+    /// <param name="factoryIdProvider"><see cref="IFidProvider"/> that can generate unique factory id</param>
+    /// <param name="auidStructure">Structure of ID</param>
+    /// <param name="timeSource">Timestamp generator</param>
+    /// <param name="logger"> <see cref="ILogger{AuidFactory}"/>Logger </param>
+    /// <exception cref="ArgumentOutOfRangeException">If factoryId is out of range in <see cref="AuidStructure"/></exception>
+    public AuidFactory(
+        IFidProvider factoryIdProvider, 
+        AuidStructure auidStructure, 
+        ITimeSource timeSource, 
+        ILogger<AuidFactory>? logger = null)
+    {
+        AuidStructure = auidStructure;
+        TimeSource = timeSource;
+        _factoryId = factoryIdProvider.GetFactoryId(auidStructure.MaxFactoryId);
 
+        if (_factoryId >= AuidStructure.MaxFactoryId)
+            throw new ArgumentOutOfRangeException(
+                nameof(factoryIdProvider),
+                $"FactoryId must be between 0 and {AuidStructure.MaxFactoryId}.");
+        
+        _shiftTimestamp = AuidStructure.FactoryIdBits + AuidStructure.SequenceBits;
+        _shiftFactoryId = AuidStructure.SequenceBits;
+        logger?.LogInformation(
+            "AuidFactory created with factoryId: {0}, epoch: {1}, precision: {2} seconds", 
+            _factoryId, TimeSource.Epoch.ToString("O"), TimeSource.TickSize.TotalSeconds);
+    }
+    
+    
     /// <summary>
     /// Maximum timestamp
     /// </summary>
@@ -50,46 +104,6 @@ public class AuidFactory
     /// Timestamp generator
     /// </summary>
     public ITimeSource TimeSource { get; }
-    
-    /// <summary>
-    /// Creates a new <see cref="AuidFactory"/> with all default settings
-    /// FactoryId is automatically generated based on ip address
-    /// IdStructure is comprise out of 41 bit for timestamp, 12 bit for factory id, and 10 bit for sequence
-    /// The Time source is based on Stopwatch with 0.001s (1 millisecond) accuracy 
-    /// </summary>
-    public AuidFactory()
-        : this(new Ipv4FidProvider(), new AuidStructure(), new SwTimeSource())
-    {}
-    
-    /// <summary>
-    /// Creates a new <see cref="AuidFactory"/> with specific const factoryId
-    /// </summary>
-    /// <param name="factoryId">Unique factoryId in range from <see cref="AuidStructure"/></param>
-    public AuidFactory(uint factoryId)
-        : this(new ConstFidProvider(factoryId), new AuidStructure(), new SwTimeSource())
-    {}
-    
-    /// <summary>
-    /// Creates a new <see cref="AuidFactory"/>
-    /// </summary>
-    /// <param name="factoryIdProvider"><see cref="IFidProvider"/> that can generate unique factory id</param>
-    /// <param name="auidStructure">Structure of ID</param>
-    /// <param name="timeSource">Timestamp generator</param>
-    /// <exception cref="ArgumentOutOfRangeException">If factoryId is out of range in <see cref="AuidStructure"/></exception>
-    public AuidFactory(IFidProvider factoryIdProvider, AuidStructure auidStructure, ITimeSource timeSource)
-    {
-        AuidStructure = auidStructure;
-        TimeSource = timeSource;
-        _factoryId = factoryIdProvider.GetFactoryId(auidStructure.MaxFactoryId);
-
-        if (_factoryId >= AuidStructure.MaxFactoryId)
-            throw new ArgumentOutOfRangeException(
-                nameof(factoryIdProvider),
-                $"FactoryId must be between 0 and {AuidStructure.MaxFactoryId}.");
-        
-        _shiftTimestamp = AuidStructure.FactoryIdBits + AuidStructure.SequenceBits;
-        _shiftFactoryId = AuidStructure.SequenceBits;
-    }
 
     /// <summary>
     /// Creates a new instance of <see cref="Auid"/>
