@@ -45,7 +45,7 @@ export function About() {
                 Create Group
             </Button>
 
-            <h5 className="text-xl font-bold mt-20">Motivaition</h5>
+            <h5 className="text-xl font-bold mt-20">Motivation</h5>
             <div className="flex text-sm text-dimmed p-5 text-justify">
                 The SplitWise app has been a long-standing tool for managing shared expenses, but its recent shift towards a cumbersome UI, an increase in advertisements, and the gating of essential features behind a subscription paywall has lessened its appeal.
                 <br/>

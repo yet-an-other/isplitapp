@@ -27,7 +27,7 @@ public class MigrationRunner
                 .AddPostgres()
                 .WithGlobalConnectionString(connectionString)
                 .ScanIn(GetType().Assembly).For.Migrations()
-                .ScanIn(Assembly.Load("core")).For.EmbeddedResources())
+                .ScanIn(Assembly.Load("Migrations")).For.EmbeddedResources())
             .AddLogging(builder => builder.AddDebug().AddConsole())
             .Configure<FluentMigratorLoggerOptions>(options =>
             {
@@ -39,7 +39,7 @@ public class MigrationRunner
             .GetRequiredService<IMigrationRunner>();
     }    
     
-    public async void EnsureDatabase()
+    public async Task EnsureDatabase()
     {
         var log = _serviceProvider.GetService<ILogger<MigrationRunner>>();
 

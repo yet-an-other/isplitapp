@@ -1,6 +1,7 @@
-import { User } from "./contract/User";
+import { Device } from "./contract/Device";
 
 const LS_USER_KEY = 'user-id';
+const LS_DEVICE_KEY = 'device-id';
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 /**
@@ -10,21 +11,30 @@ const API_URL = import.meta.env.VITE_API_URL as string;
  * At first the function is check the local storage and only if user id is not there, 
  * the function will fetch it from the server.
  */
-export async function ensureUserId(): Promise<string> {
-    const method = "/login";
-    let userId = localStorage.getItem(LS_USER_KEY);
-    if (!userId) {
-        const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-        };
+export async function ensureDeviceId(): Promise<string> {
 
-        const response = await fetch(`${API_URL}${method}`, requestOptions);
-        userId = (await response.json() as User).id;
-
-        if (userId)
-            localStorage.setItem(LS_USER_KEY, userId);
+    let deviceId = localStorage.getItem(LS_DEVICE_KEY);
+    if (!deviceId) {
+        deviceId = localStorage.getItem(LS_USER_KEY);
+        if (deviceId) {
+            deviceId = `0${deviceId.substring(0, 10)}`
+            localStorage.setItem(LS_DEVICE_KEY, deviceId);
+        } else {
+            deviceId = await fetchDeviceId();
+            if (deviceId)
+                localStorage.setItem(LS_DEVICE_KEY, deviceId);
+        }
     }
 
-    return userId;
+    return deviceId;
+}
+
+async function fetchDeviceId(): Promise<string> {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    };
+
+    const response = await fetch(`${API_URL}/login`, requestOptions);
+    return (await response.json() as Device).id;
 }

@@ -8,7 +8,6 @@ namespace IB.ISplitApp.Core.Expenses.Data;
 /// </summary>
 public class ExpenseDb(DataOptions<ExpenseDb> options) : DataConnection(options.Options)
 {
-    
     /// <summary>
     /// party table in database
     /// </summary>
@@ -22,7 +21,7 @@ public class ExpenseDb(DataOptions<ExpenseDb> options) : DataConnection(options.
     /// <summary>
     /// user_party table to track association between users and parties
     /// </summary>
-    public ITable<UserParty> UserParty => this.GetTable<UserParty>();
+    public ITable<DeviceParty> DeviceParty => this.GetTable<DeviceParty>();
 
     /// <summary>
     /// expense table

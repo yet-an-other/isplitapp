@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using FluentValidation;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Utils;
+using IB.Utils.Ids;
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
@@ -29,7 +29,7 @@ public record ExpensePayload
     /// <summary>
     /// Unique id who has paid
     /// </summary>
-    public string LenderId { get; init; } = string.Empty;
+    public Auid LenderId { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Is this a compensation?
@@ -56,8 +56,7 @@ public class ExpensePayloadValidator : AbstractValidator<ExpensePayload>
             .WithMessage("In expense must be at least one participant");
         RuleFor(e => e.FuAmount).GreaterThan(0);
         RuleFor(e => e.Date).NotEmpty();
-        RuleFor(e => e.LenderId).NotEmpty().Must(IdUtil.IsValidId)
-            .WithMessage("LenderId must be correct");
+        RuleFor(e => e.LenderId).NotEmpty();
         RuleFor(e => e.Borrowers).NotEmpty()
             .WithMessage("Must be at least one participant who was paid for");
         RuleForEach(e => e.Borrowers).SetValidator(e=> new BorrowerRequestValidator(e.SplitMode));

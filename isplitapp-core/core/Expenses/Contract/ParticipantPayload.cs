@@ -1,3 +1,5 @@
+using IB.Utils.Ids;
+
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
 /// <summary>
@@ -8,8 +10,7 @@ public record ParticipantPayload
     /// <summary>
     /// Unique ID, can be empty if Participant not exists
     /// </summary>
-    public string Id { get; init; } = string.Empty;
-    
+    public Auid Id { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Name of the participant

@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using IB.ISplitApp.Core.Utils;
+using IB.Utils.Ids;
 using LinqToDB.Mapping;
 
 namespace IB.ISplitApp.Core.Expenses.Data;
@@ -15,14 +15,14 @@ public record Expense
     /// </summary>
     [PrimaryKey]
     [Column("id")]
-    public string Id { get; init; } = IdUtil.NewId();
+    public Auid Id { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Reference to party
     /// </summary>
     [JsonIgnore]
     [Column("party_id")]
-    public string PartyId { get; init; } = string.Empty;
+    public Auid PartyId { get; init; } = Auid.Empty;
     
     /// <summary>
     /// What was expense for
@@ -39,20 +39,20 @@ public record Expense
     /// <summary>
     /// Expense date 
     /// </summary>
-    [Column("date")] 
+    [Column("date", DbType = "timestamptz")] 
     public DateTime Date { get; init; } = DateTime.UtcNow;
 
     /// <summary>
     /// Unique id who has paid
     /// </summary>
     [Column("lender_id")]
-    public string LenderId { get; init; } = string.Empty;
+    public Auid LenderId { get; init; } = Auid.Empty;
     
     /// <summary>
     /// timestamp of last update
     /// </summary>
-    [Column("update_timestamp")]
-    public string UpdateTimestamp { get; init; } = ToyId.TimestampMax;
+    [Column("timestamp")]
+    public string Timestamp { get; init; } = AuidFactory.MinTimestamp;
     
     /// <summary>
     /// Is this a compensation?

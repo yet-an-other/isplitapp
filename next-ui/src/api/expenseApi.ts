@@ -1,4 +1,4 @@
-import { ensureUserId } from "./userApi";
+import { ensureDeviceId } from "./userApi";
 import { PartyPayload } from "./contract/PartyPayload";
 import { ProblemError } from "./contract/ProblemError";
 import { ExpensePayload } from "./contract/ExpensePayload";
@@ -14,12 +14,13 @@ const API_URL = import.meta.env.VITE_API_URL as string;
  */
 export async function fetcher(key: string) {
     
-    const userId = await ensureUserId();
+    const deviceId = await ensureDeviceId();
+
     const requestOptions = {
         method: 'GET',
         headers: { 
             'Content-Type': 'application/json',
-            'X-USER-ID': userId
+            'X-Device-Id': deviceId
         },
     };
     const response = await fetch(`${API_URL}${key}`, requestOptions);
@@ -36,8 +37,8 @@ export async function fetcher(key: string) {
  */
 export async function createParty(partyPayload: PartyPayload) {
     const endpoint = "/parties"
-    const partyId = await sendRequest('POST', endpoint, partyPayload);
-    return partyId
+    const { partyId } = await sendRequest<PartyPayload, { partyId: string }>('POST', endpoint, partyPayload);
+    return partyId;
 }
 
 /**
@@ -68,7 +69,6 @@ export async function createExpense(partyId: string, expensePayload: ExpensePayl
     await sendRequest('POST', endpoint, expensePayload);
 }
 
-
 /**
  * Update expense
  * @param expenseId expense id
@@ -79,13 +79,12 @@ export async function updateExpense(expenseId: string, expensePayload: ExpensePa
     await sendRequest('PUT', endpoint, expensePayload);
 }
 
-
 /**
  * Unfollow party
  */
 export async function unfollowParty(partyId: string) {
     const endpoint = `/parties/${partyId}`
-    return await sendRequest('DELETE', endpoint);
+    await sendRequest('DELETE', endpoint);
 }
 
 /**
@@ -93,7 +92,7 @@ export async function unfollowParty(partyId: string) {
  */
 export async function deleteExpense(expenseId: string) {
     const endpoint = `/expenses/${expenseId}`
-    return await sendRequest('DELETE', endpoint);
+    await sendRequest('DELETE', endpoint);
 }
 
 /**
@@ -101,7 +100,7 @@ export async function deleteExpense(expenseId: string) {
  */
 export async function registerSubscription(subscriptionPayload: PushSubscription | IosSubscriptionPayload) {
     const endpoint = `/users/subscribe`
-    return await sendRequest('POST', endpoint, subscriptionPayload);
+    await sendRequest('POST', endpoint, subscriptionPayload);
 }
 
 /**
@@ -109,7 +108,7 @@ export async function registerSubscription(subscriptionPayload: PushSubscription
  */
 export async function deleteSubscription() {
     const endpoint = `/users/subscribe`
-    return await sendRequest('DELETE', endpoint);
+    await sendRequest('DELETE', endpoint);
 }
 
 /**
@@ -125,21 +124,24 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
  * @param body request body or undefined
  * @returns 
  */
-async function sendRequest<TBody>(method:  HttpMethod, endpoint: string, body?: TBody): Promise<string | null> {
-    const userId = await ensureUserId();
+async function sendRequest<TBody, TResponse>(method:  HttpMethod, endpoint: string, body?: TBody): Promise<TResponse> {
+    const deviceId = await ensureDeviceId();
 
     const requestOptions = {
         method: method,
         headers: { 
             'Content-Type': 'application/json',
-            'X-USER-ID': userId
+            'X-Device-Id': deviceId
         },
         body: body ? JSON.stringify(body) : undefined
     };
 
     const response = await fetch(`${API_URL}${endpoint}`, requestOptions);
     if (!response.ok)
-        throw new ProblemError(await response.json())
+        throw new ProblemError(await response.json());
 
-    return response.headers.get("x-created-id");
-}
+    const buffer = (await response.arrayBuffer());
+    return (buffer.byteLength === 0)
+        ? {} as TResponse
+        : JSON.parse(new TextDecoder().decode(buffer)) as TResponse;
+    }

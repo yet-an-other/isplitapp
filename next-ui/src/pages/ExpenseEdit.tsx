@@ -52,7 +52,7 @@ export function ExpenseEdit() {
         {
             onSuccess: (data) => {
                 if (data) {
-                    setExpense({...data, date: new Date(`${data.date.toString()}Z`)});
+                    setExpense({...data, date: new Date(data.date)});
                 }
             }
         }
@@ -233,6 +233,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 navigate(`/${group.id}/expenses`);
             }
             catch(e) {
+                console.error(e);
                 alertError("Failed to save the expense. Please try again later.")
             }
         }
@@ -352,7 +353,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                         input: "text-[16px]"
                     }}
                     name="date"
-                    value={new Date(expense.date).toISOString().split('T')[0]}
+                    value={ expense.date.toISOString().split('T')[0] }
                     onChange={e => handleOnChange({name: "date", value: e.target.value})}
                     isInvalid={!!fieldError("date")}
                     errorMessage={fieldError("date")}

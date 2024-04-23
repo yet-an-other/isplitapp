@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using IB.ISplitApp.Core.Expenses.Data;
-using IB.ISplitApp.Core.Utils;
+using IB.Utils.Ids;
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
@@ -12,7 +12,7 @@ public record ExpenseInfo
     /// <summary>
     /// Unique expense id
     /// </summary>
-    public string Id { get; init; } = IdUtil.NewId();
+    public Auid Id { get; init; } = Auid.Empty;
     
     /// <summary>
     /// What was expense for
@@ -33,13 +33,13 @@ public record ExpenseInfo
     /// <summary>
     /// Unique id who has paid
     /// </summary>
-    public string LenderId { get; init; } = string.Empty;
+    public Auid LenderId { get; init; } = Auid.Empty;
     
     public string LenderName { get; init; } = string.Empty;    
     
     public bool IsReimbursement { get; init; }
     
-    public string UpdateTimestamp { get; init; } = ToyId.TimestampMin;
+    public string UpdateTimestamp { get; init; } = AuidFactory.MinTimestamp;
     
     public BorrowerInfo[] Borrowers { get; set; } = [];
     

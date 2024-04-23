@@ -1,19 +1,24 @@
-
+using System.Text;
 using FluentValidation;
+using IB.ISplitApp.Core.Devices.Contract;
+using IB.ISplitApp.Core.Devices.Notifications;
 using IB.ISplitApp.Core.Expenses;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Contract;
-using IB.ISplitApp.Core.Users.Notifications;
-using IB.ISplitApp.Core.Utils;
+using IB.ISplitApp.Core.Expenses.Endpoints;
+using IB.ISplitApp.Core.Infrastructure;
+using IB.Utils.Ids;
+using IB.Utils.Ids.Converters;
 using LinqToDB;
+using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using Xunit.Abstractions;
 
 
 namespace Tests.DatabaseTests;
@@ -22,19 +27,50 @@ namespace Tests.DatabaseTests;
 public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDisposable
 {
     private readonly ExpenseDb _db;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly AuidFactory _auidFactory = new();
+
+    private readonly RequestValidator _validator;
+
+    private readonly NotificationService _ns;
     
-    public ExpenseCommandTest(DatabaseFixture databaseFixture)
+    //ITestOutputHelper _output;
+    
+    public ExpenseCommandTest(DatabaseFixture databaseFixture, ITestOutputHelper output)
     {
-        _db = new ExpenseDb(
-            new DataOptions<ExpenseDb>(
-                new DataOptions()
-                    .UsePostgreSQL(databaseFixture.ConnectionString, PostgreSQLVersion.v15)));
+        //_output = output;
+        var converter = new Converter(output);
+        Console.SetOut(converter);
+        
+        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
+        var notificationMoq = new Mock<NotificationService>(loggerMoq, null!, null!, null!);
 
         var collection = new ServiceCollection();
         collection.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
         collection.AddTransient<IValidator<ExpensePayload>, ExpensePayloadValidator>();
-        _serviceProvider = collection.BuildServiceProvider();
+        collection.AddTransient<IValidator<SubscriptionPayload>, SubscriptionPayloadValidator>();
+        collection.AddSingleton(notificationMoq.Object);
+        collection.AddSingleton(_auidFactory);
+        collection.AddSingleton(LoggerFactory.Create(c => c.AddConsole()));
+        collection.AddTransient<RequestValidator>(sp => new RequestValidator(sp));
+
+        collection.AddSingleton<ExpenseDb>(
+            sp => new ExpenseDb(
+                new DataOptions<ExpenseDb>(
+                    new DataOptions()
+                        .UseMappingSchema(mappingSchema: Linq2DbConverter.AuidInt64MappingSchema())
+                        .UsePostgreSQL(
+                            connectionString: databaseFixture.ConnectionString,
+                            dialect: PostgreSQLVersion.v15,
+                            optionSetter: _ => new PostgreSQLOptions(NormalizeTimestampData: false))
+                        .UseDefaultLogging(sp)
+                )));
+        
+        IServiceProvider serviceProvider = collection.BuildServiceProvider();
+
+        _db = serviceProvider.GetRequiredService<ExpenseDb>();
+        _validator = serviceProvider.GetRequiredService<RequestValidator>();
+        _ns = serviceProvider.GetRequiredService<NotificationService>();
+
     }
     
     public void Dispose()
@@ -56,21 +92,23 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         {
             Currency = "EUR",
             Name = "Test",
-            Participants =[ new ParticipantPayload{Name="test-p1"}, new ParticipantPayload(){Name="test-p2"}]
+            Participants =[ new ParticipantPayload{Name="test-p1"}, new ParticipantPayload{Name="test-p2"}]
         };
         
         // Act
         //
-        var userId = IdUtil.NewId();
-        var result = await ExpenseCommand.PartyCreate(
-            userId, party, new GenericValidator(_serviceProvider), null, _db);
+        var deviceId = _auidFactory.NewId();
+        var ep = new PartyCreate();
+        var result = await (ep.Endpoint.DynamicInvoke(
+            deviceId.ToString(), party, _validator, _auidFactory, _db) as Task<CreatedAtRoute<CreatedPartyInfo>>)!;
+
         
         
         // Assert
         //
-        Assert.IsType<CreatedAtRoute<CreatedPartyInfo>>(result.Result);
+        Assert.IsType<CreatedAtRoute<CreatedPartyInfo>>(result);
 
-        var partyId = (result.Result as CreatedAtRoute<CreatedPartyInfo>).Value.PartyId;
+        var partyId = result.Value!.PartyId;
         var newParty = LoadParties(partyId);
         
         Assert.Equal(party.Name, newParty.Name);
@@ -86,31 +124,31 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var userId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
+        var deviceId = _auidFactory.NewId();
+        var actualPartyId = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
             Currency = "EUR",
             Name = "Actual",
         };
-        var aParticipants = new List<Participant>( 
+        List<Participant> aParticipants = 
         [
             new Participant
             {
-                Id = IdUtil.NewId(),
+                Id = _auidFactory.NewId(),
                 PartyId = actualPartyId,
                 Name = "actual-changed"
             },
             new Participant
             {
-                Id = IdUtil.NewId(),
+                Id = _auidFactory.NewId(),
                 PartyId = actualPartyId,
                 Name = "actual-deleted"
             }
-        ]);        
+        ];        
         
-        var controlPartyId = IdUtil.NewId();
+        var controlPartyId = _auidFactory.NewId();
         var controlParty = new Party
         {
             Id = controlPartyId,
@@ -120,44 +158,45 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Created = DateTime.UtcNow,
         };
 
-        var cParticipants = new List<Participant>([
+        List<Participant> cParticipants = [
             new Participant
             {
-                Id = IdUtil.NewId(),
+                Id = _auidFactory.NewId(),
                 PartyId = controlPartyId,
                 Name = "control-p1"
             },
             new Participant
             {
-                Id = IdUtil.NewId(),
+                Id = _auidFactory.NewId(),
                 PartyId = controlPartyId,
                 Name = "control-p2"
             }
-        ]);
+        ];
         
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
         await _db.InsertAsync(controlParty);
         await _db.BulkCopyAsync(cParticipants);
-
-        var validator = new GenericValidator(_serviceProvider);
+        
 
         var changedParty = new PartyPayload
         {
             Currency = "GBP",
             Name = "Changed",
-            Participants =
-            [
+            Participants = [
                 new ParticipantPayload { Id = aParticipants[0].Id, Name = "changed-p1" },
-                new ParticipantPayload() { Name = "added" }
+                new ParticipantPayload { Name = "added" }
             ]
         };
+
         
         // Act
         //
-        var updateResult = await ExpenseCommand
-            .PartyUpdate(userId, actualPartyId, changedParty, validator, NullLoggerFactory.Instance, _db);
+        
+        var ep = new PartyUpdate();
+        var updateResult = await (ep.Endpoint.DynamicInvoke(
+            deviceId.ToString(), actualPartyId.ToString(), changedParty, _validator, _auidFactory, _db) as Task<Results<NotFound, NoContent>>)!;
         
         
         // Assert
@@ -170,8 +209,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         Assert.Equal(controlParty.Currency, controlPartyCheck.Currency);
         Assert.Equal(controlParty.Name, controlPartyCheck.Name);
         Assert.Equal(2, controlPartyCheck.Participants.Length);
-
-
+        
         // check the party data are changed
         //
         var changedPartyCheck = LoadParties(actualPartyId);
@@ -209,8 +247,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var userId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
+        var deviceId = _auidFactory.NewId();
+        var actualPartyId = _auidFactory.NewId();
         var actualParty = new PartyPayload
         {
             Currency = "EUR",
@@ -219,17 +257,18 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             [
                 new ParticipantPayload
                 {
-                    Id = IdUtil.NewId(),
+                    Id = _auidFactory.NewId(),
                     Name = "actual-changed"
                 }
             ]
         };
-        var validator = new GenericValidator(_serviceProvider);
         
         // Act
         //
-        var updateResult = await ExpenseCommand
-            .PartyUpdate(userId, actualPartyId, actualParty, validator, new NullLoggerFactory(), _db);
+        var ep = new PartyUpdate();
+        var updateResult = await (ep.Endpoint.DynamicInvoke(
+            deviceId.ToString(), actualPartyId.ToString(), actualParty, _validator, _auidFactory, _db) as Task<Results<NotFound, NoContent>>)!;        
+
         
         // Assert
         //
@@ -242,8 +281,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var userId = IdUtil.NewId();
-        var controlPartyId = IdUtil.NewId();
+        var deviceId = _auidFactory.NewId();
+        var controlPartyId = _auidFactory.NewId();
         var controlParty = new Party
         {
             Id = controlPartyId,
@@ -254,34 +293,37 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
 
         };
 
-        var cParticipants = new List<Participant>([
+        List<Participant> cParticipants = [
             new Participant
             {
-                Id = IdUtil.NewId(),
+                Id = _auidFactory.NewId(),
                 PartyId = controlPartyId,
                 Name = "control-p1"
             },
             new Participant
             {
-                Id = IdUtil.NewId(),
+                Id = _auidFactory.NewId(),
                 PartyId = controlPartyId,
                 Name = "control-p2"
             }
-        ]);
+        ];
         
         await _db.InsertAsync(controlParty);
-        await _db.BulkCopyAsync(cParticipants);        
+        await _db.BulkCopyAsync(cParticipants);  
+        
+
         
         // Act
         //
-        var getResult = await ExpenseCommand
-            .PartyGet(userId, controlPartyId, new GenericValidator(_serviceProvider), _db);
+        var ep = new PartyGet();
+        var getResult = await (ep.Endpoint.DynamicInvoke(
+            deviceId.ToString(), controlPartyId.ToString(), _validator, _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;
         
         // Assert
         //
         Assert.IsType<Ok<PartyInfo>>(getResult.Result);
         var response = (getResult.Result as Ok<PartyInfo>)!.Value;
-        Assert.Equal(controlParty.Name, response.Name);
+        Assert.Equal(controlParty.Name, response!.Name);
         Assert.Equal(controlParty.Currency, response.Currency);
         Assert.Equal(controlParty.Created, response.Created);
         Assert.Equal(controlParty.Updated, response.Updated);
@@ -290,18 +332,21 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Check userId
         //
-        var getUserResult = _db.UserParty.Where(up => up.PartyId == controlPartyId).ToArray();
+        var getUserResult = _db.DeviceParty.Where(dp => dp.PartyId == controlPartyId).ToArray();
         Assert.Single(getUserResult);
-        Assert.Equal(userId, getUserResult[0].UserId);
+        Assert.Equal(deviceId, getUserResult[0].DeviceId);
     }
 
     [Fact]
     public async Task GetPartyNotExistsShouldReturn404()
     {
+        
         // Act
         //
-        var getResult = await ExpenseCommand
-            .PartyGet(IdUtil.NewId(), IdUtil.NewId(), new GenericValidator(_serviceProvider), _db);
+        var ep = new PartyGet();
+        var getResult = await (ep.Endpoint.DynamicInvoke(
+            _auidFactory.NewId().ToString(), _auidFactory.NewId().ToString(), _validator, _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;        
+
         
         // Check userId
         //
@@ -310,15 +355,15 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
 
 
     [Fact]
-    public async Task GetPartyListShouldReturnOnlyPartiesBelongToUser()
+    public async Task GetPartyListShouldReturnOnlyPartiesBelongToDevice()
     {
         // Setup
         //
-        var actualUserId = IdUtil.NewId();
-        var controlUserId = IdUtil.NewId();
-        var actualParty1Id = IdUtil.NewId();
-        var actualParty2Id = IdUtil.NewId();
-        var controlPartyId = IdUtil.NewId();
+        var actualDeviceId = _auidFactory.NewId();
+        var controlDeviceId = _auidFactory.NewId();
+        var actualParty1Id = _auidFactory.NewId();
+        var actualParty2Id = _auidFactory.NewId();
+        var controlPartyId = _auidFactory.NewId();
         var actualParty1 = new Party
         {
             Id = actualParty1Id,
@@ -340,23 +385,26 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Name = "Control"
         };        
         await _db.InsertAsync(actualParty1);
-        await _db.InsertAsync(new UserParty { UserId = actualUserId, PartyId = actualParty1Id });
+        await _db.InsertAsync(new DeviceParty { DeviceId = actualDeviceId, PartyId = actualParty1Id });
         
         await _db.InsertAsync(actualParty2);
-        await _db.InsertAsync(new UserParty { UserId = actualUserId, PartyId = actualParty2Id });
+        await _db.InsertAsync(new DeviceParty { DeviceId = actualDeviceId, PartyId = actualParty2Id });
         
         await _db.InsertAsync(controlParty);
-        await _db.InsertAsync(new UserParty { UserId = controlUserId, PartyId = controlPartyId });
+        await _db.InsertAsync(new DeviceParty { DeviceId = controlDeviceId, PartyId = controlPartyId });
+        
         
         // Act
         //
-        var getResult = await ExpenseCommand
-            .PartyListGet(actualUserId, null, null, new GenericValidator(_serviceProvider), _db);
+        var ep = new PartyGetList();
+        var getResult = await (ep.Endpoint.DynamicInvoke(
+            actualDeviceId.ToString(), null, null, _validator, _db) as Task<Ok<PartyInfo[]>>)!;    
+
         
         // Check userId
         //
-        Assert.IsType<Ok<PartyInfo[]>>(getResult.Result);
-        var partyList = (getResult.Result as Ok<PartyInfo[]>)!.Value;
+        Assert.IsType<Ok<PartyInfo[]>>(getResult);
+        var partyList = getResult.Value;
         
         Assert.Equal(2, partyList!.Length);
         Assert.Contains(partyList, pl => pl.Id == actualParty1Id);
@@ -369,9 +417,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var userId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
-        var participantId = IdUtil.NewId();
+        var actualPartyId = _auidFactory.NewId();
+        var participantId = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
@@ -379,7 +426,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Name = "Actual",
         };
 
-        var aParticipants = new List<Participant>(
+        List<Participant> aParticipants = 
         [
             new Participant
             {
@@ -387,36 +434,34 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 PartyId = actualPartyId,
                 Name = "actual"
             }
-        ]);
+        ];
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
-        var expense = new ExpensePayload()
+        var expense = new ExpensePayload
         {
             LenderId = participantId,
             Title = "payment",
             FuAmount = 100,
             Date = DateTime.UtcNow,
             IsReimbursement = false,
-            Borrowers = [new BorrowerPayload() { ParticipantId = participantId }]
+            Borrowers = [new BorrowerPayload { ParticipantId = participantId }]
         };
-
-        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
-        var notificationMoq = new Mock<NotificationService>(loggerMoq, null!, null!, null!);
         
+
         // Act
         //
-        var postExpense = await ExpenseCommand.ExpenseCreate(
-            IdUtil.DefaultId, actualPartyId, expense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
+        var ep = new ExpenseCreate();
+        var postExpense = await (ep.Endpoint.DynamicInvoke(
+            _auidFactory.NewId().ToString(), actualPartyId.ToString(), expense, _validator, _auidFactory, _ns, _db) as Task<CreatedAtRoute>)!;          
         
         // Assert
         //
-        Assert.IsType<CreatedAtRoute>(postExpense.Result);
-        var postExpenseId = (postExpense.Result as CreatedAtRoute)?.RouteValues["expenseId"];
+        Assert.IsType<CreatedAtRoute>(postExpense);
+        var postExpenseId = postExpense.RouteValues["expenseId"];
 
-        var newExpense = _db.Expenses.Single(e => e.Id == (string)postExpenseId!);
+        var newExpense = _db.Expenses.Single(e => e.Id == Auid.FromString(postExpenseId!.ToString()!));
         Assert.Equal("payment", newExpense.Title);
-
     }
     
     
@@ -425,11 +470,10 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var userId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
-        var participantId1 = IdUtil.NewId();
-        var participantId2 = IdUtil.NewId();
-        var participantId3 = IdUtil.NewId();
+        var actualPartyId = _auidFactory.NewId();
+        var participantId1 = _auidFactory.NewId();
+        var participantId2 = _auidFactory.NewId();
+        var participantId3 = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
@@ -437,7 +481,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Name = "Actual",
 
         };
-        var aParticipants = new List<Participant>(
+        List<Participant> aParticipants =
         [
             new Participant
             {
@@ -457,9 +501,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 PartyId = actualPartyId,
                 Name = "participant-3"
             }
+        ];
 
-        ]);        
-        
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
@@ -471,34 +514,33 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Date = DateTime.UtcNow,
             IsReimbursement = false,
             Borrowers = [
-                new BorrowerPayload() { ParticipantId = participantId1 },
-                new BorrowerPayload() { ParticipantId = participantId2 },
-                new BorrowerPayload() { ParticipantId = participantId3 }
+                new BorrowerPayload { ParticipantId = participantId1 },
+                new BorrowerPayload { ParticipantId = participantId2 },
+                new BorrowerPayload { ParticipantId = participantId3 }
             ]
         };
-
-        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
-        var notificationMoq = new Mock<NotificationService>(loggerMoq, null, null, null);
         
         // Act
         //
-        var postExpense = await ExpenseCommand.ExpenseCreate(
-            IdUtil.DefaultId, actualPartyId, expense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
+        var ep = new ExpenseCreate();
+        var postExpense = await (ep.Endpoint.DynamicInvoke(
+            _auidFactory.NewId().ToString(), actualPartyId.ToString(), expense, _validator, _auidFactory, _ns, _db) as Task<CreatedAtRoute>)!;  
         
         // Assert
         //
-        Assert.IsType<CreatedAtRoute>(postExpense.Result);
-        var postExpenseId = (postExpense.Result as CreatedAtRoute)?.RouteValues["expenseId"];
+        Assert.IsType<CreatedAtRoute>(postExpense);
+        var postExpenseId = postExpense.RouteValues["expenseId"];
 
-        var newExpense = _db.Expenses.Single(e => e.Id == (string)postExpenseId!);
+        var newExpense = _db.Expenses.Single(e => e.Id == Auid.FromString(postExpenseId!.ToString()!));
         Assert.Equal("payment", newExpense.Title);
 
-        var newBorrowers = _db.Borrowers.Where(b => b.ExpenseId == (string)postExpenseId!).ToArray();
+        var newBorrowers = _db.Borrowers
+            .Where(b => b.ExpenseId ==  Auid.FromString(postExpenseId!.ToString()!))
+            .ToArray();
         Assert.Collection(newBorrowers, 
             b => Assert.Equal(3334, b.MuAmount),
             b => Assert.Equal(3333, b.MuAmount),
             b => Assert.Equal(3333, b.MuAmount));
-
     }
     
     
@@ -507,10 +549,10 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var expenseId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
-        var participantId1 = IdUtil.NewId();
-        var participantId2 = IdUtil.NewId();
+        var expenseId = _auidFactory.NewId();
+        var actualPartyId = _auidFactory.NewId();
+        var participantId1 = _auidFactory.NewId();
+        var participantId2 = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
@@ -518,7 +560,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Name = "Actual",
         };
 
-        var aParticipants = new List<Participant>(
+        List<Participant> aParticipants =  
         [
             new Participant
             {
@@ -532,7 +574,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 PartyId = actualPartyId,
                 Name = "actual-2"
             }
-        ]);        
+        ];        
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
@@ -546,12 +588,12 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Date = DateTime.UtcNow,
             IsReimbursement = false,
         };
-        var aBorrowers = new List<Borrower>([new Borrower { ParticipantId = participantId2, ExpenseId = expenseId }]);
+        List<Borrower> aBorrowers = [new Borrower { ParticipantId = participantId2, ExpenseId = expenseId }];
 
         await _db.InsertAsync(expense);
         await _db.BulkCopyAsync(aBorrowers);
 
-        var controlExpenseId = IdUtil.NewId();
+        var controlExpenseId = _auidFactory.NewId();
         var controlExpense = new Expense
         {
             Id = controlExpenseId,
@@ -578,13 +620,14 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             IsReimbursement = false,
             Borrowers = [new BorrowerPayload { ParticipantId = participantId1 }]
         };
-        var loggerMoq = new Logger<NotificationService>(new LoggerFactory());
-        var notificationMoq = new Mock<NotificationService>(loggerMoq, null, null, null);
+
+ 
         
         // Act
         //
-        var postExpense = await ExpenseCommand
-            .ExpenseUpdate(IdUtil.DefaultId, expenseId, changedExpense, new GenericValidator(_serviceProvider), _db, notificationMoq.Object);
+        var ep = new ExpenseUpdate();
+        var postExpense = await (ep.Endpoint.DynamicInvoke(
+            _auidFactory.NewId().ToString(), expenseId.ToString(), changedExpense, _validator, _auidFactory, _ns, _db) as Task<Results<NoContent, NotFound>>)!; 
         
         // Assert
         //
@@ -611,10 +654,12 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var expenseId = IdUtil.NewId();
-        var actualPartyId = IdUtil.NewId();
-        var participantId1 = IdUtil.NewId();
-        var participantId2 = IdUtil.NewId();
+        var expenseId = _auidFactory.NewId();
+        var actualPartyId = _auidFactory.NewId();
+        var participantId1 = _auidFactory.NewId();
+        var participantId2 = _auidFactory.NewId();
+        var timestamp = _auidFactory.Timestamp();
+        
         var actualParty = new Party
         {
             Id = actualPartyId,
@@ -622,7 +667,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Name = "Actual",
         };
 
-        var participants1 = new List<Participant>(
+        List<Participant> participants1 =
         [
             new Participant
             {
@@ -636,7 +681,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 PartyId = actualPartyId,
                 Name = "actual-2"
             }
-        ]);
+        ];
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(participants1);
 
@@ -649,9 +694,10 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Title = "actual-payment",
             MuAmount = 10000,
             Date = expenseDate,
-            IsReimbursement = false
+            IsReimbursement = false,
+            Timestamp = timestamp
         };
-        var borrowers = new List<Borrower>([new Borrower { ParticipantId = participantId2, ExpenseId = expenseId }]);
+        List<Borrower> borrowers = [new Borrower { ParticipantId = participantId2, ExpenseId = expenseId }];
 
         await _db.InsertAsync(expense);
         await _db.BulkCopyAsync(borrowers);
@@ -665,13 +711,15 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             FuAmount = 100,
             Date = expenseDate,
             IsReimbursement = false,
-            Borrowers = [new BorrowerInfo { ParticipantId = participantId2, ParticipantName = "actual-2"}]
+            Borrowers = [new BorrowerInfo { ParticipantId = participantId2, ParticipantName = "actual-2"}],
+            UpdateTimestamp = timestamp
         };
-        
+
         // Act
         //
-        var getExpenseResult = await ExpenseCommand
-            .ExpenseGet(expenseId, new GenericValidator(_serviceProvider), _db);
+        var ep = new ExpenseGet();
+        var getExpenseResult = await (ep.Endpoint.DynamicInvoke(
+            expenseId.ToString(), _validator, _db) as Task<Results<Ok<ExpenseInfo>, NotFound>>)!; 
         
         // Assert
         //
@@ -688,11 +736,11 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     {
         // Setup
         //
-        var expenseId1 = IdUtil.NewId();
-        var expenseId2 = IdUtil.NewId();        
-        var actualPartyId = IdUtil.NewId();
-        var participantId1 = IdUtil.NewId();
-        var participantId2 = IdUtil.NewId();
+        var expenseId1 = _auidFactory.NewId();
+        var expenseId2 = _auidFactory.NewId();        
+        var actualPartyId = _auidFactory.NewId();
+        var participantId1 = _auidFactory.NewId();
+        var participantId2 = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
@@ -701,7 +749,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
 
         };
 
-        var aParticipants = new List<Participant>(
+        List<Participant> aParticipants =
         [
             new Participant
             {
@@ -715,7 +763,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 PartyId = actualPartyId,
                 Name = "actual-2"
             }
-        ]);
+        ];
         
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
@@ -730,7 +778,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Date = DateTime.UtcNow,
             IsReimbursement = false,
         };
-        var borrowers1 = new List<Borrower>([new Borrower { ParticipantId = participantId2, ExpenseId = expenseId1 }]);
+        List<Borrower> borrowers1 = [new Borrower { ParticipantId = participantId2, ExpenseId = expenseId1 }];
         
 
         await _db.InsertAsync(expense1);
@@ -746,20 +794,23 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Date = DateTime.UtcNow,
             IsReimbursement = false,
         };
-        var borrowers2 = new List<Borrower>([new Borrower { ParticipantId = participantId1, ExpenseId = expenseId2 }]);
+        List<Borrower> borrowers2 = [new Borrower { ParticipantId = participantId1, ExpenseId = expenseId2 }];
 
         await _db.InsertAsync(expense2);
-        await _db.BulkCopyAsync(borrowers2);        
+        await _db.BulkCopyAsync(borrowers2);  
+
         
         // Act
         //
-        var listResult = await ExpenseCommand.PartyExpenseListGet(actualPartyId,  new GenericValidator(_serviceProvider), _db);
+        var ep = new ExpenseGetList();
+        var listResult = await (ep.Endpoint.DynamicInvoke(
+            actualPartyId.ToString(), _validator, _db) as Task<Ok<ExpenseInfo[]>>)!;         
         
 
         // Assert
         //
-        Assert.IsType<Ok<ExpenseInfo[]>>(listResult.Result);
-        var expenseList = (listResult.Result as Ok<ExpenseInfo[]>)!.Value;
+        Assert.IsType<Ok<ExpenseInfo[]>>(listResult);
+        var expenseList = listResult.Value;
         
         Assert.Equal(2, expenseList!.Length);
     }
@@ -767,13 +818,13 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     [Fact]
     public async void PartyBalanceGetShouldReturnCorrectBalance()
     {
-                // Setup
+        // Setup
         //
-        var expenseId1 = IdUtil.NewId();
-        var expenseId2 = IdUtil.NewId();        
-        var actualPartyId = IdUtil.NewId();
-        var participantId1 = IdUtil.NewId();
-        var participantId2 = IdUtil.NewId();
+        var expenseId1 = _auidFactory.NewId();
+        var expenseId2 = _auidFactory.NewId();        
+        var actualPartyId = _auidFactory.NewId();
+        var participantId1 = _auidFactory.NewId();
+        var participantId2 = _auidFactory.NewId();
         var actualParty = new Party
         {
             Id = actualPartyId,
@@ -781,7 +832,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Name = "Actual",
         };
 
-        var aParticipants = new List<Participant>(
+        List<Participant> aParticipants = 
         [
             new Participant
             {
@@ -795,7 +846,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                 PartyId = actualPartyId,
                 Name = "actual-2"
             }
-        ]);
+        ];
         await _db.InsertAsync(actualParty);
         await _db.BulkCopyAsync(aParticipants);
 
@@ -809,8 +860,8 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             Date = DateTime.UtcNow,
             IsReimbursement = false,
         };
-        var borrowers1 =
-            new List<Borrower>([new Borrower { ParticipantId = participantId2, MuAmount = 10000, ExpenseId = expenseId1 }]);
+        List<Borrower> borrowers1 =
+            [new Borrower { ParticipantId = participantId2, MuAmount = 10000, ExpenseId = expenseId1 }];
 
         await _db.InsertAsync(expense1);
         await _db.BulkCopyAsync(borrowers1);
@@ -826,21 +877,23 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
             IsReimbursement = false,
         };
 
-        var borrowers2 =
-            new List<Borrower>([new Borrower { ParticipantId = participantId1, MuAmount = 20000, ExpenseId = expenseId2 }]);
+        List<Borrower> borrowers2 =
+            [new Borrower { ParticipantId = participantId1, MuAmount = 20000, ExpenseId = expenseId2 }];
 
         await _db.InsertAsync(expense2);
         await _db.BulkCopyAsync(borrowers2); 
         
         //Act
         //
-        var balanceResult = await ExpenseCommand.PartyBalanceGet(actualPartyId,  new GenericValidator(_serviceProvider), _db);
+        var ep = new PartyGetBalance();
+        var balanceResult = await (ep.Endpoint.DynamicInvoke(
+            actualPartyId.ToString(), _validator, _db) as Task<Ok<BalanceInfo>>)!;         
         
 
         // Assert
         //
-        Assert.IsType<Ok<BalanceInfo>>(balanceResult.Result);
-        var balance = (balanceResult.Result as Ok<BalanceInfo>)!.Value;
+        Assert.IsType<Ok<BalanceInfo>>(balanceResult);
+        var balance = balanceResult.Value;
         
         Assert.Equal(2, balance!.Balances.Length);
         Assert.Equal(0, balance.Balances.Sum(b=>b.FuAmount));
@@ -848,7 +901,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
     
 
 
-    private PartyInfo LoadParties(string partyId)
+    private PartyInfo LoadParties(Auid partyId)
     {
         return _db.Parties.Where(p => p.Id == partyId)
             .Select(p => new PartyInfo
@@ -867,5 +920,31 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
                     })
                     .ToArray()
             }).Single();
+    }
+    
+    private class Converter(ITestOutputHelper output) : TextWriter
+    {
+        private string _textOut = string.Empty;
+        public override Encoding Encoding => Encoding.Default;
+
+        public override void WriteLine(string? message)
+        {
+            output.WriteLine(message);
+        }
+        public override void WriteLine(string format, params object?[] args)
+        {
+            output.WriteLine(format, args);
+        }
+
+        public override void Write(char value)
+        {
+            if (value == '\n')
+            {
+                output.WriteLine(_textOut);
+                _textOut = ""; 
+            }
+            else
+                _textOut += value;
+        }
     }
 }

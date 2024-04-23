@@ -1,4 +1,6 @@
 using System.Text.Json.Serialization;
+using IB.Utils.Ids;
+
 
 namespace IB.ISplitApp.Core.Expenses.Contract;
 
@@ -10,7 +12,7 @@ public record BalanceEntry
     /// <summary>
     /// Unique participant id
     /// </summary>
-    public string ParticipantId { get; init; } = string.Empty;
+    public Auid ParticipantId { get; init; } = Auid.Empty;
     
     /// <summary>
     /// Participant Name

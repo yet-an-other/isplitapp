@@ -29,6 +29,7 @@
     <ItemGroup>
       <ProjectReference Include="..\core\core.csproj" />
       <ProjectReference Include="..\Migrations\Migrations.csproj" />
+      <ProjectReference Include="..\Utils\Utils.csproj" />
     </ItemGroup>
 
 </Project>
