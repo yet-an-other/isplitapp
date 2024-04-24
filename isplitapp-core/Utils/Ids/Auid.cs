@@ -31,7 +31,7 @@ public readonly struct Auid:
     /// <exception cref="ArgumentException">if string is not correct id</exception>
     public static Auid FromString(string sid)
     {
-        if (!TryFromString(sid, out var auid))
+        if (!TryParse(sid, out var auid))
             throw new ArgumentException("id string is not valid", nameof(sid));
         
         return auid;
@@ -43,7 +43,7 @@ public readonly struct Auid:
     /// <param name="sid">string representation of id</param>
     /// <param name="auid">new <see cref="Auid"/> if parsing was success and Auid.Empty otherwise</param>
     /// <returns>True in case of success</returns>
-    public static bool TryFromString(string sid, out Auid auid)
+    public static bool TryParse(string sid, out Auid auid)
     {
         auid = Empty;
         if (string.IsNullOrEmpty(sid) || sid.Length != IdLength)

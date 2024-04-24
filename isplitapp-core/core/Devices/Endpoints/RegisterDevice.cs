@@ -15,10 +15,10 @@ public class RegisterDevice : IEndpoint
         => builder.WithName("Login");
 
     public Delegate Endpoint => (
-            [FromHeader(Name = HeaderName.Device)] string? rawDeviceId,
+            [FromHeader(Name = HeaderName.Device)] Auid? deviceId,
             AuidFactory auidFactory) =>
         TypedResults
-            .Ok(Auid.TryFromString(rawDeviceId!, out var deviceId)
-                ? new DeviceInfo(deviceId)
+            .Ok(deviceId != null && deviceId != Auid.Empty
+                ? new DeviceInfo(deviceId.Value)
                 : new DeviceInfo(auidFactory.NewId()));
 }

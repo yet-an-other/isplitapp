@@ -10,7 +10,7 @@ namespace IB.ISplitApp.Core.Infrastructure;
 /// (including params, query, path, etc..) in one fluent statement 
 /// </summary>
 public class RequestValidator(IServiceProvider serviceProvider)
-{ 
+{
     /// <summary>
     /// Result of validation <see cref="ValidationResult"/>
     /// </summary>
@@ -36,12 +36,16 @@ public class RequestValidator(IServiceProvider serviceProvider)
     public RequestValidator TryParseId(string? sid, out Auid auid, string idName = "")
     {
         sid = TransformLegacyId(sid);
-        if (Auid.TryFromString(sid!, out auid))
+        if (Auid.TryParse(sid!, out auid))
             return this;
         
         ValidationResult
             .Errors
-            .Add(new ValidationFailure(idName, $"{idName} validation error"));
+            .Add(new ValidationFailure(
+                idName, 
+                _errorMessages.TryGetValue(idName, out var error) 
+                    ? error 
+                    : $"{idName} validation error"));
         
         return this;
     }
@@ -64,7 +68,7 @@ public class RequestValidator(IServiceProvider serviceProvider)
     }
 
     /// <summary>
-    /// Throws if IsValid is false 
+    /// Throws ValidationError if IsValid is false 
     /// </summary>
     /// <exception cref="ValidationException"> with all collected errors</exception>
     public void ThrowOnError()
@@ -73,7 +77,11 @@ public class RequestValidator(IServiceProvider serviceProvider)
             throw new ValidationException(ValidationResult.Errors);
     }
 
-    public static void ValidationProblemHandler(IApplicationBuilder exApp)
+    /// <summary>
+    /// Handle ValidationException and convert it to ValidationProblem response
+    /// Must be registered in app.UseExceptionHandler;
+    /// </summary>
+    public static void ValidationExceptionHandler(IApplicationBuilder exApp)
     {
         exApp.Run(async context =>
         {
@@ -110,12 +118,20 @@ public class RequestValidator(IServiceProvider serviceProvider)
         });
     }
 
+    private readonly Dictionary<string, string> _errorMessages = new()
+    {
+        { "deviceId", "The X-Device-Id header is not correct" },
+        { "partyId", "The partyId is not correct" },
+        { "expenseId", "The expenseId is not correct" }
+    };
+    
     private string? TransformLegacyId(string? legacyId)
     {
         if (legacyId?.Length == 16 &&
             (legacyId.StartsWith("CN") ||
              legacyId.StartsWith("CM") ||
-             legacyId.StartsWith("CK")))
+             legacyId.StartsWith("CK") ||
+             legacyId.StartsWith("CP")))
             return $"0{legacyId[..10]}";
         return legacyId;
     }
