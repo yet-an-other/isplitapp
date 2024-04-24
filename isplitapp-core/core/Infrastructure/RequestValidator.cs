@@ -88,31 +88,46 @@ public class RequestValidator(IServiceProvider serviceProvider)
             if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
             {
                 var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-                if (exceptionHandlerFeature?.Error is ValidationException validationException)
+                switch (exceptionHandlerFeature?.Error)
                 {
-                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await problemDetailsService.WriteAsync(new ProblemDetailsContext
-                    {
-                        HttpContext = context,
-                        ProblemDetails =
+                    case ValidationException validationException:
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await problemDetailsService.WriteAsync(new ProblemDetailsContext
                         {
-                            Title = "One or more validation errors occurred.",
-                            Extensions =
-                                new Dictionary<string, object?>
-                                {
+                            HttpContext = context,
+                            ProblemDetails =
+                            {
+                                Title = "One or more validation errors occurred.",
+                                Extensions =
+                                    new Dictionary<string, object?>
                                     {
-                                        "errors",
-                                        validationException.Errors
-                                            .GroupBy(x => x.PropertyName)
-                                            .ToDictionary(
-                                                g => g.Key,
-                                                g => g.Select(x => x.ErrorMessage))
-                                    }
+                                        {
+                                            "errors",
+                                            validationException.Errors
+                                                .GroupBy(x => x.PropertyName)
+                                                .ToDictionary(
+                                                    g => g.Key,
+                                                    g => g.Select(x => x.ErrorMessage))
+                                        }
 
-                                },
-                            Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
-                        }
-                    });
+                                    },
+                                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1"
+                            }
+                        });
+                        break;
+                    case BadHttpRequestException badRequestException:
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+                        {
+                            HttpContext = context,
+                            ProblemDetails =
+                            {
+                                Title = "One or more validation errors occurred.",
+                                Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                                Detail = badRequestException.Message
+                            }
+                        });
+                        break;
                 }
             }
         });
