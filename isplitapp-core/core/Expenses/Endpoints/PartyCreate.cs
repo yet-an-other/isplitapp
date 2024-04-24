@@ -15,7 +15,10 @@ public class PartyCreate: IEndpoint
 {
     public string PathPattern => "/parties";
     public string Method => "POST";
-    public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => builder.WithName("CreateParty");
+    public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => 
+        builder
+            .ProducesValidationProblem()
+            .WithName("CreateParty");
 
     public Delegate Endpoint => async (
         [FromHeader(Name = HeaderName.Device)] string? rawDeviceId,

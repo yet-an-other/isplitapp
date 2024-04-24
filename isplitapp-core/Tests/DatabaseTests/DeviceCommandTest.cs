@@ -110,8 +110,8 @@ public class DeviceCommandTest : IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Assert
         //
-        Assert.True(Auid.TryFromString(emptyIdResult!.Value!.Id.ToString(), out _));
-        Assert.True(Auid.TryFromString(wrongIdResult!.Value!.Id.ToString(), out _));
+        Assert.True(Auid.TryParse(emptyIdResult!.Value!.Id.ToString(), out _));
+        Assert.True(Auid.TryParse(wrongIdResult!.Value!.Id.ToString(), out _));
         Assert.NotEqual(emptyIdResult.Value?.Id, wrongIdResult.Value?.Id);
     }
 

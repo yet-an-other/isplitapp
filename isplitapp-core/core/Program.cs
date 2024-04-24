@@ -114,7 +114,7 @@ app.Use((context, next) =>
         var legacyHeader = legacyHeaders.FirstOrDefault();
         if (!string.IsNullOrEmpty(legacyHeader) && 
             legacyHeader.Length == 16 &&
-            (legacyHeader.StartsWith("CN") || legacyHeader.StartsWith("CM") || legacyHeader.StartsWith("CK")))
+            (legacyHeader.StartsWith("CN") || legacyHeader.StartsWith("CM") || legacyHeader.StartsWith("CP") || legacyHeader.StartsWith("CK")))
         {
             context.Request.Headers[HeaderName.Device] = $"0{legacyHeader[..10]}";
         }
@@ -144,7 +144,7 @@ app.UseSwaggerUi();
 
 // Handle and log errors
 //
-app.UseExceptionHandler(RequestValidator.ValidationProblemHandler);
+app.UseExceptionHandler(RequestValidator.ValidationExceptionHandler);
 app.UseStatusCodePages();
 app.UseHttpLogging();
 
