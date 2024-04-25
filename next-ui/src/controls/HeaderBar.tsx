@@ -102,6 +102,10 @@ export default function HeaderBar() {
                         <Select 
                             label="Group icon style" 
                             selectedKeys={new Set([partyIconStyle])}
+                            startContent={ partyIconStyle === 'none' 
+                                ? <UsersIcon className="h-7 w-7 text-primary stroke-[1.5px]" /> 
+                                : <PartyAvatar variant={partyIconStyle} size={20} />
+                            }
                             onSelectionChange={k => {
                                 const [style] = (k as Set<PartyIconStyle>);
                                 style && setPartyIconStyle(style);
@@ -128,7 +132,7 @@ export default function HeaderBar() {
                             </SelectItem>
                         </Select>
                         <span className="text-xs text-dimmed -mt-1">
-                            Generate icons for groups to make them more recognizable
+                            Generate random icons for groups to make them more recognizable
                         </span>
                     </ModalBody>
                     <ModalFooter>
@@ -283,14 +287,16 @@ interface INotify {
 
 
 
-const PartyAvatar = ({variant}: {variant: "bauhaus" | "marble" }) => {
+const PartyAvatar = ({variant, size = 40}: {variant: "bauhaus" | "marble", size?: number }) => {
     return (
-        <BoringAvatar
-            size={40}
-            name={variant}
-            variant={variant}
-            colors={['#B9D5A0', '#8CA062', '#B6B6B6', '#6E6E6E', '#303030']}
-            square
-        />
+        <div className="rounded-md overflow-clip">
+            <BoringAvatar
+                size={size}
+                name={variant}
+                variant={variant}
+                colors={['#B9D5A0', '#8CA062', '#B6B6B6', '#6E6E6E', '#303030']}
+                square
+            />
+        </div>
     )
 }
