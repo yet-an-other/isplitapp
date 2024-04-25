@@ -1,4 +1,4 @@
-import { Button, Divider, Link } from "@nextui-org/react";
+import { Button, Divider, Link, Switch } from "@nextui-org/react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
@@ -9,26 +9,25 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
 import { useState } from "react";
+import { usePartySetting } from "../utils/partySetting";
 
-
-const lastViewedName = (group: PartyInfo) => `ts::${group.id}`;
 
 export function ExpenseList() {
 
-    const timestampMax = "zzzzzzzzz";
     const navigate = useNavigate();
     const group = useOutletContext<PartyInfo>();
-    const  [lastViewed, setLastViewed] = useState(timestampMax);    
+    const { isShowRefund, setIsShowRefund } = usePartySetting(group.id);
+    const { lastViewed, setLastViewed } = usePartySetting(group.id);
+    const [ lastViewedTmp ] = useState(lastViewed);
+
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
         `/parties/${group.id}/expenses`, 
         fetcher, 
         {
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    if (lastViewed === timestampMax)
-                        setLastViewed(localStorage.getItem(lastViewedName(group)) ?? timestampMax);
                     const lastExpense = data.reduce((acc, cur) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur).updateTimestamp;
-                    localStorage.setItem(lastViewedName(group), lastExpense)
+                    setLastViewed(lastExpense);
                 }
             }
         }
@@ -36,28 +35,42 @@ export function ExpenseList() {
 
   return (
     <div className="w-full">
-        <div className="flex w-full">
+        <div className="flex w-full my-2 relative justify-center">
             <Button 
                 isIconOnly
                 size="lg" 
                 variant="shadow"
                 color="primary" 
-                className="ml-auto mr-auto my-2 rounded-full" 
+                className="self-center rounded-full" 
                 onPress={() => navigate(`/${group.id}/expenses/create`)} 
             >
                 <PlusIcon className="h-7 w-7 stroke-[3px]" />
             </Button>
+            <div className="flex flex-col self-end absolute right-0">
+                <div className="flex justify-end">
+                    <Switch
+                        isSelected={isShowRefund}
+                        onValueChange={setIsShowRefund}
+                        size="md"
+                        color="primary"
+                        className="-mr-1"
+                    />
+                </div>
+                <div className="text-xs text-dimmed mr-1">{ isShowRefund ? "Hide" : "Show" } Refunds</div>
+            </div>
         </div>
         { error && <ErrorCard error={error}/>}
         { isLoading && <CardSkeleton/> }
         { !error && !isLoading && (!expenses || expenses.length === 0) && <EmptyList groupId={group.id}/> }
-        { !error && !isLoading && !!expenses && expenses.length > 0 && <FullList group={group} expenses={expenses} lastViewed={lastViewed} /> }
+        { !error && !isLoading && !!expenses && expenses.length > 0 && 
+            <FullList group={group} expenses={expenses} lastViewed={lastViewedTmp} isShowReimbursement={isShowRefund} /> 
+        }
     </div>
   );
 }
 
 /**
- * To display the empty list message
+ * Display the empty list message
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
     return (
@@ -68,12 +81,17 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     )
 }
 
-const FullList = ({group, expenses, lastViewed }: {group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string}) => {
+/**
+ * Display the expense list
+ */
+const FullList = ({ group, expenses, lastViewed, isShowReimbursement }: 
+    { group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string, isShowReimbursement: boolean }) => {
 
     return (
         <div className="border-1 rounded-lg p-2">
             {expenses
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                //.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .filter(expense => !expense.isReimbursement || isShowReimbursement)
                 .map((expense, i) => 
                 <div 
                     key={expense.id} 
