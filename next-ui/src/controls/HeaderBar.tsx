@@ -9,20 +9,25 @@ import {
     NavbarBrand, 
     NavbarContent, 
     NavbarItem, 
+    Select, 
+    SelectItem, 
     Switch, 
     useDisclosure 
 } from "@nextui-org/react";
-import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon } from "../icons";
+import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
 import { useNavigate } from "react-router-dom";
+import BoringAvatar from "boring-avatars";
+import { PartyIconStyle, useDeviceSetting } from "../utils/deviceSetting";
 
 
 export default function HeaderBar() {
 
-    const {isDarkMode, toggle:toggleDarkMode } = useDarkMode();
+    const {isDarkMode, toggle: toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
+    const {partyIconStyle, setPartyIconStyle} = useDeviceSetting();
 
     const navigate = useNavigate();
 
@@ -55,7 +60,7 @@ export default function HeaderBar() {
                 </NavbarContent>
                 <NavbarContent justify="end">
                     <NavbarItem >
-                        <Button isIconOnly variant="light" onClick={() => onOpen()}>
+                        <Button isIconOnly variant="light" onClick={e => {e.stopPropagation(); onOpen();}}>
                             <SettingsIcon className="h-[24px] w-[24px] text-primary dark:text-primary" />
                         </Button>  
                     </NavbarItem>
@@ -88,9 +93,43 @@ export default function HeaderBar() {
                         >
                             Dark mode
                         </Switch>
+                        <span className="text-xs text-dimmed -mt-1">
+                            You know what to do, right?
+                        </span>
 
                         <NotificationSwitch />
-                        
+
+                        <Select 
+                            label="Group icon style" 
+                            selectedKeys={new Set([partyIconStyle])}
+                            onSelectionChange={k => {
+                                const [style] = (k as Set<PartyIconStyle>);
+                                style && setPartyIconStyle(style);
+                            }}
+                        >
+                            <SelectItem 
+                                key="bauhaus"
+                                startContent = { <PartyAvatar variant="bauhaus"/> }
+                                
+                            >
+                                Bauhaus
+                            </SelectItem>
+                            <SelectItem 
+                                key="marble"
+                                startContent = { <PartyAvatar variant="marble"/> }
+                            >
+                                Marble
+                            </SelectItem>
+                            <SelectItem 
+                                key="none"
+                                startContent = { <UsersIcon className="h-10 w-10 text-primary stroke-[1.5px]" /> }                                
+                            >
+                                {"I'm fine"}
+                            </SelectItem>
+                        </Select>
+                        <span className="text-xs text-dimmed -mt-1">
+                            Generate icons for groups to make them more recognizable
+                        </span>
                     </ModalBody>
                     <ModalFooter>
                         
@@ -240,4 +279,18 @@ interface Window {
 }
 interface INotify {
     postMessage: (message: { message: string }) => void;
+}
+
+
+
+const PartyAvatar = ({variant}: {variant: "bauhaus" | "marble" }) => {
+    return (
+        <BoringAvatar
+            size={40}
+            name={variant}
+            variant={variant}
+            colors={['#B9D5A0', '#8CA062', '#B6B6B6', '#6E6E6E', '#303030']}
+            square
+        />
+    )
 }

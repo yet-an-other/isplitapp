@@ -7,6 +7,8 @@ import { mutate } from "swr"
 import { useAlerts } from "../utils/useAlerts"
 import { shareLink } from "../utils/shareLink"
 import { generateReport } from "../utils/generateReport"
+import BoringAvatar from "boring-avatars"
+import { useDeviceSetting } from "../utils/deviceSetting"
 
 interface GroupCardProps {
     party: PartyInfo
@@ -18,6 +20,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
     const { alertSuccess, alertInfo } = useAlerts();
     const match = useMatch('/:groupId/edit');
     const confirmationState = useDisclosure();
+    const { partyIconStyle } = useDeviceSetting();
 
     const handleShare = async () => {
         if(party){
@@ -46,10 +49,21 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                 <CardHeader className="block items-start">
                     <div className="float-left mr-4">
                         <Badge content={party.totalParticipants} size="lg" className={'bg-primary-100'}>
+                            {}
                             <Avatar
                                 radius="sm"
-                                icon={<UsersIcon className="h-8 w-8" />}
-                                className="bg-transparent border-1 text-dimmed stroke-[1.5px] border-default-200 dark:border-default-100"
+                                icon={
+                                    partyIconStyle === 'none'
+                                    ?    <UsersIcon className="h-8 w-8 stroke-[1.5px] " />
+                                    :    <BoringAvatar
+                                            size={40}
+                                            name={party.name}
+                                            variant={partyIconStyle}
+                                            colors={['#B9D5A0', '#8CA062', '#B6B6B6', '#6E6E6E', '#303030']}
+                                            square
+                                        />
+                                }
+                                className={`bg-transparent text-dimmed ${partyIconStyle === 'none' && 'border-1 border-default-200 dark:border-default-100'}`}
                             />
                         </Badge>
                     </div>
