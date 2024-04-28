@@ -19,7 +19,7 @@ export class ExpenseInfo {
 
     splitMode: SplitMode = "Evenly"
 
-    updateTimestamp = "zzzzzzzzz"
+    updateTimestamp = "zzzzzzz"
     
     borrowers: BorrowerInfo[] = [];
 }

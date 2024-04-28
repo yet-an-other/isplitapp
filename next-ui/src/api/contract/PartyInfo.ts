@@ -27,6 +27,8 @@ export class PartyInfo {
 
     isArchived: boolean = false;
 
-    updateTimestamp = "zzzzzzzzz";
+    updateTimestamp = "zzzzzzz";
+
+    lastExpenseTimestamp = "zzzzzzz"
 }
 

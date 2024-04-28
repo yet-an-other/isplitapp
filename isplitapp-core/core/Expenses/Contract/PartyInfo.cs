@@ -69,4 +69,6 @@ public record PartyInfo
     /// Timestamp of last update
     /// </summary>
     public string UpdateTimestamp { get; init; } = AuidFactory.MinTimestamp;
+
+    public string LastExpenseTimestamp { get; init; } = AuidFactory.MinTimestamp;
 }

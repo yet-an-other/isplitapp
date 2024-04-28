@@ -9,6 +9,7 @@ import { shareLink } from "../utils/shareLink"
 import { generateReport } from "../utils/generateReport"
 import BoringAvatar from "boring-avatars"
 import { useDeviceSetting } from "../utils/deviceSetting"
+import { usePartySetting } from "../utils/partySetting"
 
 interface GroupCardProps {
     party: PartyInfo
@@ -21,6 +22,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
     const match = useMatch('/:groupId/edit');
     const confirmationState = useDisclosure();
     const { partyIconStyle } = useDeviceSetting();
+    const { lastViewed } = usePartySetting(party.id);
 
     const handleShare = async () => {
         if(party){
@@ -49,7 +51,6 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                 <CardHeader className="block items-start">
                     <div className="float-left mr-4">
                         <Badge content={party.totalParticipants} size="lg" className={'bg-primary-100'}>
-                            {}
                             <Avatar
                                 radius="sm"
                                 icon={
@@ -151,7 +152,11 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             <ExportIcon className="h-5 w-5"/>
                         </Button>
                     </div>
-                    <div className="text-xs text-dimmed ml-auto">{new Date(party.created).toDateString()}</div>
+
+                    <div className="flex flex-row justify-end items-center ml-auto">
+                        <div className={`h-2 w-2 mr-1 rounded-full ${party.lastExpenseTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
+                        <div className="flex text-xs text-dimmed ">{new Date(party.created).toDateString()}</div>
+                    </div>
                 </CardFooter>
             </Card>
         </>
