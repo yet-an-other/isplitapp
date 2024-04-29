@@ -148,9 +148,8 @@ export function About() {
 
             <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mt-5">
                 { features.map((feature, index) => 
-                    <>
+                    <div key={index}>
                         <Card 
-                            key={index}
                             className={`max-w-[170px] h-[170px]`} 
                             isPressable
                             onPress={() => feature.setIsOpen && feature.setIsOpen(true)}
@@ -167,7 +166,7 @@ export function About() {
                             </CardBody>
                         </Card>
                         <FullDescription feature={feature}/>
-                    </>
+                    </div>
                 )}
             </div>
 
