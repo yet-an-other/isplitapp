@@ -11,19 +11,27 @@ Here is an attempt to build a yet another one application that offers a free, st
 ## Goals
 - The app shall be easy to use without unnecessary registrations, ads and subscriptions
 - The app shall be available on all major platforms to allow participants to manage expenses from different devices
-- Educational goal - experimanting with some technologies and approaches for practical app
+- Educational, experimenting with technologies and approaches for practical app
 
 
 ## Current Status
 
-Fully functional v1 is available here: https://isplit.app 
+The fully functional app is available here: https://isplit.app \
+iOS users may also install a native version from the store https://apps.apple.com/us/app/isplitapp/id6479542533\
+Work in progress on...
+  - [ ] Preffered reimbursements
+  - [ ] Offline mode
+
 ### Features
   - [x] No ads, paywalls and registration
   - [x] Create/Edit groups
   - [x] Add/Edit expenses
+  - [x] Notifications on new/changed expenses
   - [x] Share expenses by simply send a link
   - [x] Split expenses unevenly
-  - [x] All statistics and balance
+  - [x] All statistics and balance at glance
   - [x] Precalculated reimbursements
+  - [x] iOS application
+  - [x] REST API and CSV download 
 
 Feel free to join, use and contribute!
