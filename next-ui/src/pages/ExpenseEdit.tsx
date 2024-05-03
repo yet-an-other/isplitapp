@@ -333,7 +333,11 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                     errorMessage={fieldError("lenderId")}
                 >
                     {group.participants.map(participant =>
-                        <SelectItem key={participant.id} value={participant.id}>
+                        <SelectItem 
+                            key={participant.id} 
+                            value={participant.id}
+                            className="dark:text-dimmed"
+                        >
                             {participant.name}
                         </SelectItem>
                     )}
