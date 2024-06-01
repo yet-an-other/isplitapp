@@ -155,7 +155,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
 
                     <div className="flex flex-row justify-end items-center ml-auto">
                         <div className={`h-2 w-2 mr-1 rounded-full ${party.lastExpenseTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
-                        <div className="flex text-xs text-dimmed ">{new Date(party.created).toDateString()}</div>
+                        <div className="flex text-xs text-dimmed ">{party.created.toDateString()}</div>
                     </div>
                 </CardFooter>
             </Card>

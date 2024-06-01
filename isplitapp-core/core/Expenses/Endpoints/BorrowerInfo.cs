@@ -1,8 +1,7 @@
 using System.Text.Json.Serialization;
 using IB.Utils.Ids;
 
-
-namespace IB.ISplitApp.Core.Expenses.Contract;
+namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
 
 public record BorrowerInfo 

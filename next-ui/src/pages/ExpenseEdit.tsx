@@ -49,13 +49,7 @@ export function ExpenseEdit() {
     const { error, isLoading } = useSWR<ExpenseInfo, ProblemError>(
         expenseId ? `/expenses/${expenseId}` : null, 
         fetcher,
-        {
-            onSuccess: (data) => {
-                if (data) {
-                    setExpense({...data, date: new Date(data.date)});
-                }
-            }
-        }
+        {onSuccess: (data) => { data && setExpense(data) }}
     );
 
     if (expenseId && error)

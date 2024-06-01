@@ -1,4 +1,3 @@
-using IB.ISplitApp.Core.Devices.Contract;
 using IB.ISplitApp.Core.Devices.Data;
 using IB.ISplitApp.Core.Infrastructure;
 using LinqToDB;

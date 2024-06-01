@@ -1,8 +1,7 @@
 using System.Text.Json.Serialization;
-
 using IB.Utils.Ids;
 
-namespace IB.ISplitApp.Core.Expenses.Contract;
+namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
 /// <summary>
 /// Suggested transfer from borrower to lender

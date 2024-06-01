@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace IB.ISplitApp.Core.Expenses.Contract;
+namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
 /// <summary>
 /// Payload to update or create a new party 
