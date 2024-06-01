@@ -1,4 +1,4 @@
-using IB.ISplitApp.Core.Devices.Contract;
+using IB.ISplitApp.Core.Devices.Endpoints;
 using IB.Utils.Ids;
 using LinqToDB.Mapping;
 using WebPush;

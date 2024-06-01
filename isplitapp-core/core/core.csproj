@@ -52,4 +52,55 @@
       <ProjectReference Include="..\Utils\Utils.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Expenses\Endpoints\PartyInfo.cs">
+        <DependentUpon>PartyGet.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\PartyPayload.cs">
+        <DependentUpon>PartyCreate.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\ParticipantPayload.cs">
+        <DependentUpon>PartyCreate.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\CreatedPartyInfo.cs">
+        <DependentUpon>PartyCreate.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\ParticipantInfo.cs">
+        <DependentUpon>PartyGet.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\BalanceInfo.cs">
+        <DependentUpon>PartyGetBalance.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\BalanceEntry.cs">
+        <DependentUpon>BalanceInfo.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\ReimburseEntry.cs">
+        <DependentUpon>BalanceInfo.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\DevicePartySettingsPayload.cs">
+        <DependentUpon>PartySettings.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\ExpensePayload.cs">
+        <DependentUpon>ExpenseCreate.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\BorrowerPayload.cs">
+        <DependentUpon>ExpensePayload.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\ExpenseInfo.cs">
+        <DependentUpon>ExpenseGet.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\BorrowerInfo.cs">
+        <DependentUpon>ExpenseGet.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Expenses\Endpoints\ArchivedFilterValues.cs">
+        <DependentUpon>PartyGetList.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Devices\Endpoints\SubscriptionPayload.cs">
+        <DependentUpon>RegisterSubscription.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Devices\Endpoints\DeviceInfo.cs">
+        <DependentUpon>RegisterDevice.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

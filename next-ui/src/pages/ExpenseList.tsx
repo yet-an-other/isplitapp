@@ -10,6 +10,7 @@ import { CardSkeleton } from "../controls/CardSkeleton";
 import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
 import { useState } from "react";
 import { usePartySetting } from "../utils/partySetting";
+import { intlFormatDistance, format } from "date-fns";
 
 
 export function ExpenseList() {
@@ -139,7 +140,8 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     </div>
                     <div className="flex flex-row justify-end items-center">
                         <div className={`h-2 w-2 mr-1 rounded-full ${expense.updateTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
-                        <div className="flex text-xs text-dimmed ">{new Date(expense.date).toDateString()}</div>
+                        <div className="flex text-xs text-dimmed ">{format(expense.date, "eee dd LLL yyyy")}</div>
+                        <div className="flex text-xs text-dimmed ">, {intlFormatDistance(expense.date, Date.now())}</div>
                     </div>
                 </div>
             )}

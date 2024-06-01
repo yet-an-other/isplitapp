@@ -1,5 +1,3 @@
-using HttpMethod = Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpMethod;
-
 namespace IB.ISplitApp.Core.Infrastructure;
 
 /// <summary>
@@ -8,18 +6,24 @@ namespace IB.ISplitApp.Core.Infrastructure;
 /// </summary>
 public interface IEndpoint
 {
-    // /// <summary>
-    // /// Endpoint logic implementation
-    // /// </summary>
-    // /// <param name="app">Use to call MapGet, MapPost, etc.</param>
-    // void MapEndpoint(IEndpointRouteBuilder app);
-    
+    /// <summary>
+    /// Url pattern for endpoint e.g. "/parties/{partyId}"
+    /// </summary>
     public string PathPattern { get; }
 
+    /// <summary>
+    /// Http method for endpoint e.g. "GET"
+    /// </summary>
     public string Method { get; }
 
+    /// <summary>
+    /// Endpoint definition
+    /// </summary>
     public Delegate Endpoint { get; }
 
+    /// <summary>
+    /// Used to add additional configuration to endpoint
+    /// </summary>
     public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => builder;
     
 }

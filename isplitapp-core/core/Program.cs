@@ -1,14 +1,14 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation;
-using IB.ISplitApp.Core.Devices.Contract;
-using IB.ISplitApp.Core.Expenses.Contract;
+using IB.ISplitApp.Core;
+using IB.ISplitApp.Core.Devices.Endpoints;
+using IB.ISplitApp.Core.Expenses.Endpoints;
 using IB.ISplitApp.Core.Infrastructure;
 using IB.Utils.Ids;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Primitives;
 using Migrations;
-
 using CorsUtil = IB.ISplitApp.Core.Infrastructure.CorsUtil;
 
 
@@ -158,13 +158,16 @@ app.Run();
 
 
 
-[JsonSourceGenerationOptions(
-    WriteIndented = true,
-    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-[JsonSerializable(typeof(DeviceInfo))]
-[JsonSerializable(typeof(ExpensePayload[]))]
-[JsonSerializable(typeof(ExpenseInfo[]))]
-[JsonSerializable(typeof(PartyPayload[]))]
-[JsonSerializable(typeof(PartyInfo[]))]
-[JsonSerializable(typeof(BalanceInfo[]))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext;
+namespace IB.ISplitApp.Core
+{
+    [JsonSourceGenerationOptions(
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+    [JsonSerializable(typeof(DeviceInfo))]
+    [JsonSerializable(typeof(ExpensePayload[]))]
+    [JsonSerializable(typeof(ExpenseInfo[]))]
+    [JsonSerializable(typeof(PartyPayload[]))]
+    [JsonSerializable(typeof(PartyInfo[]))]
+    [JsonSerializable(typeof(BalanceInfo[]))]
+    internal partial class AppJsonSerializerContext : JsonSerializerContext;
+}

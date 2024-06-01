@@ -3,7 +3,7 @@ using FluentValidation;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.Utils.Ids;
 
-namespace IB.ISplitApp.Core.Expenses.Contract;
+namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
 /// <summary>
 /// Expense payload to create or update expense

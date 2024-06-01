@@ -1,4 +1,3 @@
-using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.Utils.Ids;
 using LinqToDB;
@@ -7,7 +6,7 @@ using LinqToDB.Data;
 
 namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
-internal class CommonQuery
+internal static class CommonQuery
 {
     /// <summary>
     /// Ensures that specific device has access to the party
@@ -61,9 +60,8 @@ internal class CommonQuery
 
         long ByPercentage(int i) => (expense.FuAmount.ToMuAmount() * expense.Borrowers[i].Percent) / 100;
 
-        long ByShares(int i) => ((expense.FuAmount.ToMuAmount() / totalShares)
-                                 + (expense.FuAmount.ToMuAmount() % totalShares <= i ? 0 : 1))
-                                * expense.Borrowers[i].Share;
+        long ByShares(int i) => ((expense.FuAmount.ToMuAmount() / totalShares) * expense.Borrowers[i].Share
+                                 + ((expense.FuAmount.ToMuAmount() % totalShares) * expense.Borrowers[i].Share <= i ? 0 : 1));
 
         long Evenly(int i) => (expense.FuAmount.ToMuAmount() / expense.Borrowers.Length)
                               + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1);
