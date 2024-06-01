@@ -1,3 +1,4 @@
+#@ISplitAppCore_HostAddress = http://api.isplit.app 
 @ISplitAppCore_HostAddress = http://localhost:5096
 # http://apidev.isplit.app
 #
@@ -52,7 +53,7 @@ X-USER-ID: {{defaultUser}}
 POST {{ISplitAppCore_HostAddress}}/parties HTTP/1.1
 Accept: application/json
 Content-Type: application/json
-X-USER-ID: {{defaultUser}}
+#X-USER-ID: {{defaultUser}}
 
 {
   "name": "Default Party : {{$randomInt 1 100}}",

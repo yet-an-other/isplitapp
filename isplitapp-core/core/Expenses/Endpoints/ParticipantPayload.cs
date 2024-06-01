@@ -1,6 +1,6 @@
 using IB.Utils.Ids;
 
-namespace IB.ISplitApp.Core.Expenses.Contract;
+namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
 /// <summary>
 /// Participant's payload to create or update one

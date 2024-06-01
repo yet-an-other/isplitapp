@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using IB.Utils.Ids;
 
-namespace IB.ISplitApp.Core.Expenses.Contract;
+namespace IB.ISplitApp.Core.Expenses.Endpoints;
 
 /// <summary>
 /// Response with party data and additional summary 

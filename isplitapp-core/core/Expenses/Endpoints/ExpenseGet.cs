@@ -1,4 +1,3 @@
-using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Infrastructure;
 using LinqToDB;

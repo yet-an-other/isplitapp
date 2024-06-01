@@ -1,8 +1,7 @@
 using FluentValidation;
-using IB.ISplitApp.Core.Devices.Contract;
+using IB.ISplitApp.Core.Devices.Endpoints;
 using IB.ISplitApp.Core.Devices.Notifications;
 using IB.ISplitApp.Core.Expenses;
-using IB.ISplitApp.Core.Expenses.Contract;
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.ISplitApp.Core.Expenses.Endpoints;
 using IB.ISplitApp.Core.Infrastructure;

@@ -1,6 +1,6 @@
 using System.Reflection;
 using FluentValidation;
-using IB.ISplitApp.Core.Expenses.Contract;
+using IB.ISplitApp.Core.Expenses.Endpoints;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;

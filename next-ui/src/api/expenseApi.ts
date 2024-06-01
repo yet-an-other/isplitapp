@@ -12,22 +12,8 @@ const API_URL = import.meta.env.VITE_API_URL as string;
  * Retrieve object or list of objects from the server as a json
  * @returns json
  */
-export async function fetcher(key: string) {
-    
-    const deviceId = await ensureDeviceId();
-
-    const requestOptions = {
-        method: 'GET',
-        headers: { 
-            'Content-Type': 'application/json',
-            'X-Device-Id': deviceId
-        },
-    };
-    const response = await fetch(`${API_URL}${key}`, requestOptions);
-    if (!response.ok)
-        throw new ProblemError(await response.json())
-    
-    return response.json();
+export async function fetcher<TResponse>(key: string) {
+    return await sendRequest<undefined, TResponse>('GET', key);
 }
 
 /**
@@ -143,5 +129,17 @@ async function sendRequest<TBody, TResponse>(method:  HttpMethod, endpoint: stri
     const buffer = (await response.arrayBuffer());
     return (buffer.byteLength === 0)
         ? {} as TResponse
-        : JSON.parse(new TextDecoder().decode(buffer)) as TResponse;
+        : JSON.parse(new TextDecoder().decode(buffer), parseDate) as TResponse;
+}
+
+const datePattern = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/
+
+const parseDate = (_: string, value: string) => {
+    if (typeof value !== 'string') {
+        return value;
     }
+    if (datePattern.test(value)) {
+        return new Date(value);
+    }
+    return value;
+}

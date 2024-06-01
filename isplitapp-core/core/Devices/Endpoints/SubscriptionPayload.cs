@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using FluentValidation;
 
-namespace IB.ISplitApp.Core.Devices.Contract;
+namespace IB.ISplitApp.Core.Devices.Endpoints;
 
 public class SubscriptionPayload
 {

@@ -1,6 +1,6 @@
 using IB.Utils.Ids;
 
-namespace IB.ISplitApp.Core.Devices.Contract;
+namespace IB.ISplitApp.Core.Devices.Endpoints;
 
 /// <summary>
 /// DeviceInfo object
