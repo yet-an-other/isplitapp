@@ -106,8 +106,14 @@ public static class ServiceExtension
             .ConfigureResource(resource => resource.AddService("iSplitAppCore"))
             .WithMetrics(metrics => metrics
                 .AddAspNetCoreInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
                 .AddMeter("Microsoft.AspNetCore.Hosting")
                 .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+                .AddMeter("Microsoft.AspNetCore.Http.Connections")
+                .AddMeter("Microsoft.AspNetCore.Routing")
+                .AddMeter("Microsoft.AspNetCore.Diagnostics")
+                .AddMeter("Microsoft.AspNetCore.RateLimiting")
                 .AddOtlpExporter(oltpOptions => oltpOptions.Endpoint = new Uri(otelCollectorEndpoint)))
             .WithTracing(tracing =>
             {

@@ -8,8 +8,7 @@
       "launchUrl": "login",
       "applicationUrl": "http://localhost:5096",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "Logging__Console__FormatterName": "Json"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }

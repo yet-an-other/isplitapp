@@ -41,7 +41,6 @@ builder.Services.AddHttpLogging(o =>
 });
 
 builder.Logging.EnableEnrichment();
-//builder.Logging.AddJsonConsole();
 
 builder.Services.AddApplicationMetadata(x =>
 {
@@ -58,11 +57,11 @@ builder.Services.AddServiceLogEnricher(config =>
     config.EnvironmentName = true;
     config.DeploymentRing = true;
 });
-//if (!builder.Environment.IsDevelopment())
+
+if (!builder.Environment.IsDevelopment())
 {
     builder.Logging.AddJsonConsole();
 }
-
 
 
 // Setup telemetry
