@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Primitives;
 using Migrations;
 using CorsUtil = IB.ISplitApp.Core.Infrastructure.CorsUtil;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 
 var version = Assembly
@@ -37,6 +39,30 @@ builder.Services.AddHttpLogging(o =>
                       HttpLoggingFields.Response |
                       HttpLoggingFields.Duration;
 });
+
+builder.Logging.EnableEnrichment();
+
+builder.Services.AddApplicationMetadata(x =>
+{
+    x.ApplicationName = "iSplitApp";
+    x.BuildVersion = version;
+    x.EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Undefined";
+    x.DeploymentRing = "Undefined";
+});
+
+builder.Services.AddServiceLogEnricher(config =>
+{
+    config.ApplicationName = true;
+    config.BuildVersion = true;
+    config.EnvironmentName = true;
+    config.DeploymentRing = true;
+});
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Logging.AddJsonConsole();
+}
+
 
 // Setup telemetry
 //
