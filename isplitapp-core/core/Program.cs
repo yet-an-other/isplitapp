@@ -6,12 +6,9 @@ using IB.ISplitApp.Core.Devices.Endpoints;
 using IB.ISplitApp.Core.Expenses.Endpoints;
 using IB.ISplitApp.Core.Infrastructure;
 using IB.Utils.Ids;
-using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.Primitives;
 using Migrations;
 using CorsUtil = IB.ISplitApp.Core.Infrastructure.CorsUtil;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 
 var version = Assembly
@@ -30,39 +27,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddHttpLogging(o =>
-{
-    o.CombineLogs = true;
-    o.LoggingFields = HttpLoggingFields.RequestMethod | 
-                      HttpLoggingFields.RequestPath |
-                      HttpLoggingFields.RequestQuery |
-                      HttpLoggingFields.Response |
-                      HttpLoggingFields.Duration;
-});
-
-builder.Logging.EnableEnrichment();
-
-builder.Services.AddApplicationMetadata(x =>
-{
-    x.ApplicationName = "iSplitApp";
-    x.BuildVersion = version;
-    x.EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Undefined";
-    x.DeploymentRing = "Undefined";
-});
-
-builder.Services.AddServiceLogEnricher(config =>
-{
-    config.ApplicationName = true;
-    config.BuildVersion = true;
-    config.EnvironmentName = true;
-    config.DeploymentRing = true;
-});
-
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Logging.AddJsonConsole();
-}
-
+// Setup Logging
+//
+builder.Services.AddLogging(version,  builder.Environment);
 
 // Setup telemetry
 //

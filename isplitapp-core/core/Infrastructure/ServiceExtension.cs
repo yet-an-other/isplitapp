@@ -10,7 +10,9 @@ using LinqToDB;
 using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.DataProvider.PostgreSQL;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+
 using Npgsql;
 using OpenTelemetry;
 using OpenTelemetry.Extensions.Propagators;
@@ -26,6 +28,55 @@ namespace IB.ISplitApp.Core.Infrastructure;
 /// </summary>
 public static class ServiceExtension
 {
+    
+    public static IServiceCollection AddLogging(
+        this IServiceCollection services, string? version, IWebHostEnvironment environment)
+    {
+        services.AddHttpLogging(o =>
+        {
+            o.CombineLogs = true;
+            o.LoggingFields = HttpLoggingFields.RequestMethod | 
+                              HttpLoggingFields.RequestPath |
+                              HttpLoggingFields.RequestQuery |
+                              HttpLoggingFields.Response |
+                              HttpLoggingFields.Duration;
+        });
+        
+        services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.EnableEnrichment();
+            
+            loggingBuilder.ClearProviders();
+ 
+            if (environment.IsDevelopment())
+                loggingBuilder.AddSimpleConsole();
+            else
+                loggingBuilder.AddJsonConsole(); 
+                 
+
+        });
+
+        services.AddApplicationMetadata(x =>
+        {
+            x.ApplicationName = "iSplitApp";
+            x.BuildVersion = version;
+            x.EnvironmentName = environment.EnvironmentName;
+            x.DeploymentRing = "Undefined";
+        });
+
+        services.AddServiceLogEnricher(config =>
+        {
+            config.ApplicationName = true;
+            config.BuildVersion = true;
+            config.EnvironmentName = true;
+            config.DeploymentRing = true;
+        });
+
+        return services;
+    }
+    
+    
+    
     /// <summary>
     /// Scan assembly and add IEndpoint to the ServiceCollection
     /// Use current assembly to search for <see cref="IEndpoint"/> 
