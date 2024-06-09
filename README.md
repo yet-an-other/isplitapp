@@ -1,6 +1,9 @@
 # [iSplit.app](https://isplit.app)
 Share Expenses. Intuitive, Clean and Free. Ads Free.
 
+![/next-ui/public/isa-guide.png](/next-ui/public/isa-guide.png)
+![/Assets/Balance%20SSs.png](/Assets/Balance%20SSs.png) 
+
 
 ## Motivation
 The SplitWise app has been a long-standing tool for managing shared expenses, but its recent shift towards a cumbersome UI, an increase in advertisements, and the gating of essential features behind a subscription paywall has lessened its appeal.
@@ -22,6 +25,7 @@ Work in progress on...
   - [ ] Preffered reimbursements
   - [ ] Offline mode
 
+
 ### Features
   - [x] No ads, paywalls and registration
   - [x] Create/Edit groups
@@ -33,5 +37,7 @@ Work in progress on...
   - [x] Precalculated reimbursements
   - [x] iOS application
   - [x] REST API and CSV download 
+
+
 
 Feel free to join, use and contribute!
