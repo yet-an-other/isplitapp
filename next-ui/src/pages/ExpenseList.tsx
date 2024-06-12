@@ -1,4 +1,4 @@
-import { Button, Divider, Link, Switch } from "@nextui-org/react";
+import { Button, Chip, Divider, Link, Switch } from "@nextui-org/react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
@@ -82,23 +82,44 @@ const EmptyList = ({groupId} : {groupId: string}) => {
     )
 }
 
+
+
 /**
  * Display the expense list
  */
 const FullList = ({ group, expenses, lastViewed, isShowReimbursement }: 
     { group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string, isShowReimbursement: boolean }) => {
 
+    let lastBorder = "";
+    const borderIds: string[] = [];
+    expenses.forEach(expense => {
+        const borderValue = intlFormatDistance(expense.date, Date.now());
+        if (borderValue !== lastBorder) {
+            borderIds.push(expense.id);
+            lastBorder = borderValue;
+        }
+    });
+
     return (
-        <div className="border-1 rounded-lg p-2">
+        <div className="border-1 rounded-lg p-2 mt-10">
             {expenses
-                //.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .filter(expense => !expense.isReimbursement || isShowReimbursement)
                 .map((expense, i) => 
                 <div 
                     key={expense.id} 
-                    className="my-1"
+                    className="my-1 flex flex-col"
                 >
-                   {i > 0 && <Divider className="my-1 mb-2"/>}
+                   {i > 0 && <Divider className="my-1 mb-2" />}
+                   {
+                        borderIds.includes(expense.id) && 
+                        <Chip
+                            variant="bordered"
+                            size="sm" 
+                            className={`ml-auto mr-auto ${i > 0 ? '-mt-[20px]' : '-mt-[24px]'} bg-white dark:bg-black text-dimmed`}>
+                            {intlFormatDistance(expense.date, Date.now())}
+                        </Chip>
+                    }
+
                     <div className="flex flex-row items-center">
                         <div className="min-w-7 ">
                             {expense.isReimbursement 
@@ -141,7 +162,6 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     <div className="flex flex-row justify-end items-center">
                         <div className={`h-2 w-2 mr-1 rounded-full ${expense.updateTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
                         <div className="flex text-xs text-dimmed ">{format(expense.date, "eee dd LLL yyyy")}</div>
-                        <div className="flex text-xs text-dimmed ">, {intlFormatDistance(expense.date, Date.now())}</div>
                     </div>
                 </div>
             )}

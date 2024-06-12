@@ -70,6 +70,7 @@ export function GroupEdit() {
                 groupId && await updateParty(groupId, party);
                 const partyId = groupId ?? await createParty(party);
                 await mutate(`/parties/${partyId}`);
+                await mutate(`/parties`);
                 navigate(`/${partyId}/expenses`);
             } 
             catch (error) {
