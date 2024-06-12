@@ -103,7 +103,6 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
     return (
         <div className="border-1 rounded-lg p-2 mt-10">
             {expenses
-                //.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .filter(expense => !expense.isReimbursement || isShowReimbursement)
                 .map((expense, i) => 
                 <div 

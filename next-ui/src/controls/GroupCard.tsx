@@ -10,6 +10,7 @@ import { generateReport } from "../utils/generateReport"
 import BoringAvatar from "boring-avatars"
 import { useDeviceSetting } from "../utils/deviceSetting"
 import { usePartySetting } from "../utils/partySetting"
+import { format } from "date-fns";
 
 interface GroupCardProps {
     party: PartyInfo
@@ -155,7 +156,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
 
                     <div className="flex flex-row justify-end items-center ml-auto">
                         <div className={`h-2 w-2 mr-1 rounded-full ${party.lastExpenseTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
-                        <div className="flex text-xs text-dimmed ">{party.created.toDateString()}</div>
+                        <div className="flex text-xs text-dimmed ">{format(party.created, "eee dd LLL yyyy")}</div>
                     </div>
                 </CardFooter>
             </Card>
