@@ -92,13 +92,17 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
 
     let lastBorder = "";
     const borderIds: string[] = [];
-    expenses.forEach(expense => {
-        const borderValue = intlFormatDistance(expense.date, Date.now());
-        if (borderValue !== lastBorder) {
-            borderIds.push(expense.id);
-            lastBorder = borderValue;
-        }
-    });
+    expenses
+        .filter(expense => !expense.isReimbursement || isShowReimbursement)
+        .forEach(
+            expense => {
+                const borderValue = intlFormatDistance(expense.date, Date.now());
+                if (borderValue !== lastBorder) {
+                    borderIds.push(expense.id);
+                    lastBorder = borderValue;
+                }
+            }
+        );
 
     return (
         <div className="border-1 rounded-lg p-2 mt-10">
