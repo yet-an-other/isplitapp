@@ -366,7 +366,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                         Reimbursement
                     </Checkbox>
                     <div className="text-xs text-dimmed p-1">
-                        Check if the expense is a reimbursement.
+                        Mark if this is a reimbursement.
                     </div>
                 </div>
 
