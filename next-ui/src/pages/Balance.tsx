@@ -113,7 +113,7 @@ function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEn
                             >
                                 <SendMoneyIcon className="w-6 h-6" />
                             </Button>
-                            <div className="text-dimmed text-xs ml-2">Add the<br/> reimbursement</div>
+                            <div className="text-dimmed text-xs ml-2">Add<br/>Reimbursement</div>
                         </div>
                     </div>
 
