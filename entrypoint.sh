@@ -89,8 +89,19 @@ configure_frontend() {
 start_backend() {
     log "Starting .NET backend server"
     
-    # Change to the app directory
-    cd /app
+    # Ensure we're in the correct directory
+    cd /app || {
+        error "Cannot change to /app directory"
+        exit 1
+    }
+    
+    # Check if core.dll exists
+    if [ ! -f "core.dll" ]; then
+        error "core.dll not found in /app directory"
+        exit 1
+    fi
+    
+    log "Starting .NET application: dotnet core.dll"
     
     # Start the .NET application
     exec dotnet core.dll
