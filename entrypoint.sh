@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Deploy Environment Configuration Script
-# This script patches the index.html file with runtime environment variables
+# Container Entrypoint Script
+# This script configures the frontend runtime environment and starts the .NET backend
 
 set -e
 
 # Configuration
-INDEX_HTML_PATH="${INDEX_HTML_PATH:-/app/dist/index.html}"
+INDEX_HTML_PATH="${INDEX_HTML_PATH:-/app/wwwroot/index.html}"
 BACKUP_SUFFIX=".backup"
 
 # Function to log messages
@@ -30,15 +30,6 @@ create_backup() {
         log "Creating backup of original index.html"
         cp "$INDEX_HTML_PATH" "${INDEX_HTML_PATH}${BACKUP_SUFFIX}"
     fi
-}
-
-# Function to generate runtime config JavaScript
-generate_runtime_config() {
-    cat << EOF
-window.__RUNTIME_CONFIG__ = {
-  VITE_API_URL: "$VITE_API_URL"
-};
-EOF
 }
 
 # Function to inject runtime configuration into index.html
@@ -76,9 +67,9 @@ verify_injection() {
     fi
 }
 
-# Main execution
-main() {
-    log "Starting deployment environment configuration"
+# Function to configure frontend
+configure_frontend() {
+    log "Configuring frontend runtime environment"
     
     # Validate inputs
     if [ ! -f "$INDEX_HTML_PATH" ]; then
@@ -91,7 +82,29 @@ main() {
     inject_runtime_config
     verify_injection
     
-    log "Deployment environment configuration completed successfully"
+    log "Frontend configuration completed successfully"
+}
+
+# Function to start .NET backend
+start_backend() {
+    log "Starting .NET backend server"
+    
+    # Change to the app directory
+    cd /app
+    
+    # Start the .NET application
+    exec dotnet core.dll
+}
+
+# Main execution
+main() {
+    log "Container startup initiated"
+    
+    # Configure frontend first
+    configure_frontend
+    
+    # Start backend server
+    start_backend
 }
 
 # Run main function
