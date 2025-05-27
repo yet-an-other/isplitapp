@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: isplitapp
+spec:
+  routes:
+    - match: Host(`isplitapp.bdgn.me`) || Host(`api.isplitapp.bdgn.me`)
+      kind: Rule
+      services:
+        - name: isplitapp
+          port: 9090

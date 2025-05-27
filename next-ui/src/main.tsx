@@ -14,7 +14,7 @@ import { RootBoundary } from './pages/RootErrorBoundary'
 import { NotFound } from './pages/NotFound'
 import { initLogExporter, initTraceProvider } from './utils/openTelemetry'
 
-
+// Initialize OpenTelemetry
 initLogExporter();
 initTraceProvider();
 

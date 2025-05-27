@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: isplitapp-restore
+  namespace: isplitapp
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      containers:
+        - name: isplitapp-restore
+          image: ilaverlin/pg-az-backup:latest
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: pg_host
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: pg_database
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: pg_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: pg_password
+            - name: AZURE_STORAGE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: az_storage_account
+            - name: AZURE_SAS
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: az_sas_token
+            - name: AZURE_CONTAINER_NAME
+              value: pg-backup-isplit
+            - name: RESTORE
+              value: "yes"
+            - name: DROP_PUBLIC
+              value: "yes" 
+
+      restartPolicy: Never
+  backoffLimit: 0

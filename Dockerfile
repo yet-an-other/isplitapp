@@ -45,8 +45,29 @@ RUN ls -la /app
 RUN ls -la /app/dist
 
 FROM base AS final
+
+# Install bash for the deployment script (run as root before switching user)
+USER root
+RUN apt-get update && apt-get install -y bash && rm -rf /var/lib/apt/lists/*
+
+# Switch back to the app user and set working directory
+USER $APP_UID
 WORKDIR /app
+
+# Copy .NET application
 COPY --from=net-build /app/publish .
+
+# Copy React build output
 COPY --from=react-build /app/dist ./wwwroot
 
-ENTRYPOINT ["dotnet", "core.dll"]
+# Copy deployment script for runtime configuration
+COPY entrypoint.sh /app/entrypoint.sh
+
+# Set proper permissions for the entrypoint script (as root)
+USER root
+RUN chmod +x /app/entrypoint.sh && chown $APP_UID:$APP_UID /app/entrypoint.sh
+
+# Switch back to app user for runtime
+USER $APP_UID
+
+ENTRYPOINT ["/app/entrypoint.sh"]

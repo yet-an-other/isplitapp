@@ -1,8 +1,8 @@
 import { Device } from "./contract/Device";
+import { API_URL } from "../utils/apiConfig";
 
 const LS_USER_KEY = 'user-id';
 const LS_DEVICE_KEY = 'device-id';
-const API_URL = import.meta.env.VITE_API_URL as string;
 
 /**
  * Returns id of the current user
