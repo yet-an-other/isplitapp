@@ -4,9 +4,7 @@ import { ProblemError } from "./contract/ProblemError";
 import { ExpensePayload } from "./contract/ExpensePayload";
 import { PartySettingsPayload } from "./contract/PartySettingsPayload";
 import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
-
-
-const API_URL = import.meta.env.VITE_API_URL as string;
+import { API_URL } from "../utils/apiConfig";
 
 /**
  * Retrieve object or list of objects from the server as a json
