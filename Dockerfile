@@ -63,9 +63,11 @@ COPY --from=react-build /app/dist ./wwwroot
 # Copy deployment script for runtime configuration
 COPY entrypoint.sh /app/entrypoint.sh
 
-# Set proper permissions for the entrypoint script (as root)
+# Set proper permissions for the entrypoint script and wwwroot directory (as root)
 USER root
-RUN chmod +x /app/entrypoint.sh && chown $APP_UID:$APP_UID /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh && \
+    chown -R $APP_UID:$APP_UID /app/entrypoint.sh /app/wwwroot && \
+    chmod -R u+w /app/wwwroot
 
 # Switch back to app user for runtime
 USER $APP_UID
