@@ -28,13 +28,27 @@ validate_env() {
 create_backup() {
     if [ ! -f "${INDEX_HTML_PATH}${BACKUP_SUFFIX}" ]; then
         log "Creating backup of original index.html"
-        cp "$INDEX_HTML_PATH" "${INDEX_HTML_PATH}${BACKUP_SUFFIX}"
+
+        if cp "$INDEX_HTML_PATH" "${INDEX_HTML_PATH}${BACKUP_SUFFIX}" 2>/dev/null; then
+            log "Backup created successfully"
+        else
+            log "Warning: Could not create backup file (proceeding without backup)"
+        fi
+    else
+        log "Backup already exists, skipping backup creation"
     fi
 }
 
 # Function to inject runtime configuration into index.html
 inject_runtime_config() {
     log "Injecting runtime configuration into $INDEX_HTML_PATH"
+    
+
+    # Check if file is writable
+    if [ ! -w "$INDEX_HTML_PATH" ]; then
+        error "Cannot write to $INDEX_HTML_PATH - permission denied"
+        exit 1
+    fi
     
     # Create the runtime config JavaScript (single line)
     local runtime_config="window.__RUNTIME_CONFIG__ = { VITE_API_URL: \"$VITE_API_URL\" };"
@@ -43,18 +57,27 @@ inject_runtime_config() {
     local temp_file="${INDEX_HTML_PATH}.tmp"
     
     # Use awk to replace the placeholder comment with actual config
-    awk -v config="$runtime_config" '
+    if awk -v config="$runtime_config" '
         /\/\/ Runtime configuration will be injected here by deployment script/ {
             print "      " config
             next
         }
         { print }
-    ' "$INDEX_HTML_PATH" > "$temp_file"
-    
-    # Replace the original file
-    mv "$temp_file" "$INDEX_HTML_PATH"
-    
-    log "Runtime configuration injected successfully"
+
+    ' "$INDEX_HTML_PATH" > "$temp_file" 2>/dev/null; then
+        # Replace the original file
+        if mv "$temp_file" "$INDEX_HTML_PATH" 2>/dev/null; then
+            log "Runtime configuration injected successfully"
+        else
+            error "Failed to replace index.html with updated content"
+            rm -f "$temp_file" 2>/dev/null
+            exit 1
+        fi
+    else
+        error "Failed to process index.html file"
+        rm -f "$temp_file" 2>/dev/null
+        exit 1
+    fi
 }
 
 # Function to verify injection
