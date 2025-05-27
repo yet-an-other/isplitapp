@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: isplitapp
+spec:
+  template:
+    spec:
+      containers:
+        - name: isplitapp
+          env:
+            - name: Logging__LogLevel__Default
+              value: "Debug"
+            - name: Logging__LogLevel__Microsoft.AspNetCore.HttpLogging
+              value: "Debug"
+            - name:  ASPNETCORE_ENVIRONMENT
+              value: dev
+            - name: VITE_API_URL
+              value: "https://api-isplitapp.bdgn.me"

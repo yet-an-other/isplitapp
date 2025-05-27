@@ -23,6 +23,12 @@ export class DeviceSetting {
     }
 }
 
+    /**
+     * @returns a hook that returns the current device settings and a setter.
+     * The setter will update the device settings and also save them to local storage.
+     * The device settings are loaded from local storage when the component mounts,
+     * and changed settings are saved to local storage when the component is unmounted.
+     */
 export function useDeviceSetting() {
     const [deviceSettings, setDeviceSettings] = useState(DeviceSetting.load());
 

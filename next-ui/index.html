@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
     <meta
       name="description"
       content="iSplitApp is a user-friendly app that simplifies the process of sharing expenses, dividing costs, and keeping track of transactions. It also streamlines the reimbursement process for friends, family and party attendees."
@@ -20,6 +21,13 @@
     <title>iSplitApp</title>
   </head>
   <body>
+    <!-- Runtime configuration injection point -->
+    <!-- The deployment script will inject runtime config here -->
+    <script>
+      // Runtime configuration will be injected here by deployment script
+      // Example: window.__RUNTIME_CONFIG__ = { VITE_API_URL: "https://api.example.com" };
+    </script>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

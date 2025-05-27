@@ -46,7 +46,34 @@ RUN ls -la /app/dist
 
 FROM base AS final
 WORKDIR /app
+
+# Install bash for the deployment script (base image is Ubuntu)
+RUN apt-get update && apt-get install -y bash && rm -rf /var/lib/apt/lists/*
+
+# Copy .NET application
 COPY --from=net-build /app/publish .
+
+# Copy React build output
 COPY --from=react-build /app/dist ./wwwroot
 
-ENTRYPOINT ["dotnet", "core.dll"]
+# Copy deployment script for runtime configuration
+COPY deploy_env_config.sh /usr/local/bin/deploy_env_config.sh
+RUN chmod +x /usr/local/bin/deploy_env_config.sh
+
+# Create startup script that runs config injection then starts the app
+RUN cat > /app/docker-entrypoint.sh << 'EOF'
+#!/bin/bash
+set -e
+
+# Configure runtime environment for frontend
+echo "Configuring frontend runtime environment..."
+INDEX_HTML_PATH=/app/wwwroot/index.html /usr/local/bin/deploy_env_config.sh
+
+# Start .NET application
+echo "Starting .NET application..."
+exec dotnet core.dll
+EOF
+
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

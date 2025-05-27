@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: isplitapp
+spec:
+  template:
+    spec:
+      containers:
+        - name: isplitapp
+          env:
+            - name: Logging__LogLevel__Default
+              value: "Information"
+            - name: Logging__LogLevel__Microsoft.AspNetCore.HttpLogging
+              value: "Information"
+            - name:  ASPNETCORE_ENVIRONMENT
+              value: prod
