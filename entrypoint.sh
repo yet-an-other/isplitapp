@@ -28,6 +28,7 @@ validate_env() {
 create_backup() {
     if [ ! -f "${INDEX_HTML_PATH}${BACKUP_SUFFIX}" ]; then
         log "Creating backup of original index.html"
+
         if cp "$INDEX_HTML_PATH" "${INDEX_HTML_PATH}${BACKUP_SUFFIX}" 2>/dev/null; then
             log "Backup created successfully"
         else
@@ -42,6 +43,7 @@ create_backup() {
 inject_runtime_config() {
     log "Injecting runtime configuration into $INDEX_HTML_PATH"
     
+
     # Check if file is writable
     if [ ! -w "$INDEX_HTML_PATH" ]; then
         error "Cannot write to $INDEX_HTML_PATH - permission denied"
@@ -61,6 +63,7 @@ inject_runtime_config() {
             next
         }
         { print }
+
     ' "$INDEX_HTML_PATH" > "$temp_file" 2>/dev/null; then
         # Replace the original file
         if mv "$temp_file" "$INDEX_HTML_PATH" 2>/dev/null; then
