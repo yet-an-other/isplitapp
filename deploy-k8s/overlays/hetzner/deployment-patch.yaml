@@ -14,3 +14,7 @@ spec:
               value: "Information"
             - name:  ASPNETCORE_ENVIRONMENT
               value: prod
+            - name: VITE_API_URL
+              value: "https://api-isplitapp-htz.bdgn.me"
+            - name: CORS_ALLOWED_ORIGINS
+              value: "https://isplitapp.bdgn.me,https://api-isplitapp.bdgn.me,http://192.168.40.*,http://localhost:3000"              

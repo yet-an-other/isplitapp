@@ -13,4 +13,4 @@ spec:
         - name: isplitapp
           port: 9090
   tls:
-    secretName: isplitapp-tls 
+    secretName: isplitapp-tls

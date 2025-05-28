@@ -10,8 +10,8 @@ secretGenerator:
       - ./.env.secret
     behavior: merge
 
-
 patches:
   - path: ./deployment-patch.yaml
   - path: ./ingress-patch.yaml
+  - path: ./certificate-patch.yaml
 
