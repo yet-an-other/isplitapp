@@ -7,7 +7,7 @@ spec:
   secretName: isplitapp-tls        
   dnsNames:
     - "isplitapp.bdgn.me"
-    - "api.isplitapp.bdgn.me"
+    - "api-isplitapp.bdgn.me"
   issuerRef:
     name: letsencrypt-dns
     kind: ClusterIssuer

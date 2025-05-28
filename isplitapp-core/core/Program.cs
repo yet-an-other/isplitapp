@@ -8,7 +8,6 @@ using IB.ISplitApp.Core.Infrastructure;
 using IB.Utils.Ids;
 using Microsoft.Extensions.Primitives;
 using Migrations;
-using CorsUtil = IB.ISplitApp.Core.Infrastructure.CorsUtil;
 
 
 var version = Assembly
@@ -74,11 +73,19 @@ builder.Services.AddTransient<RequestValidator>();
 builder.Services.AddEndpoints();
 
 // Add Cors
+// Supports environment variable override: CORS_ALLOWED_ORIGINS (comma-separated list)
+// Example: CORS_ALLOWED_ORIGINS="https://localhost:3000,https://example.com"
 //
 builder.Services.AddCors(options =>
 {
+    // First try to get from environment variable, then fall back to configuration
+    var allowedOriginsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
+    var allowedOrigins = !string.IsNullOrEmpty(allowedOriginsEnv) 
+        ? allowedOriginsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        : builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        
     options.AddDefaultPolicy(policy => policy
-        .SetIsOriginAllowed(origin => CorsUtil.IsValidOrigin().IsMatch(origin))
+        .WithOrigins(allowedOrigins)
         .AllowCredentials()
         .AllowAnyMethod()
         .AllowAnyHeader()        
