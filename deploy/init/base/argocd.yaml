@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/yet-an-other/isplitapp.git'
-    chart: deploy/isplitapp
+    path: deploy/isplitapp
     targetRevision: HEAD
     helm:
       releaseName: isplitapp

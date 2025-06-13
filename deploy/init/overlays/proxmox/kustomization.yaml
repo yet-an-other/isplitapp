@@ -9,13 +9,13 @@ patches:
       group: "argoproj.io"
       version: "v1alpha1"
       kind: "Application"
-      name: "sailingapp"
+      name: "isplit"
     patch: |-
       [
         {
-          "add": "replace",
+          "op": "add",
           "path": "/spec/source/helm/valueFiles",
-          "value": "proxmox.values.yaml"
+          "value": ["values.yaml", "proxmox.values.yaml"]
         }
       ]
 
