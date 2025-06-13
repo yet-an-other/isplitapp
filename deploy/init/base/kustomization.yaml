@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: isplitapp
+
+# setting labels
+#
+labels:
+  - pairs:
+      kubernetes.io/name: isplitapp
+      kubernetes.io/instance: isplitapp
+      managed-by: kustomize
+    includeSelectors: true 
+
+secretGenerator:
+  - name: pg-secret
+    envs:
+      - ./pg-secret.env
+  - name: isplitapp
+    envs:
+      - ./base.env      
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+resources:
+  - namespace.yaml
+  - configmap-fbkey.yaml
+  - database.yaml
+  - argocd.yaml

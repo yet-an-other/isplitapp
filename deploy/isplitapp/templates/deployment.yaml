@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "isplitapp.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "isplitapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "isplitapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "isplitapp.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+
+        - name: nginx
+          image: nginx:alpine
+          ports: 
+            - containerPort: {{ .Values.nginx.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+          resources:
+            requests:
+              memory: "20Mi"
+
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.port }}
+              protocol: TCP
+
+          env:
+            - name: "DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE"
+              value: "false"
+            - name: ConnectionStrings__isplitapp
+              valueFrom:
+                secretKeyRef:
+                  name: pg-secret
+                  key: isaPgUrl
+            - name: Vapid__Subject
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: vapidSubject                  
+            - name: Vapid__PublicKey
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: vapidPublicKey
+            - name: Vapid__PrivateKey
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: vapidPrivateKey
+
+          volumeMounts:
+            - name: fbkey
+              mountPath: /app/secret
+          resources: {}
+
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: isplitapp-nginx
+        - name: fbkey
+          configMap:
+            name: isplitapp-fbkey
+

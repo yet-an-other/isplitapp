@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: isplit
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/yet-an-other/isplitapp.git'
+    chart: deploy/isplitapp
+    targetRevision: HEAD
+    helm:
+      releaseName: isplitapp
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: isplitapp
+  syncPolicy:
+    syncOptions:
+      - PrunePropagationPolicy=foreground
+
