@@ -51,7 +51,7 @@ public class MigrationRunner
         string dbName = connBuilder.Database!;
 
         var masterConnection = _connectionString.Replace(dbName, "postgres");
-        log?.LogInformation($"Using master connection string '{masterConnection}' to check database existence");    
+        log?.LogDebug($"Using master connection string '{masterConnection}' to check database existence");    
         log?.LogInformation($"Check if database exists '{dbName}'");
         
         await using NpgsqlConnection connection = new(masterConnection);
