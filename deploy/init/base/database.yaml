@@ -1,0 +1,53 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-isplit
+  namespace: isplitapp
+spec:
+
+  instances: 3
+
+  superuserSecret:
+    name: pg-secret
+
+  # PostgreSQL configuration
+  postgresql:
+    parameters:
+      # Storage is local so we can optimize for local disk performance
+      random_page_cost: "1.3"
+
+  backup:
+    barmanObjectStore:
+      destinationPath: "s3://ib.pg-backup/pg-"
+      s3Credentials:
+        accessKeyId:
+          name: isplitapp
+          key: aws_key_id
+        secretAccessKey:
+          name: isplitapp
+          key: aws_secret_key
+      wal:
+        compression: bzip2
+        maxParallel: 2
+    retentionPolicy: "7d"
+
+  externalClusters:
+    - name: pg-isplit
+      barmanObjectStore:
+        destinationPath: "s3://ib.pg-backup/pg-"
+        s3Credentials:
+          accessKeyId:
+            name: isplitapp
+            key: aws_key_id
+          secretAccessKey:
+            name: isplitapp
+            key: aws_secret_key
+
+  storage:
+    storageClass: local-longhorn
+    size: 5Gi
+
+  # Pod distribution - ensure PostgreSQL instances are on different nodes
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
