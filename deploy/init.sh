@@ -32,7 +32,9 @@ show_usage() {
     echo "📋 iSplit Deployment Script"
     echo ""
     echo "USAGE:"
-    echo "  $0 <environment>"
+
+    echo "  $0 <environment> [options]"
+
     echo ""
     echo "PARAMETERS:"
     echo "  environment    The target environment (e.g., hetzner, proxmox)"
@@ -40,9 +42,15 @@ show_usage() {
     echo "                 - Which kubeconfig to use: \$HOME/remote-kube/<environment>/config"
     echo "                 - Which overlay to deploy: overlays/<environment>"
     echo ""
+
+    echo "OPTIONS:"
+    echo "  -rdb           Apply restore-db.yaml directly (skips kustomize)"
+    echo ""
     echo "EXAMPLES:"
     echo "  $0 hetzner     # Deploy to Hetzner environment"
     echo "  $0 proxmox     # Deploy to Proxmox environment"
+    echo "  $0 hetzner -rdb # Restore database on Hetzner environment"
+
     echo ""
     echo "REQUIREMENTS:"
     echo "  - sops (for decrypting .sops files)"
@@ -59,11 +67,26 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+# Parse parameters
+ENVIRONMENT="$1"
+RESTORE_DB_MODE=false
+
+if [ "$2" = "-rdb" ]; then
+    RESTORE_DB_MODE=true
+    echo "🔄 Database restore mode enabled"
+fi
+
+
 # Set trap to cleanup on exit (success or failure)
 trap cleanup EXIT
 trap error_cleanup ERR
 
-echo "🚀 Starting iSplit deployment process for environment: $1"
+if [ "$RESTORE_DB_MODE" = true ]; then
+    echo "🚀 Starting iSplit database restore for environment: $ENVIRONMENT"
+else
+    echo "🚀 Starting iSplit deployment process for environment: $ENVIRONMENT"
+fi
+
 
 # Check if source directory exists
 if [ ! -d "$INIT_SOURCE_DIR" ]; then
@@ -88,9 +111,11 @@ fi
 echo "📁 Creating target directory: $TARGET_DIR"
 mkdir -p "$TARGET_DIR"
 
-# Copy init folder contents to target directory
-echo "📋 Copying files from $INIT_SOURCE_DIR to $TARGET_DIR"
-cp -r "$INIT_SOURCE_DIR"/* "$TARGET_DIR/"
+
+# Copy init folder contents to target directory (excluding .decrypted. files)
+echo "📋 Copying files from $INIT_SOURCE_DIR to $TARGET_DIR (excluding .decrypted. files)"
+rsync -av --exclude="*.decrypted.*" "$INIT_SOURCE_DIR"/ "$TARGET_DIR/"
+
 
 # Navigate to target directory
 cd "$TARGET_DIR"
@@ -114,13 +139,28 @@ find . -name "*.sops.*" -type f | while read -r sops_file; do
     fi
 done
 
-# Run kustomization
-echo "⚙️  Running kustomization..."
-if kubectl apply --kubeconfig "$KUBECONFIG" -k "$TARGET_DIR/overlays/$1"; then
-    echo "✅ Kustomization applied successfully"
+# Run kustomization or restore database
+if [ "$RESTORE_DB_MODE" = true ]; then
+    echo "🔄 Applying database restore..."
+    if kubectl apply --kubeconfig "$KUBECONFIG" -f "$TARGET_DIR/base/restore-db.yaml"; then
+        echo "✅ Database restore job applied successfully"
+    else
+        echo "❌ Database restore failed"
+        exit 1
+    fi
 else
-    echo "❌ Kustomization failed"
-    exit 1
+    echo "⚙️  Running kustomization..."
+    if kubectl apply --kubeconfig "$KUBECONFIG" -k "$TARGET_DIR/overlays/$ENVIRONMENT"; then
+        echo "✅ Kustomization applied successfully"
+    else
+        echo "❌ Kustomization failed"
+        exit 1
+    fi
 fi
 
-echo "🎉 Deployment completed successfully!"
+if [ "$RESTORE_DB_MODE" = true ]; then
+    echo "🎉 Database restore completed successfully!"
+else
+    echo "🎉 Deployment completed successfully!"
+fi
+

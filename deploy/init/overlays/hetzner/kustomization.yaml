@@ -9,13 +9,14 @@ patches:
       group: "argoproj.io"
       version: "v1alpha1"
       kind: "Application"
-      name: "sailingapp"
+      name: isplit
     patch: |-
       [
         {
-          "add": "replace",
+          "op": "replace",
           "path": "/spec/source/helm/valueFiles",
-          "value": "hetzner.values.yaml"
+          "value": ["values.yaml", "hetzner.values.yaml"]
+
         }
       ]
 

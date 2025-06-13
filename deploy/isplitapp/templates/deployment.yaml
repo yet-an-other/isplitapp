@@ -71,6 +71,11 @@ spec:
                 secretKeyRef:
                   name: isplitapp
                   key: vapidPrivateKey
+            - name: VITE_API_URL
+              value: "https://{{ .Values.apiDomain }}"
+            - name: Cors__AllowedOrigins
+              value: ["https://{{ .Values.appDomain }}", "https://{{ .Values.apiDomain }}"]
+
 
           volumeMounts:
             - name: fbkey

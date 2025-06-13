@@ -14,23 +14,22 @@ spec:
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
-                  name: isplitapp
-                  key: pg_host
+
+                  name: pg-secret
+                  key: host
             - name: POSTGRES_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: isplitapp
-                  key: pg_database
+              value: isplitapp
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: isplitapp
-                  key: pg_user
+                  name: pg-secret
+                  key: username
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: isplitapp
-                  key: pg_password
+                  name: pg-secret
+                  key: password
+
             - name: AZURE_STORAGE_ACCOUNT
               valueFrom:
                 secretKeyRef:
@@ -46,7 +45,8 @@ spec:
             - name: RESTORE
               value: "yes"
             - name: DROP_PUBLIC
-              value: "yes" 
+              value: "create" 
+
 
       restartPolicy: Never
   backoffLimit: 0
