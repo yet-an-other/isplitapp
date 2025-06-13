@@ -74,7 +74,7 @@ spec:
             - name: VITE_API_URL
               value: "https://{{ .Values.apiDomain }}"
             - name: Cors__AllowedOrigins
-              value: ["https://{{ .Values.appDomain }}", "https://{{ .Values.apiDomain }}"]
+              value: '["https://{{ .Values.appDomain }}", "https://{{ .Values.apiDomain }}"]'
 
 
           volumeMounts:
