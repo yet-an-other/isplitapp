@@ -1,2 +1,4 @@
 appDomain: "isplit-app.bdgn.me"
 apiDomain: "isplit-api.bdgn.me"
+image: 
+  tag: "edge"
