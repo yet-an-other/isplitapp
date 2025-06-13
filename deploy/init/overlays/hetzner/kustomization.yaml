@@ -16,6 +16,7 @@ patches:
           "op": "replace",
           "path": "/spec/source/helm/valueFiles",
           "value": ["values.yaml", "hetzner.values.yaml"]
+
         }
       ]
 

@@ -9,6 +9,7 @@ patches:
       group: "argoproj.io"
       version: "v1alpha1"
       kind: "Application"
+
       name: "isplit"
     patch: |-
       [
@@ -16,6 +17,7 @@ patches:
           "op": "add",
           "path": "/spec/source/helm/valueFiles",
           "value": ["values.yaml", "proxmox.values.yaml"]
+
         }
       ]
 

@@ -32,7 +32,9 @@ show_usage() {
     echo "📋 iSplit Deployment Script"
     echo ""
     echo "USAGE:"
+
     echo "  $0 <environment> [options]"
+
     echo ""
     echo "PARAMETERS:"
     echo "  environment    The target environment (e.g., hetzner, proxmox)"
@@ -40,6 +42,7 @@ show_usage() {
     echo "                 - Which kubeconfig to use: \$HOME/remote-kube/<environment>/config"
     echo "                 - Which overlay to deploy: overlays/<environment>"
     echo ""
+
     echo "OPTIONS:"
     echo "  -rdb           Apply restore-db.yaml directly (skips kustomize)"
     echo ""
@@ -47,6 +50,7 @@ show_usage() {
     echo "  $0 hetzner     # Deploy to Hetzner environment"
     echo "  $0 proxmox     # Deploy to Proxmox environment"
     echo "  $0 hetzner -rdb # Restore database on Hetzner environment"
+
     echo ""
     echo "REQUIREMENTS:"
     echo "  - sops (for decrypting .sops files)"
@@ -72,6 +76,7 @@ if [ "$2" = "-rdb" ]; then
     echo "🔄 Database restore mode enabled"
 fi
 
+
 # Set trap to cleanup on exit (success or failure)
 trap cleanup EXIT
 trap error_cleanup ERR
@@ -81,6 +86,7 @@ if [ "$RESTORE_DB_MODE" = true ]; then
 else
     echo "🚀 Starting iSplit deployment process for environment: $ENVIRONMENT"
 fi
+
 
 # Check if source directory exists
 if [ ! -d "$INIT_SOURCE_DIR" ]; then
@@ -105,9 +111,11 @@ fi
 echo "📁 Creating target directory: $TARGET_DIR"
 mkdir -p "$TARGET_DIR"
 
+
 # Copy init folder contents to target directory (excluding .decrypted. files)
 echo "📋 Copying files from $INIT_SOURCE_DIR to $TARGET_DIR (excluding .decrypted. files)"
 rsync -av --exclude="*.decrypted.*" "$INIT_SOURCE_DIR"/ "$TARGET_DIR/"
+
 
 # Navigate to target directory
 cd "$TARGET_DIR"
@@ -155,3 +163,4 @@ if [ "$RESTORE_DB_MODE" = true ]; then
 else
     echo "🎉 Deployment completed successfully!"
 fi
+

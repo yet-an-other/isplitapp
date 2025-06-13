@@ -76,6 +76,7 @@ spec:
             - name: Cors__AllowedOrigins
               value: ["https://{{ .Values.appDomain }}", "https://{{ .Values.apiDomain }}"]
 
+
           volumeMounts:
             - name: fbkey
               mountPath: /app/secret
