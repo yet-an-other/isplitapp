@@ -73,8 +73,10 @@ spec:
                   key: vapidPrivateKey
             - name: VITE_API_URL
               value: "https://{{ .Values.apiDomain }}"
+
             - name: CORS_ALLOWED_ORIGINS
               value: "https://{{ .Values.appDomain }},https://{{ .Values.apiDomain }}"
+
 
 
           volumeMounts:
