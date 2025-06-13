@@ -12,9 +12,11 @@ labels:
 
 secretGenerator:
   - name: pg-secret
+    namespace: isplitapp
     envs:
       - ./pg-secret.env
   - name: isplitapp
+    namespace: isplitapp
     envs:
       - ./base.env      
 
