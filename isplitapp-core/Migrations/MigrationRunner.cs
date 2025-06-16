@@ -140,7 +140,9 @@ public class MigrationRunner
 
         string dbName = connBuilder.Database!;
 
+
         var masterConnection = _connectionString.Replace($"Database={dbName}", "Database=postgres");
+
         log?.LogDebug($"Using master connection string '{masterConnection}' to check database existence");    
         log?.LogInformation($"Check if database exists '{dbName}'");
         
