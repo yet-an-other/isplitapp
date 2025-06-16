@@ -28,7 +28,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 // Setup Logging
 //
-builder.Services.AddLogging(version, builder.Environment);
+builder.Services.AddLogging(version, builder.Environment, builder.Configuration);
 
 // Setup telemetry
 //
@@ -78,11 +78,7 @@ builder.Services.AddEndpoints();
 //
 builder.Services.AddCors(options =>
 {
-    // First try to get from environment variable, then fall back to configuration
-    var allowedOriginsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
-    var allowedOrigins = !string.IsNullOrEmpty(allowedOriginsEnv) 
-        ? allowedOriginsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        : builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
         
     options.AddDefaultPolicy(policy => policy
         .WithOrigins(allowedOrigins)
