@@ -11,9 +11,9 @@ using Migrations;
 
 
 var version = Assembly
-    .GetEntryAssembly()
-    ?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-    ?.InformationalVersion;
+    .GetEntryAssembly()?
+    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+    .InformationalVersion;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -28,7 +28,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 // Setup Logging
 //
-builder.Services.AddLogging(version,  builder.Environment);
+builder.Services.AddLogging(version, builder.Environment);
 
 // Setup telemetry
 //
@@ -150,7 +150,7 @@ app.UseHttpLogging();
 
 // Run db migrations
 //
-var migrationRunner = new MigrationRunner(connectionString);
+var migrationRunner = new MigrationRunner(new ServiceCollection(), connectionString, builder.Configuration, builder.Environment);
 await migrationRunner.EnsureDatabase();
 migrationRunner.RunMigrationsUp();
 
