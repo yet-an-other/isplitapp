@@ -45,15 +45,17 @@ public static class ServiceExtension
         services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.EnableEnrichment();
+
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddSimpleConsole();
+            loggingBuilder.AddJsonConsole(); 
             
-            // loggingBuilder.ClearProviders();
-            // loggingBuilder.AddConsole();
  
             // if (environment.IsDevelopment())
             //     loggingBuilder.AddSimpleConsole();
             // else
             //     loggingBuilder.AddJsonConsole(); 
-                 
+
 
         });
 
