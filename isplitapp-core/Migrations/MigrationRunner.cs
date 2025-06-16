@@ -82,24 +82,15 @@ public class MigrationRunner
             {
                 builder.AddConfiguration(configuration.GetSection("Logging"));
                 
-                if (environment.IsDevelopment())
+                if (configuration["Logging:Console:FormatterName"] == "json")
                 {
-                    builder.AddSimpleConsole(options =>
-                    {
-                        options.IncludeScopes = true;
-                        options.SingleLine = false;
-                        options.TimestampFormat = "yyyy-MM-dd'T'HH:mm:ss.fff ";
-                    });
+                    builder.AddJsonConsole();
                 }
                 else
                 {
-                    builder.AddJsonConsole(options =>
-                    {
-                        options.IncludeScopes = true;
-                        options.TimestampFormat = "yyyy-MM-dd'T'HH:mm:ss.fffK";
-                        options.UseUtcTimestamp = true;
-                    });
+                    builder.AddSimpleConsole();
                 }
+
             });
         }
         else
@@ -108,7 +99,7 @@ public class MigrationRunner
             services.AddLogging(builder =>
             {
                 builder.AddConsole();
-                builder.SetMinimumLevel(LogLevel.Information);
+                builder.SetMinimumLevel(LogLevel.Debug);
             });
         }
     }
