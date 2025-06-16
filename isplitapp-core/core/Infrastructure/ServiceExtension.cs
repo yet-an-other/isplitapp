@@ -11,6 +11,7 @@ using LinqToDB.AspNet;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Npgsql;
@@ -30,7 +31,7 @@ public static class ServiceExtension
 {
     
     public static IServiceCollection AddLogging(
-        this IServiceCollection services, string? version, IWebHostEnvironment environment)
+        this IServiceCollection services, string? version, IWebHostEnvironment environment, IConfiguration configuration)
     {
         services.AddHttpLogging(o =>
         {
@@ -45,15 +46,17 @@ public static class ServiceExtension
         services.AddLogging(loggingBuilder =>
         {
             loggingBuilder.EnableEnrichment();
-            
-            loggingBuilder.ClearProviders();
- 
-            if (environment.IsDevelopment())
-                loggingBuilder.AddSimpleConsole();
-            else
-                loggingBuilder.AddJsonConsole(); 
-                 
 
+            loggingBuilder.ClearProviders();
+
+            if (configuration["Logging:Console:FormatterName"] == "json")
+            {
+                loggingBuilder.AddJsonConsole();
+            }
+            else
+            {
+                loggingBuilder.AddSimpleConsole();
+            }
         });
 
         services.AddApplicationMetadata(x =>

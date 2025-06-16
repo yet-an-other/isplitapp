@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/isplitapp-core/core/bin/Debug/net8.0/core.dll",
+            "program": "${workspaceFolder}/isplitapp-core/core/bin/Debug/net9.0/core.dll",
             "args": [],
             "cwd": "${workspaceFolder}/isplitapp-core/core",
             "stopAtEntry": false,

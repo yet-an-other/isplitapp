@@ -36,7 +36,7 @@ EXPOSE 8081
 RUN adduser -u 1000 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.18 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine3.18 AS build
 RUN apk update && apk upgrade
 RUN apk add --no-cache clang build-base zlib-dev
 
