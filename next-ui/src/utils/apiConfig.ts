@@ -39,7 +39,26 @@ export const getApiUrl = (): string => {
     throw new Error('VITE_API_URL environment variable is not configured');
 };
 
+export const getOtelUrl = (): string => {
+    // Check runtime configuration from deployment script
+    if (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__?.VITE_OTEL_COLLECTOR_URL) {
+        return window.__RUNTIME_CONFIG__.VITE_OTEL_COLLECTOR_URL;
+    }
+    
+    // Fall back to build-time environment variables
+    if (import.meta.env.VITE_OTEL_COLLECTOR_URL) {
+        return import.meta.env.VITE_OTEL_COLLECTOR_URL;
+    }
+    return "";
+};
+
+
 /**
  * The configured API URL for the application
  */
 export const API_URL = getApiUrl();
+
+/**
+ * The configured OpenTelemetry collector URL for the application
+ */
+export const OTELCOL_URL = getOtelUrl();
