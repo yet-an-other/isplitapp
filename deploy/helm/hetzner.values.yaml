@@ -1,0 +1,6 @@
+appDomain: "isplit.app"
+apiDomain: "api.isplit.app"
+otlpDomain: "otel.isplit.app"
+image: 
+  tag: "latest"
+logLevel: "Information"

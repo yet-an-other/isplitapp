@@ -21,8 +21,6 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "Cors__AllowedOrigins__0": "https://localhost:5001",
-                "Cors__AllowedOrigins__1": "https://localhost:5000",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"

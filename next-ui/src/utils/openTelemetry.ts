@@ -20,10 +20,11 @@ import {
   SEMRESATTRS_SERVICE_VERSION,
   SEMRESATTRS_OS_TYPE
 } from '@opentelemetry/semantic-conventions';
+import { OTELCOL_URL } from './apiConfig';
 
 
 
-const OTELCOL_URL = import.meta.env.VITE_OTEL_COLLECTOR_URL as string;
+//const OTELCOL_URL = import.meta.env.VITE_OTEL_COLLECTOR_URL as string;
 const VERSION = import.meta.env.VITE_VERSION as string;
 const w = window as unknown as { webkit: unknown};
 
