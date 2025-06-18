@@ -22,6 +22,7 @@ validate_env() {
     fi
     
     log "Using API URL: $VITE_API_URL"
+    log "Using OpenTelemetry Collector URL: ${VITE_OTEL_COLLECTOR_URL:-not set}"
 }
 
 # Function to create backup of original file
@@ -51,7 +52,7 @@ inject_runtime_config() {
     fi
     
     # Create the runtime config JavaScript (single line)
-    local runtime_config="window.__RUNTIME_CONFIG__ = { VITE_API_URL: \"$VITE_API_URL\" };"
+    local runtime_config="window.__RUNTIME_CONFIG__ = { VITE_API_URL: \"$VITE_API_URL\", VITE_OTEL_COLLECTOR_URL: \"$VITE_OTEL_COLLECTOR_URL\" };"
     
     # Create a temporary file for the replacement
     local temp_file="${INDEX_HTML_PATH}.tmp"

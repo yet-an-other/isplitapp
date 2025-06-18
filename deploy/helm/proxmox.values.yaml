@@ -1,4 +1,6 @@
 appDomain: "isplit-app.bdgn.me"
 apiDomain: "isplit-api.bdgn.me"
+otlpDomain: "otel.bdgn.me"
 image: 
   tag: "edge"
+logLevel: "Debug"
