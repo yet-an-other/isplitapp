@@ -53,6 +53,8 @@ spec:
               value: "false"
             - name: Logging__Console__FormatterOptions__TimestampFormat
               value: ""
+            - name: Logging__LogLevel__Default
+              value: '{{ .Values.logLevel | default "Information" }}'
             - name: ConnectionStrings__isplitapp
               valueFrom:
                 secretKeyRef:
@@ -73,11 +75,15 @@ spec:
                 secretKeyRef:
                   name: isplitapp
                   key: vapidPrivateKey
+
             - name: VITE_API_URL
               value: "https://{{ .Values.apiDomain }}"
 
+            - name: VITE_OTEL_COLLECTOR_URL
+              value: "https://{{ .Values.otlpDomain }}"
+
             - name: Cors__AllowedOrigins
-              value: '["https://{{ .Values.appDomain }}", "https://{{ .Values.apiDomain }}"]'
+              value: "https://{{ .Values.appDomain }},https://{{ .Values.apiDomain }}"
 
 
           volumeMounts:

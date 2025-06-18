@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
+
 using Npgsql;
 
 namespace Migrations;
@@ -65,6 +65,7 @@ public class MigrationRunner
             {
                 options.ShowSql = GetShowSqlFromConfiguration(configuration);
             });
+
 
         // Configure logging using the same pattern as the main application
         ConfigureLogging(serviceCollection, configuration, environment);

@@ -73,13 +73,10 @@ builder.Services.AddTransient<RequestValidator>();
 builder.Services.AddEndpoints();
 
 // Add Cors
-// Supports environment variable override: CORS_ALLOWED_ORIGINS (comma-separated list)
-// Example: CORS_ALLOWED_ORIGINS="https://localhost:3000,https://example.com"
 //
+var allowedOrigins = builder.Configuration.GetValue<string>("Cors:AllowedOrigins")?.Split(',') ?? [];
 builder.Services.AddCors(options =>
 {
-    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-        
     options.AddDefaultPolicy(policy => policy
         .WithOrigins(allowedOrigins)
         .AllowCredentials()
@@ -91,6 +88,9 @@ builder.Services.AddCors(options =>
 // App builder /////////////////////
 //
 var app = builder.Build();
+app.Logger.LogInformation("Starting iSplitApp Core v{version}", version);
+app.Logger.LogDebug("Allowed origins: {origins}", allowedOrigins.Length > 0 ? string.Join(", ", allowedOrigins) : "None");
+app.Logger.LogDebug("Connection string: {connectionString}", builder.Configuration.GetValue<string>("ConnectionStrings:isplitapp") ?? "Not set");
 
 app.UseDefaultFiles();
 app.UseStaticFiles(
