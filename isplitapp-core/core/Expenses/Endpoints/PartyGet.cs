@@ -53,7 +53,9 @@ public class PartyGet : IEndpoint
                         FuTotalExpenses = (from e in db.Expenses
                             where e.PartyId == p.Id && !e.IsReimbursement
                             select e.MuAmount).Sum().ToFuAmount(),
-                        LastExpenseTimestamp = (from e in db.Expenses where e.PartyId == p.Id select e.Timestamp).DefaultIfEmpty().Max()!.ToString(),
+                        LastExpenseTimestamp = (from e in db.Expenses where e.PartyId == p.Id select e.Timestamp).Any() 
+                            ? (from e in db.Expenses where e.PartyId == p.Id select e.Timestamp).Max()!.ToString()!
+                            : AuidFactory.MinTimestamp,
                         IsArchived = db.DeviceParty
                             .Where(d => d.PartyId == partyId && d.DeviceId == deviceId)
                             .Select(u => u.IsArchived)
