@@ -52,6 +52,6 @@ public class ExpenseCreate: IEndpoint
 
         return TypedResults.CreatedAtRoute(
             "GetExpense",
-            new RouteValueDictionary([new KeyValuePair<string, string>("expenseId", expenseId.ToString())]));
+            new RouteValueDictionary { ["expenseId"] = expenseId.ToString() });
     };
 }
