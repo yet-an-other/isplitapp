@@ -58,6 +58,6 @@ public class PartyCreate: IEndpoint
         return TypedResults.CreatedAtRoute(
             new CreatedPartyInfo(partyId),
             "GetParty",
-            new RouteValueDictionary([new KeyValuePair<string, string>("partyId", partyId.ToString())]));
+            new RouteValueDictionary { ["partyId"] = partyId.ToString() });
     };
 }
