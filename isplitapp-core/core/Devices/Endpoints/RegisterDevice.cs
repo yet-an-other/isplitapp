@@ -13,7 +13,7 @@ public class RegisterDevice : IEndpoint
 
     public RouteHandlerBuilder Build(RouteHandlerBuilder builder)
         => builder.WithName("Login");
-
+    
     public Delegate Endpoint => (
             [FromHeader(Name = HeaderName.Device)] Auid? deviceId,
             AuidFactory auidFactory) =>

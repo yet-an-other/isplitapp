@@ -93,25 +93,22 @@ public class DeviceCommandTest : IClassFixture<DatabaseFixture>, IDisposable, IA
     }
     
     [Fact]
-    public void LoginShouldGenerateNewIdIfEmptyOrWrongIdProvided()
+    public void LoginShouldGenerateNewIdIfNullIdProvided()
     {
-        // Setup
-        //
-        var emptyId = String.Empty;
-        var wrongId = "Abdkljien";
 
-        
+
         // Act
         //
         var endpoint = new RegisterDevice();
-        var emptyIdResult = endpoint.Endpoint.DynamicInvoke(emptyId, _auidFactory) as Ok<DeviceInfo>;
-        var wrongIdResult = endpoint.Endpoint.DynamicInvoke(wrongId, _auidFactory) as Ok<DeviceInfo>;
+
+        var emptyIdResult = endpoint.Endpoint.DynamicInvoke(null, _auidFactory) as Ok<DeviceInfo>;
+       // var wrongIdResult = endpoint.Endpoint.DynamicInvoke(wrongId, _auidFactory) as Ok<DeviceInfo>;
         
         // Assert
         //
         Assert.True(Auid.TryParse(emptyIdResult!.Value!.Id.ToString(), out _));
-        Assert.True(Auid.TryParse(wrongIdResult!.Value!.Id.ToString(), out _));
-        Assert.NotEqual(emptyIdResult.Value?.Id, wrongIdResult.Value?.Id);
+        //Assert.True(Auid.TryParse(wrongIdResult!.Value!.Id.ToString(), out _));
+        //Assert.NotEqual(emptyIdResult.Value?.Id, wrongIdResult.Value?.Id);
     }
 
     [Fact]
@@ -125,10 +122,27 @@ public class DeviceCommandTest : IClassFixture<DatabaseFixture>, IDisposable, IA
         // Act
         //
         var endpoint = new RegisterDevice();
-        var idResult = endpoint.Endpoint.DynamicInvoke(id.ToString(), _auidFactory) as Ok<DeviceInfo>;
+        var idResult = endpoint.Endpoint.DynamicInvoke(id, _auidFactory) as Ok<DeviceInfo>;
         
         // Assert
         //
         Assert.Equal(id, idResult!.Value?.Id);
+    }
+
+    [Fact]
+    public void LoginShouldThrowExceptionWhenWrongIdPassed()
+    {
+        // Setup
+        //
+        var wrongId = "invalid-id-format";
+        
+        // Act & Assert
+        //
+        var endpoint = new RegisterDevice();
+        
+        Assert.Throws<ArgumentException>(() =>
+        {
+            endpoint.Endpoint.DynamicInvoke(wrongId, _auidFactory);
+        });
     }
 }
