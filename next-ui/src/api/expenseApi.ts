@@ -121,8 +121,11 @@ async function sendRequest<TBody, TResponse>(method:  HttpMethod, endpoint: stri
     };
 
     const response = await fetch(`${API_URL}${endpoint}`, requestOptions);
-    if (!response.ok)
-        throw new ProblemError(await response.json());
+    if (!response.ok) {
+        const errorJson = await response.json() as unknown;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        throw new ProblemError(errorJson as any);
+    }
 
     const buffer = (await response.arrayBuffer());
     return (buffer.byteLength === 0)

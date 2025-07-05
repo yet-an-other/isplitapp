@@ -26,30 +26,16 @@ declare global {
  * @throws Error when no API URL is configured
  */
 export const getApiUrl = (): string => {
-    // Check runtime configuration from deployment script
-    if (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__?.VITE_API_URL) {
-        return window.__RUNTIME_CONFIG__.VITE_API_URL;
+    const apiUrl = (window.__RUNTIME_CONFIG__?.VITE_API_URL ?? import.meta.env.VITE_API_URL) as string | undefined;
+    if (apiUrl) {
+        return apiUrl;
     }
-    
-    // Fall back to build-time environment variables
-    if (import.meta.env.VITE_API_URL) {
-        return import.meta.env.VITE_API_URL;
-    }
-    
     throw new Error('VITE_API_URL environment variable is not configured');
 };
 
 export const getOtelUrl = (): string => {
-    // Check runtime configuration from deployment script
-    if (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__?.VITE_OTEL_COLLECTOR_URL) {
-        return window.__RUNTIME_CONFIG__.VITE_OTEL_COLLECTOR_URL;
-    }
-    
-    // Fall back to build-time environment variables
-    if (import.meta.env.VITE_OTEL_COLLECTOR_URL) {
-        return import.meta.env.VITE_OTEL_COLLECTOR_URL;
-    }
-    return "";
+    const otelUrl = (window.__RUNTIME_CONFIG__?.VITE_OTEL_COLLECTOR_URL ?? import.meta.env.VITE_OTEL_COLLECTOR_URL) as string | undefined;
+    return otelUrl ?? "";
 };
 
 

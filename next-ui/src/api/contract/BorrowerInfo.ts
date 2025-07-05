@@ -1,11 +1,11 @@
 export class BorrowerInfo {
-    participantId: string = "";
+    participantId = "";
     
-    participantName: string = "";
+    participantName = "";
 
-    amount: number = 0;
+    amount = 0;
 
-    share: number = 0;
+    share = 0;
 
-    percent: number = 0;
+    percent = 0;
 }

@@ -9,8 +9,8 @@ import { fetcher } from "../api/expenseApi";
  */
 export async function generateReport(partyId: string) {
     const csvDelimiter = ';';
-    const party = await fetcher(`/parties/${partyId}`) as PartyInfo;
-    const expenses = await fetcher(`/parties/${party.id}/expenses`) as ExpenseInfo[];
+    const party = await fetcher<PartyInfo>(`/parties/${partyId}`);
+    const expenses = await fetcher<ExpenseInfo[]>(`/parties/${party.id}/expenses`);
 
     const particiapntAmount = (participant: ParticipantInfo, expense: ExpenseInfo) => {
         const paidAmount = participant.id === expense.lenderId ? expense.amount : 0;
