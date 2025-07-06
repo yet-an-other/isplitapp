@@ -208,7 +208,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 await mutate(`/parties/${group.id}`);
                 navigate(`/${group.id}/expenses`);
             }
-            catch(e) {
+            catch {
                 alertError("Failed to delete the expense. Please try again later.")
             }
         }
