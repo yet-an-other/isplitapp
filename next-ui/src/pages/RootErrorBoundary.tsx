@@ -1,4 +1,4 @@
-import { Card } from "@nextui-org/react";
+import { Card } from "@heroui/react";
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
 export function RootBoundary() {

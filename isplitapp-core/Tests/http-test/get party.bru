@@ -1,0 +1,22 @@
+meta {
+  name: get party
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{scheme}}://{{server}}/parties/{{party-id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  X-Device-Id: {{device-id}}
+}
+
+vars:post-response {
+  member-1: res("participants[0].id")
+  member-2: res("participants[1].id")
+  member-3: res("participants[2].id")
+}

@@ -4,7 +4,7 @@ import { PartyInfo } from "../api/contract/PartyInfo";
 import { ProblemError } from "../api/contract/ProblemError";
 import { fetcher } from "../api/expenseApi";
 import { Outlet, useMatches, useNavigate, useParams } from "react-router-dom";
-import { Button, ButtonGroup } from "@nextui-org/react";
+import { Button, ButtonGroup } from "@heroui/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { BackIcon } from "../icons";

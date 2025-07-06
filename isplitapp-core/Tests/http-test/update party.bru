@@ -1,0 +1,34 @@
+meta {
+  name: update party
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{scheme}}://{{server}}/parties/{{party-id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  X-Device-Id: {{device-id}}
+}
+
+body:json {
+  {
+    "name": "Test Party Updated : {{$randomCompanyName}}",
+    "currency": "EUR",
+    "participants": [
+      {
+        "name": "{{$randomUserName}}"
+      },
+      {
+        "name": "{{$randomUserName}}"
+      },
+      {
+        "name": "{{$randomUserName}}"
+      }
+    ]
+  }
+}

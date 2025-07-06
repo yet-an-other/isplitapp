@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version)",
+      "Bash(grep:*)",
+      "Bash(dotnet build)",
+      "Bash(find:*)",
+      "Bash(npx:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint)",
+      "WebFetch(domain:www.heroui.com)",
+      "Bash(npm test:*)"
+    ],
+    "deny": []
+  }
+}

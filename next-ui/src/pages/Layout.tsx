@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FooterBar } from "../controls/FooterBar";
 import HeaderBar from "../controls/HeaderBar";
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import { AlertsProvider } from "../controls/AlertContext";
 import { useEffect } from "react";
 
@@ -10,7 +10,7 @@ export function Layout() {
   const navigate = useNavigate();
 
   return (
-    <NextUIProvider navigate={navigate}>
+    <HeroUIProvider navigate={navigate}>
       <main className="text-foreground bg-background flex flex-col items-center ">
         <AlertsProvider>
           <ScrollToTop />
@@ -21,7 +21,7 @@ export function Layout() {
           <FooterBar />
         </AlertsProvider>
       </main>
-    </NextUIProvider>
+    </HeroUIProvider>
   )
 }
 

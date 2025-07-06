@@ -1,0 +1,16 @@
+meta {
+  name: get expense
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{scheme}}://{{server}}/expenses/{{expense-id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  X-Device-Id: {{device-id}}
+}

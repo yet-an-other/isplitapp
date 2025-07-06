@@ -13,7 +13,7 @@ import {
     SelectItem, 
     Switch, 
     useDisclosure 
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useEffect, useState } from "react";

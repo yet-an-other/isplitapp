@@ -8,7 +8,7 @@ import { BalanceInfo } from "../api/contract/BalanceInfo";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { ReimburseEntry } from "../api/contract/ReimburseEntry";
-import { Button, Link } from "@nextui-org/react";
+import { Button, Link } from "@heroui/react";
 import { SendMoneyIcon } from "../icons";
 
 export function Balance(){

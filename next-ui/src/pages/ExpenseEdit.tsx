@@ -1,4 +1,4 @@
-import { Button, Checkbox, CheckboxGroup, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, useDisclosure } from "@nextui-org/react";
+import { Button, Checkbox, CheckboxGroup, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, useDisclosure } from "@heroui/react";
 import { useNavigate, useOutletContext, useParams, useSearchParams } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { SplitMode } from "../api/contract/SplitMode";
@@ -329,7 +329,6 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                     {group.participants.map(participant =>
                         <SelectItem 
                             key={participant.id} 
-                            value={participant.id}
                             className="dark:text-dimmed"
                         >
                             {participant.name}

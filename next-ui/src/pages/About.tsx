@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Link, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Link, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react";
 import { CreateGroupMenu } from "../controls/CreateGroupMenu";
 import { ReactElement } from "react";
 import { ThumbsUp } from "../icons/ThumbsUp";

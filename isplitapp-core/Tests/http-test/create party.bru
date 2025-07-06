@@ -1,0 +1,39 @@
+meta {
+  name: create party
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{scheme}}://{{server}}/parties
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-Device-Id: {{device-id}}
+}
+
+body:json {
+  {
+    "name": "Test Party : {{$randomCompanyName}}",
+    "currency": "EUR",
+    "participants": [
+      {
+        "name": "{{$randomUserName}}"
+      },
+      {
+        "name": "{{$randomUserName}}"
+      },
+      {
+        "name": "{{$randomUserName}}"
+      }
+    ]
+  }
+}
+
+vars:post-response {
+  party-id: res('partyId')
+}

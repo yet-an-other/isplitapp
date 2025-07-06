@@ -1,4 +1,4 @@
-import { Button, Chip, Divider, Link, Switch } from "@nextui-org/react";
+import { Button, Chip, Divider, Link, Switch } from "@heroui/react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";

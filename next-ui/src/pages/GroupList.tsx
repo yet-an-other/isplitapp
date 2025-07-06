@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CreateGroupMenu } from "../controls/CreateGroupMenu";
-import { Accordion, AccordionItem } from "@nextui-org/react";
+import { Accordion, AccordionItem } from "@heroui/react";
 
 export function GroupList() {
 

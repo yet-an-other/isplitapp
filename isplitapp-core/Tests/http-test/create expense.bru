@@ -1,0 +1,30 @@
+meta {
+  name: create expense
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{scheme}}://{{server}}/parties/{{party-id}}/expenses
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  X-Device-Id: {{device-id}}
+}
+
+body:json {
+  {
+    "title": "expense - {{$randomWord}}",
+    "amount": "180",
+    "lenderId": "{{member-1}}",
+    "date": "{{$isoTimestamp}}",
+    "borrowers": [
+      { "participantId": "{{member-2}}" },
+      { "participantId": "{{member-3}}" }
+    ]
+  }
+}
