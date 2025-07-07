@@ -71,7 +71,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     </div>
                     <Button 
                             isIconOnly 
-                            variant="flat"
+                            variant="light"
                             color="primary"
                             radius="sm"
                             size="md" 
@@ -117,7 +117,6 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             variant="light" 
                             size="md" 
                             color="primary" 
-                            className="mx-2"
                             radius="none"
                             onPress={() => void handleArchive()}
                         >

@@ -89,13 +89,13 @@ export function CreateGroupMenu() {
                 </PopoverTrigger>
                 <PopoverContent className="p-2">
                     <div className="w-full max-w-[300px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
-                        <div className="text-xs font-bold ml-2">
+                        <div className="text-s font-bold ml-2">
                             Create or add a new group
                         </div>
                         <Listbox variant="flat" aria-label="Create group menu" onAction={handleAction}>
                             <ListboxItem
                                 key="create"
-                                description="Simply put the group name and currency, and you're good to go!"
+                                description={<div>Simply put the group name and currency, and you're good to go!</div>}
                                 startContent={<PlusIcon className="h-6 w-7 mx-1 bg-primary text-white rounded-lg" />}
                                 color="primary"
                                 textValue="Create Group"
@@ -106,6 +106,7 @@ export function CreateGroupMenu() {
                                 key="addbyurl"
                                 description="Paste a group link to join a group"
                                 startContent={<LinkIcon className="h-6 w-7 text-foreground mx-1" />}
+                                color="primary"
                                 textValue="Add by URL"
                             >
                                 <span className="text-foreground font-semibold">Add by URL</span>

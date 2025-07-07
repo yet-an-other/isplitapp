@@ -146,7 +146,7 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                         </Button>
                     </div>
 
-                    <div className="flex flex-row mt-4">
+                    <div className="flex flex-row">
                         <div className="flex flex-col w-full ml-7">
                             <div>
                                 <span className="text-sm">Paid by </span>
