@@ -4,9 +4,9 @@
  */
 export class ParticipantInfo {
 
-    id: string = "";
+    id = "";
 
-    name: string = "";
+    name = "";
 
-    canDelete: boolean = false;
+    canDelete = false;
 }

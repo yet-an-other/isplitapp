@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, Card, CardBody, CardFooter, CardHeader, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/react"
+import { Avatar, Badge, Button, Card, CardBody, CardFooter, CardHeader, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@heroui/react"
 import { PartyInfo } from "../api/contract/PartyInfo"
 import { ArchiveIcon, CashIcon, EditIcon, ExportIcon, ShareIcon, TransactionsIcon, TrashIcon, UndoIcon, UsersIcon } from "../icons"
 import { useMatch, useNavigate } from "react-router-dom"
@@ -71,7 +71,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     </div>
                     <Button 
                             isIconOnly 
-                            variant="flat"
+                            variant="light"
                             color="primary"
                             radius="sm"
                             size="md" 
@@ -117,7 +117,6 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             variant="light" 
                             size="md" 
                             color="primary" 
-                            className="mx-2"
                             radius="none"
                             onPress={() => void handleArchive()}
                         >

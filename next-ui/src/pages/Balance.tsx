@@ -8,7 +8,7 @@ import { BalanceInfo } from "../api/contract/BalanceInfo";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { ReimburseEntry } from "../api/contract/ReimburseEntry";
-import { Button, Link } from "@nextui-org/react";
+import { Button, Link } from "@heroui/react";
 import { SendMoneyIcon } from "../icons";
 
 export function Balance(){
@@ -43,7 +43,7 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
             </div>
         )
     }
-    const maxBalance = Math.max(...Object.values(balances).map(b=>Math.abs(b.amount)));
+    const maxBalance = Math.max(...Object.values(balances).map(b => Math.abs(b.amount)));
 
     return(
         <div className="w-full flex flex-col">
@@ -54,14 +54,14 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
                 return(
                     <div 
                         key={balance.participantId}
-                        className={`w-full h-18 flex bg-transparent items-center justify-center ${isPositive ? 'flex-row' : 'flex-row-reverse'}`}
+                        className={`w-full h-10 flex bg-transparent items-center justify-center ${isPositive ? 'flex-row' : 'flex-row-reverse'}`}
                     >
-                        <div className={`w-1/2 px-1 my-1 flex ${isPositive ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`w-1/2 px-1 flex ${isPositive ? 'justify-end' : 'justify-start'}`}>
                             <div className="text-sm font-bold ">
                                 {balance.participantName}
                             </div>
                         </div>
-                        <div className={`w-1/2 px-1 my-1 flex ${isPositive ? 'justify-start' : 'justify-end'}`}>
+                        <div className={`w-1/2 px-1 flex ${isPositive ? 'justify-start' : 'justify-end'}`}>
                             <div 
                                 className={`h-7 ${isPositive ? 'bg-green-100' : 'bg-red-100'} ${isPositive ? 'rounded-r-md' : 'rounded-l-md'}`} 
                                 style={{width: `${(Math.abs(balance.amount) / maxBalance) * 100}%`}}

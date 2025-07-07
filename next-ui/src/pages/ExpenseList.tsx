@@ -1,4 +1,4 @@
-import { Button, Chip, Divider, Link, Switch } from "@nextui-org/react";
+import { Button, Chip, Divider, Link, Switch } from "@heroui/react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
@@ -146,7 +146,7 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                         </Button>
                     </div>
 
-                    <div className="flex flex-row mt-4">
+                    <div className="flex flex-row mt-1">
                         <div className="flex flex-col w-full ml-7">
                             <div>
                                 <span className="text-sm">Paid by </span>

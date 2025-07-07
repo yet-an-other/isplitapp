@@ -1,0 +1,16 @@
+meta {
+  name: get balance
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{scheme}}://{{server}}/parties/{{party-id}}/balance
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  X-Device-Id: {{device-id}}
+}

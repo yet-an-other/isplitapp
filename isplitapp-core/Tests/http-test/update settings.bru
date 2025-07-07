@@ -1,0 +1,22 @@
+meta {
+  name: update settings
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{scheme}}://{{server}}/parties/{{party-id}}/settings
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  X-Device-Id: {{device-id}}
+}
+
+body:json {
+  {
+    "isArchived": false
+  }
+}

@@ -1,0 +1,20 @@
+meta {
+  name: get expenses
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{scheme}}://{{server}}/parties/{{party-id}}/expenses
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  X-Device-Id: {{device-id}}
+}
+
+vars:post-response {
+  expense-id: res("[0].id")
+}

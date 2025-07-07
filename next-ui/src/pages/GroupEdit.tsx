@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, CardHeader, Input } from "@nextui-org/react";
+import { Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
 import { UserIcon, TrashIcon, UserPlusIcon } from "../icons";
 import { PartyPayload, PartyPayloadSchema } from "../api/contract/PartyPayload";
 import { useEffect, useState } from "react";
