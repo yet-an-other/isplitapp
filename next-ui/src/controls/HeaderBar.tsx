@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import BoringAvatar from "boring-avatars";
 import { PartyIconStyle, useDeviceSetting } from "../utils/deviceSetting";
 import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 
 
 export default function HeaderBar() {
@@ -135,6 +136,21 @@ export default function HeaderBar() {
                         </Select>
                         <span className="text-xs text-dimmed -mt-1">
                             {t('headerBar.settings.iconStyle.description')}
+                        </span>
+
+                        <Select 
+                            label={t('headerBar.settings.language.label')} 
+                            selectedKeys={new Set([i18n.language])}
+                            onSelectionChange={k => {
+                                const [language] = k as Set<string>;
+                                language && i18n.changeLanguage(language);
+                            }}
+                        >
+                            <SelectItem key="en">English</SelectItem>
+                            <SelectItem key="de">Deutsch</SelectItem>
+                        </Select>
+                        <span className="text-xs text-dimmed -mt-1">
+                            {t('headerBar.settings.language.description')}
                         </span>
                     </ModalBody>
                     <ModalFooter>

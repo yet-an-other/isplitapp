@@ -136,7 +136,7 @@ export function About() {
                 <div dangerouslySetInnerHTML={{ __html: t('about.motivationText') }} />
             </div>
 
-            <h5 className="text-xl font-bold my-5">{t('about.featuresTitle')}</h5>
+            <h5 className="text-xl font-bold my-5 mt-[100px]">{t('about.featuresTitle')}</h5>
 
             <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mt-5">
                 { features.map((feature, index) => 
@@ -162,9 +162,9 @@ export function About() {
                 )}
             </div>
 
-            <h5 className="text-xl font-bold mt-[40px]">{t('about.atGlanceTitle')}</h5>
+            <h5 className="text-xl font-bold mt-[100px]">{t('about.atGlanceTitle')}</h5>
 
-            <img src="/isa-guide.png" alt={t('about.altText')} className="w-full p-2" />
+            <img src="/isa-guide.png" alt={t('about.altText')} className="w-2/3 mx-auto p-2" />
 
             <CreateGroupMenu />
         </>

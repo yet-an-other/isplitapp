@@ -278,6 +278,10 @@
           "beam": "I'm fine"
         }
       },
+      "language": {
+        "label": "Language",
+        "description": "Choose your preferred language"
+      },
       "notifications": {
         "label": "Notifications",
         "descriptionDisabled": "To switch notifications on or off, you need to open Settings → Notifications → iSplitApp, toggle the notifications switch and reload iSplitApp.",
