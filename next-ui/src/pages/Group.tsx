@@ -8,10 +8,12 @@ import { Button, ButtonGroup } from "@heroui/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { BackIcon } from "../icons";
+import { useTranslation } from "react-i18next";
 
 export function Group() {    
     const navigate = useNavigate();
     const { groupId } = useParams();
+    const { t } = useTranslation();
 
     const { data: party, isLoading, error} = useSWR<PartyInfo, ProblemError>(groupId && `/parties/${groupId}`, fetcher);
     
@@ -21,13 +23,13 @@ export function Group() {
         .map((match) => match.handle)[0] as keyof typeof items;
 
     const items = {
-        expenses:"Expenses", 
-        balance:"Balance", 
+        expenses: t('group.tabs.expenses'), 
+        balance: t('group.tabs.balance'), 
     };
     const itemsDesc = {
-        expenses: "Explore the group's expenses and money transfers here", 
-        balance: "Here is the total amount each member borrowed or lent to the group", 
-        edit: "Edit the group's details and members here"
+        expenses: t('group.tabs.descriptions.expenses'), 
+        balance: t('group.tabs.descriptions.balance'), 
+        edit: t('group.tabs.descriptions.edit')
     };
 
     const itemKeys = Object.keys(items) as (keyof typeof items)[];
@@ -45,7 +47,7 @@ export function Group() {
                             color="primary"
                             onPress={() => navigate('/')}
                         >
-                            <BackIcon className="stroke-1"/> To Group List
+                            <BackIcon className="stroke-1"/> {t('group.navigation.toGroupList')}
                         </Button>
                     </div>
                     <GroupCard party={party} disablePress />

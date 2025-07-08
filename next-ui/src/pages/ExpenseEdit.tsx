@@ -15,6 +15,7 @@ import useSWR from "swr";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useAlerts } from "../utils/useAlerts";
+import { useTranslation } from "react-i18next";
 
 
 function useQueryParams() {
@@ -67,6 +68,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
     const navigate = useNavigate();
     const confirm = useDisclosure();
     const alertError = useAlerts().alertError;
+    const { t } = useTranslation();
 
     const [expense, setExpense] = useState<ExpensePayload>(defaultExpense);
     useEffect(() => setExpense(defaultExpense),[defaultExpense]);
@@ -209,7 +211,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 navigate(`/${group.id}/expenses`);
             }
             catch {
-                alertError("Failed to delete the expense. Please try again later.")
+                alertError(t('expenseEdit.errors.deleteFailed'))
             }
         }
     }
@@ -228,7 +230,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             }
             catch(e) {
                 console.error(e);
-                alertError("Failed to save the expense. Please try again later.")
+                alertError(t('expenseEdit.errors.saveFailed'))
             }
         }
     }
@@ -245,34 +247,34 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 disableAnimation
             >
                 <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1">Delete Expense?</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1">{t('expenseEdit.deleteModal.title')}</ModalHeader>
                     <ModalBody>
                         <p className="text-dimmed">
-                            This action irreversible. Are you sure you want to delete the expense?
+                            {t('expenseEdit.deleteModal.message')}
                         </p>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="default" variant="flat" onPress={confirm.onClose}>
-                            Cancel
+                            {t('common.buttons.cancel')}
                         </Button>
                         <Button color="danger" variant="flat" onPress={() => void handleDeleteExpense(true)}>
-                            Delete
+                            {t('common.buttons.delete')}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
 
 
-            <h1 className="text-2xl">Expense Info</h1>
-            <div className="text-sm text-dimmed">Simply fill who and why spent the money</div>
+            <h1 className="text-2xl">{t('expenseEdit.expenseInfoSection.title')}</h1>
+            <div className="text-sm text-dimmed">{t('expenseEdit.expenseInfoSection.description')}</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full">
                 <Input
                     isRequired
                     autoFocus
                     type="text" 
-                    label="Expense Title" 
+                    label={t('expenseEdit.fields.title.label')} 
                     size="sm"
-                    description="What for the money was spent? e.g. 'Dinner at Hells Kitchen'"
+                    description={t('expenseEdit.fields.title.description')}
                     className="sm:col-span-2"
                     classNames={{
                         label: "group-data-[filled-within=true]:text-dimmed group-data-[filled-within=true]:-mt-1.5",
@@ -288,9 +290,9 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
 
                 <NumericFormat 
                     isRequired 
-                    label="Amount" 
+                    label={t('expenseEdit.fields.amount.label')} 
                     size="sm"
-                    description="How much was spent?"
+                    description={t('expenseEdit.fields.amount.description')}
                     className="sm:col-span-1"
                     classNames={{
                         label: "group-data-[filled-within=true]:text-dimmed group-data-[filled-within=true]:-mt-1.5",
@@ -311,10 +313,10 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
 
                 <Select
                     isRequired
-                    label="Paid by"
+                    label={t('expenseEdit.fields.paidBy.label')}
                     size="sm"
-                    placeholder="Select a payer"
-                    description="Who paid for the expense?"
+                    placeholder={t('expenseEdit.fields.paidBy.placeholder')}
+                    description={t('expenseEdit.fields.paidBy.description')}
                     className="sm:col-span-2"
                     classNames={{
                         label: "group-data-[filled=true]:text-dimmed group-data-[filled-within=true]:-mt-1.5",
@@ -339,11 +341,11 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 <Input 
                     isRequired 
                     type="date" 
-                    label="Expense Date" 
+                    label={t('expenseEdit.fields.date.label')} 
                     size="sm"
-                    description="When the expense was made?"
+                    description={t('expenseEdit.fields.date.description')}
                     className="sm:col-span-1"
-                    placeholder="DD.MM.YYYY"
+                    placeholder={t('expenseEdit.fields.date.placeholder')}
                     classNames={{
                         label: "group-data-[filled-within=true]:text-dimmed group-data-[filled-within=true]:-mt-1.5",
                         description: "text-dimmed",
@@ -362,10 +364,10 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                         isSelected={expense.isReimbursement}
                         onChange={() => handleOnChange({name: 'isReimbursement', value: ''})}
                     >
-                        Reimbursement
+                        {t('expenseEdit.fields.reimbursement.label')}
                     </Checkbox>
                     <div className="text-xs text-dimmed p-1">
-                        Mark if this is a reimbursement.
+                        {t('expenseEdit.fields.reimbursement.description')}
                     </div>
                 </div>
 
@@ -374,7 +376,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             <div className="mt-6">
                 <div className="flex flex-row">
                     <div className="flex flex-col">
-                        <h1 className="text-2xl whitespace-nowrap">Paid For</h1>
+                        <h1 className="text-2xl whitespace-nowrap">{t('expenseEdit.paidForSection.title')}</h1>
 
                     </div>
                     <div className="flex flex-col ml-auto">
@@ -386,7 +388,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                             isDisabled={isAllSelected()}
                             onPress={() => handleSelectionToggle('all')}
                         >
-                            ALL
+                            {t('expenseEdit.paidForSection.selectAll')}
                         </Button>
                         <Button 
                             size="sm" 
@@ -396,13 +398,13 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                             isDisabled={isNoneSelected()} 
                             onPress={() => handleSelectionToggle('none')}
                         >
-                            NONE
+                            {t('expenseEdit.paidForSection.selectNone')}
                         </Button>
                     </div>
                     <Select
                         fullWidth={false}
                         size="lg"
-                        label="Split by"
+                        label={t('expenseEdit.paidForSection.splitBy.label')}
                         selectedKeys={[expense.splitMode]}
                         onSelectionChange={keys => handleOnChange({name: 'splitMode', value:[...keys][0] as SplitMode})}
                         className="max-w-[150px] ml-2"
@@ -411,16 +413,16 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                             value: "text-[16px]"
                         }}
                     >
-                        <SelectItem key="Evenly">Evenly</SelectItem>
-                        <SelectItem key="ByShare">By Share</SelectItem>
-                        <SelectItem key="ByPercentage">By Percentage</SelectItem>
-                        <SelectItem key="ByAmount">By Amount</SelectItem>
+                        <SelectItem key="Evenly">{t('expenseEdit.paidForSection.splitBy.options.evenly')}</SelectItem>
+                        <SelectItem key="ByShare">{t('expenseEdit.paidForSection.splitBy.options.share')}</SelectItem>
+                        <SelectItem key="ByPercentage">{t('expenseEdit.paidForSection.splitBy.options.percentage')}</SelectItem>
+                        <SelectItem key="ByAmount">{t('expenseEdit.paidForSection.splitBy.options.amount')}</SelectItem>
                     </Select> 
                 </div>
                 
                 <CheckboxGroup
                     className="mt-4"
-                    label="Select participants in spending"
+                    label={t('expenseEdit.paidForSection.participantsLabel')}
                     size="md"
                     classNames={{
                         label: "text-dimmed text-sm"
@@ -472,10 +474,10 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
 
             <div className="flex mt-6">
                 <Button size="sm" variant="solid" color="danger" onPress={() => void handleDeleteExpense()} isDisabled={!expenseId}>
-                    Delete
+                    {t('common.buttons.delete')}
                 </Button>
                 <Button size="sm" variant="solid" color="primary" className="ml-auto" onPress={() => void handleUpdateExpense()}>
-                    {expenseId ? 'Update' : 'Add'}
+                    {expenseId ? t('common.buttons.update') : t('common.buttons.add')}
                 </Button>
             </div>
         </div>

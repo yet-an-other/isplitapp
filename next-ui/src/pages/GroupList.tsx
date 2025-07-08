@@ -8,9 +8,10 @@ import { CardSkeleton } from "../controls/CardSkeleton";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CreateGroupMenu } from "../controls/CreateGroupMenu";
 import { Accordion, AccordionItem } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 export function GroupList() {
-
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { data: parties, error, isLoading } = useSWR<PartyInfo[], ProblemError>(
         '/parties', 
@@ -41,9 +42,9 @@ export function GroupList() {
                 >
                     <AccordionItem 
                         key="1" 
-                        aria-label="Groups"
-                        title="Groups"
-                        subtitle="Recently visited groups" 
+                        aria-label={t('groupList.groups.ariaLabel')}
+                        title={t('groupList.groups.title')}
+                        subtitle={t('groupList.groups.subtitle')} 
                         className="[&>section]:!overflow-y-visible px-2"
                         classNames={{
                             title: "text-2xl"
@@ -57,9 +58,9 @@ export function GroupList() {
                     </AccordionItem>
                     <AccordionItem 
                         key="2" 
-                        aria-label="Archive"
-                        title="Archive"
-                        subtitle="Archived groups" 
+                        aria-label={t('groupList.archive.ariaLabel')}
+                        title={t('groupList.archive.title')}
+                        subtitle={t('groupList.archive.subtitle')} 
                         className={`[&>section]:!overflow-y-visible px-2 ${archived.length === 0 && 'hidden'}`}
                         classNames={{
                             title: "text-2xl"

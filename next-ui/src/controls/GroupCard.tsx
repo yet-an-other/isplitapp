@@ -11,6 +11,7 @@ import BoringAvatar from "boring-avatars"
 import { useDeviceSetting } from "../utils/deviceSetting"
 import { usePartySetting } from "../utils/partySetting"
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 interface GroupCardProps {
     party: PartyInfo
@@ -24,11 +25,12 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
     const confirmationState = useDisclosure();
     const { partyIconStyle } = useDeviceSetting();
     const { lastViewed } = usePartySetting(party.id);
+    const { t } = useTranslation();
 
     const handleShare = async () => {
         if(party){
             await shareLink(party.id) &&
-            alertSuccess("The link has been successfully copied");
+            alertSuccess(t('groupCard.messages.linkCopied'));
         }
     }
 
@@ -36,7 +38,10 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
         await updatePartySetings(party.id, {isArchived: !party.isArchived});
         await mutate(`/parties`);
         await mutate(`/parties/${party.id}`);
-        alertInfo(`The group '${party.name}' has been moved ${party.isArchived ? 'OUT of Archive' : 'INTO Archive'}`);
+        alertInfo(t('groupCard.messages.archiveToggled', { 
+            groupName: party.name, 
+            direction: party.isArchived ? t('groupCard.messages.archiveDirections.outOf') : t('groupCard.messages.archiveDirections.into') 
+        }));
     }
 
     return (
@@ -167,6 +172,7 @@ function UnfollowConfirmation({ confirmationState, partyId }: {confirmationState
 
     const { alertError } = useAlerts();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleAction = async (key: React.Key ) => {
         if (key === 'unfollow-confirmed') {
@@ -178,7 +184,7 @@ function UnfollowConfirmation({ confirmationState, partyId }: {confirmationState
             }
             catch(e){
                 console.error(`Error unfollowing the group '${partyId}' ${(e as Error).message}`);
-                alertError("Oops, something went wrong! Unable to unfollow the group. Please try again later.");
+                alertError(t('groupCard.messages.unfollowError'));
             }
         } 
     }
@@ -193,16 +199,16 @@ function UnfollowConfirmation({ confirmationState, partyId }: {confirmationState
             disableAnimation
         >
             <ModalContent>
-                <ModalHeader className="flex flex-col gap-1">Unfollow the group?</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">{t('groupCard.unfollowModal.title')}</ModalHeader>
                 <ModalBody>
-                    <p className="text-dimmed">You&apos;ll be following the group automatically, if visiting it again.</p>
+                    <p className="text-dimmed">{t('groupCard.unfollowModal.message')}</p>
                 </ModalBody>
                 <ModalFooter>
                     <Button color="default" variant="flat" onPress={confirmationState.onClose}>
-                        Cancel
+                        {t('common.buttons.cancel')}
                     </Button>
                     <Button color="primary" variant="flat" onPress={() => void handleAction("unfollow-confirmed")}>
-                        Unfollow
+                        {t('common.buttons.unfollow')}
                     </Button>
                 </ModalFooter>
             </ModalContent>

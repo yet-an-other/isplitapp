@@ -1,0 +1,296 @@
+{
+  "about": {
+    "title": "Ausgaben Mühelos Teilen",
+    "titleParts": {
+      "share": "Teilen",
+      "expenses": "Ausgaben",
+      "effortlessly": "Mühelos"
+    },
+    "subtitle": "Intuitiv, Übersichtlich und Komplett Kostenlos. Keine Werbung, Niemals.",
+    "createGroupButton": "Gruppe Erstellen",
+    "motivationTitle": "Warum Wir Das Gebaut Haben",
+    "motivationText": "Obwohl SplitWise ein beliebtes Tool für die Verwaltung gemeinsamer Ausgaben war, hat die jüngste Verschiebung hin zu einer unübersichtlichen Benutzeroberfläche, vermehrter Werbung und Premium-Feature-Beschränkungen viele Benutzer frustriert.<br/>Wir haben iSplit.app als erfrischende Alternative entwickelt – eine komplett kostenlose, intuitive und optimierte Lösung für die Verwaltung gemeinsamer Kosten mit Freunden und Familie.",
+    "featuresTitle": "Hauptfunktionen",
+    "atGlanceTitle": "Auf Einen Blick",
+    "altText": "iSplit.app Übersicht und Funktionen",
+    "features": {
+      "getStarted": {
+        "title": "Sofort Starten",
+        "short": "Schnell loslegen – Ausgaben und Teilnehmer hinzufügen",
+        "description": "Beginnen Sie sofort mit der Aufteilung von Ausgaben ohne Umwege.<br/>Keine Kontoerstellung, App-Downloads oder Verifizierungscodes erforderlich.",
+        "stepsTitle": "So einfach wie 1, 2, 3:",
+        "step1": "Gruppe erstellen und Teilnehmer hinzufügen",
+        "step2": "Ihre gemeinsamen Ausgaben erfassen",
+        "step3": "Gruppenlink mit Freunden teilen"
+      },
+      "noAds": {
+        "title": "Werbefreie Erfahrung",
+        "short": "Saubere Oberfläche ohne störende Werbung",
+        "description": "Genießen Sie eine saubere, ablenkungsfreie Oberfläche, die Sie dabei unterstützt, Ihre gemeinsamen Ausgaben effizient zu verwalten."
+      },
+      "visualBalances": {
+        "title": "Visuelle Einblicke",
+        "short": "Schulden und Guthaben mit Diagrammen visualisieren",
+        "description": "• Visualisieren Sie Schulden und Guthaben auf einen Blick mit klaren Diagrammen<br/>• Erhalten Sie intelligente Erstattungsvorschläge zur Minimierung von Transaktionen<br/>• Betrachten Sie umfassende Zusammenfassungen von Salden, Transaktionen und Gruppenausgaben"
+      },
+      "iosApp": {
+        "title": "Native iOS-App",
+        "short": "Erleben Sie nahtlose Integration mit unserer dedizierten iOS-Anwendung",
+        "description": "Laden Sie unsere native iOS-App für die beste mobile Erfahrung herunter, mit direkter Link-Behandlung und Push-Benachrichtigungen für neue Ausgaben.",
+        "downloadLink": "Im App Store herunterladen"
+      },
+      "easySharing": {
+        "title": "Einfach Teilen",
+        "short": "Laden Sie Freunde mit einem einfachen Link ein – sie nehmen sofort mit einem Klick teil",
+        "description": "Teilen Sie Ihre Ausgabengruppe mit einem einzigen Link. Freunde können sofort ohne Registrierung oder Einrichtungsaufwand beitreten."
+      },
+      "powerWebApp": {
+        "title": "Progressive Web App",
+        "short": "Installieren Sie iSplit.app direkt auf Ihrem Gerät für eine native App-Erfahrung",
+        "description": "Verwandeln Sie iSplit.app in eine native Anwendung auf Ihrem Gerät, komplett mit Push-Benachrichtigungen und Offline-Funktionen.",
+        "instructions": {
+          "step1": "Öffnen Sie https://isplit.app in Ihrem mobilen Browser",
+          "step2": "Tippen Sie auf die Teilen-Schaltfläche in Ihrem Browser",
+          "step3": "Wählen Sie \"Zum Startbildschirm hinzufügen\" zum Installieren"
+        }
+      }
+    }
+  },
+  "balance": {
+    "allSettled": {
+      "title": "Nichts zu zeigen – es sieht so aus, als wären Sie alle fertig!",
+      "description": "Oder vielleicht haben Sie noch nichts ausgegeben. In diesem Fall können Sie",
+      "addLink": "hier",
+      "expensesHere": "Ausgaben hinzufügen."
+    },
+    "reimbursements": {
+      "title": "Vorgeschlagene Erstattungen",
+      "subtitle": "Hier sind einige Tipps, damit jeder seinen fairen Anteil zurückbekommt",
+      "owes": "schuldet",
+      "addReimbursement": "Erstattung<br/>Hinzufügen"
+    }
+  },
+  "common": {
+    "appName": "iSplitApp",
+    "buttons": {
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "add": "Hinzufügen",
+      "update": "Aktualisieren",
+      "create": "Erstellen",
+      "save": "Speichern",
+      "unfollow": "Entfolgen"
+    },
+    "errors": {
+      "generic": "Hoppla, etwas ist schief gelaufen! Bitte versuchen Sie es später erneut.",
+      "apiDown": "Unsere API scheint nicht verfügbar zu sein.",
+      "unauthorized": "Sie sind nicht berechtigt, dies zu sehen.",
+      "notFound": "Diese Seite existiert nicht!",
+      "tryAgainLater": "Etwas ist schief gelaufen."
+    }
+  },
+  "notFound": {
+    "title": "Nicht Gefunden"
+  },
+  "groupList": {
+    "groups": {
+      "title": "Gruppen",
+      "subtitle": "Kürzlich besuchte Gruppen",
+      "ariaLabel": "Gruppen"
+    },
+    "archive": {
+      "title": "Archiv",
+      "subtitle": "Archivierte Gruppen",
+      "ariaLabel": "Archiv"
+    }
+  },
+  "groupEdit": {
+    "defaultNames": ["Anna", "Ben"],
+    "errors": {
+      "saveFailed": "Gruppe konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
+    },
+    "groupSection": {
+      "title": "Gruppe",
+      "description": "Starten Sie jetzt, indem Sie eine Gruppe von Teilnehmern erstellen, um Ausgaben zu teilen"
+    },
+    "fields": {
+      "groupName": {
+        "label": "Gruppenname",
+        "description": "Wie 'Reise nach Paris' oder 'Segeln in Kroatien'"
+      },
+      "currency": {
+        "label": "Währung",
+        "description": "Wird für alle Ausgaben in dieser Gruppe verwendet"
+      },
+      "participantName": {
+        "label": "Name"
+      }
+    },
+    "participantsSection": {
+      "title": "Teilnehmer",
+      "description": "Fügen Sie Teilnehmer hinzu, die Ausgaben in dieser Gruppe teilen werden"
+    },
+    "buttons": {
+      "updateGroup": "Gruppe Aktualisieren",
+      "createGroup": "Gruppe Erstellen"
+    }
+  },
+  "group": {
+    "tabs": {
+      "expenses": "Ausgaben",
+      "balance": "Saldo",
+      "descriptions": {
+        "expenses": "Erkunden Sie hier die Ausgaben und Geldtransfers der Gruppe",
+        "balance": "Hier ist der Gesamtbetrag, den jedes Mitglied der Gruppe geliehen oder verliehen hat",
+        "edit": "Bearbeiten Sie hier die Details und Mitglieder der Gruppe"
+      }
+    },
+    "navigation": {
+      "toGroupList": "Zur Gruppenliste"
+    }
+  },
+  "expenseList": {
+    "refundsToggle": {
+      "show": "Anzeigen",
+      "hide": "Verbergen",
+      "label": "Erstattungen"
+    },
+    "emptyState": {
+      "message": "Es sieht so aus, als hätten Sie noch keine Ausgaben hinzugefügt...",
+      "startWith": "Beginnen Sie mit",
+      "addLink": "dem Hinzufügen",
+      "theFirstExpense": "der ersten Ausgabe."
+    },
+    "labels": {
+      "paidBy": "Bezahlt von",
+      "to": "an",
+      "for": "für"
+    }
+  },
+  "expenseEdit": {
+    "errors": {
+      "deleteFailed": "Ausgabe konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
+      "saveFailed": "Ausgabe konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
+    },
+    "deleteModal": {
+      "title": "Ausgabe Löschen?",
+      "message": "Diese Aktion ist nicht rückgängig zu machen. Sind Sie sicher, dass Sie die Ausgabe löschen möchten?"
+    },
+    "expenseInfoSection": {
+      "title": "Ausgaben-Info",
+      "description": "Füllen Sie einfach aus, wer das Geld ausgegeben hat und warum"
+    },
+    "fields": {
+      "title": {
+        "label": "Ausgabentitel",
+        "description": "Wofür wurde das Geld ausgegeben? z.B. 'Abendessen in Hell's Kitchen'"
+      },
+      "amount": {
+        "label": "Betrag",
+        "description": "Wie viel wurde ausgegeben?"
+      },
+      "paidBy": {
+        "label": "Bezahlt von",
+        "placeholder": "Zahler auswählen",
+        "description": "Wer hat die Ausgabe bezahlt?"
+      },
+      "date": {
+        "label": "Ausgabendatum",
+        "description": "Wann wurde die Ausgabe getätigt?",
+        "placeholder": "TT.MM.JJJJ"
+      },
+      "reimbursement": {
+        "label": "Erstattung",
+        "description": "Markieren Sie, wenn dies eine Erstattung ist."
+      }
+    },
+    "paidForSection": {
+      "title": "Bezahlt Für",
+      "selectAll": "ALLE",
+      "selectNone": "KEINE",
+      "splitBy": {
+        "label": "Aufteilen nach",
+        "options": {
+          "evenly": "Gleichmäßig",
+          "share": "Nach Anteil",
+          "percentage": "Nach Prozent",
+          "amount": "Nach Betrag"
+        }
+      },
+      "participantsLabel": "Wählen Sie Teilnehmer aus, die diese Ausgabe teilen werden"
+    }
+  },
+  "createGroupMenu": {
+    "errors": {
+      "parseLink": "Link konnte nicht geparst werden und Gruppen-ID nicht gefunden"
+    },
+    "addByLinkModal": {
+      "title": "Gruppe über Link hinzufügen",
+      "description": "Wenn jemand einen Gruppenlink mit Ihnen geteilt hat, können Sie ihn hier einfügen, um die Gruppe zu Ihrer Liste hinzuzufügen.",
+      "linkLabel": "Gruppenlink"
+    },
+    "menu": {
+      "title": "Neue Gruppe erstellen oder hinzufügen",
+      "ariaLabel": "Gruppe erstellen Menü",
+      "createGroup": {
+        "description": "Geben Sie einfach den Gruppennamen und die Währung ein, und los geht's!",
+        "textValue": "Gruppe Erstellen",
+        "text": "Erstellen"
+      },
+      "addByUrl": {
+        "description": "Gruppenlink einfügen, um einer Gruppe beizutreten",
+        "textValue": "Über URL Hinzufügen",
+        "text": "Über URL Hinzufügen"
+      }
+    }
+  },
+  "errorCard": {
+    "title": "Hoppla!",
+    "defaultMessage": "Etwas ist schief gelaufen! Bitte versuchen Sie es später erneut."
+  },
+  "groupCard": {
+    "messages": {
+      "linkCopied": "Der Link wurde erfolgreich kopiert",
+      "archiveToggled": "Die Gruppe '{{groupName}}' wurde {{direction}} verschoben",
+      "archiveDirections": {
+        "into": "INS Archiv",
+        "outOf": "AUS DEM Archiv"
+      },
+      "unfollowError": "Hoppla, etwas ist schief gelaufen! Gruppe konnte nicht entfolgt werden. Bitte versuchen Sie es später erneut."
+    },
+    "unfollowModal": {
+      "title": "Gruppe entfolgen?",
+      "message": "Sie werden der Gruppe automatisch wieder folgen, wenn Sie sie erneut besuchen."
+    }
+  },
+  "headerBar": {
+    "settings": {
+      "title": "Einstellungen",
+      "darkMode": {
+        "label": "Dunkler Modus",
+        "description": "Sie wissen, was zu tun ist, oder?"
+      },
+      "iconStyle": {
+        "label": "Gruppensymbol-Stil",
+        "description": "Generieren Sie zufällige Symbole für Gruppen, um sie erkennbarer zu machen",
+        "options": {
+          "bauhaus": "Bauhaus",
+          "marble": "Marmor",
+          "beam": "Mir ist das egal"
+        }
+      },
+      "language": {
+        "label": "Sprache",
+        "description": "Wählen Sie Ihre bevorzugte Sprache"
+      },
+      "notifications": {
+        "label": "Benachrichtigungen",
+        "descriptionDisabled": "Um Benachrichtigungen ein- oder auszuschalten, müssen Sie zu Einstellungen → Benachrichtigungen → iSplitApp gehen, den Benachrichtigungsschalter umschalten und iSplitApp neu laden.",
+        "descriptionEnabled": "Aktivieren Sie, um über neue oder geänderte Ausgaben in Ihren Gruppen benachrichtigt zu werden."
+      }
+    }
+  },
+  "footerBar": {
+    "appName": "iSplitApp"
+  }
+}

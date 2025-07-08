@@ -10,6 +10,7 @@ import { CardSkeleton } from "../controls/CardSkeleton";
 import { ReimburseEntry } from "../api/contract/ReimburseEntry";
 import { Button, Link } from "@heroui/react";
 import { SendMoneyIcon } from "../icons";
+import { useTranslation } from "react-i18next";
 
 export function Balance(){
 
@@ -34,12 +35,13 @@ export function Balance(){
 }
 
 function BalanceChart({balances, party}: {balances: BalanceEntry[], party: PartyInfo}) {
+    const { t } = useTranslation();
 
     if (party.outstandingBalance === 0) {
         return (
             <div className="mt-28 text-dimmed p-2 rounded-lg bg-primary-50">
-                Nothing to show, it looks like you are all set! <br/> 
-                Or have not spent anything yet, in that case you can <Link href={`/${party.id}/expenses/create`} >add</Link> expenses here.
+                {t('balance.allSettled.title')} <br/> 
+                {t('balance.allSettled.description')} <Link href={`/${party.id}/expenses/create`}>{t('balance.allSettled.addLink')}</Link> {t('balance.allSettled.expensesHere')}
             </div>
         )
     }
@@ -82,21 +84,22 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
 
 
 function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEntry[], party: PartyInfo}) {
+    const { t } = useTranslation();
 
     if (reimbursements.length === 0) 
         return null;
 
     return (
         <div className="mt-10">
-            <div className=" text-2xl">Suggested Reimbursements</div>
-            <div className="text-sm text-dimmed mb-4">Here are some tips to make sure everyone gets their fair share back</div>
+            <div className=" text-2xl">{t('balance.reimbursements.title')}</div>
+            <div className="text-sm text-dimmed mb-4">{t('balance.reimbursements.subtitle')}</div>
             <div className="border-1 p-2 rounded-lg ">
             {reimbursements.map((reimburse, i) =>(
                 <div key={reimburse.fromId + reimburse.toId} className={`flex flex-row py-3 ${i > 0 && 'border-t-1'}`}>
                     <div>
                         <div>
                             <span className="font-bold">{reimburse.fromName}</span>
-                            <span className="text-dimmed"> owes </span>
+                            <span className="text-dimmed"> {t('balance.reimbursements.owes')} </span>
                             <span className="font-bold">{reimburse.toName}</span>
                         </div>
                         <div className="flex flex-row items-end mt-1">
@@ -113,7 +116,7 @@ function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEn
                             >
                                 <SendMoneyIcon className="w-6 h-6" />
                             </Button>
-                            <div className="text-dimmed text-xs ml-2">Add<br/>Reimbursement</div>
+                            <div className="text-dimmed text-xs ml-2" dangerouslySetInnerHTML={{ __html: t('balance.reimbursements.addReimbursement') }}></div>
                         </div>
                     </div>
 
