@@ -11,14 +11,16 @@ import { ProblemError } from "../api/contract/ProblemError";
 import { useAlerts } from "../utils/useAlerts";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
+import { useTranslation } from "react-i18next";
 
 export function GroupEdit() {
 
     const navigate = useNavigate();
     const { groupId } = useParams();
+    const { t } = useTranslation();
 
     const initParty = new PartyPayload();
-    initParty.participants = [{name: "Alice", id: "", canDelete: true}, {name: "Bob", id: "", canDelete: true}]
+    initParty.participants = [{name: t('groupEdit.defaultNames.0'), id: "", canDelete: true}, {name: t('groupEdit.defaultNames.1'), id: "", canDelete: true}]
 
     const [party, setParty] = useState<PartyPayload>(initParty);
     const { data, error, isLoading } = useSWR<PartyInfo, ProblemError>(
@@ -74,7 +76,7 @@ export function GroupEdit() {
                 navigate(`/${partyId}/expenses`);
             } 
             catch (error) {
-                alertError("Failed to save the group. Please, try again later.");
+                alertError(t('groupEdit.errors.saveFailed'));
                 console.error(error);
             }
         }
@@ -100,8 +102,8 @@ export function GroupEdit() {
         <div className="w-full flex flex-col">
             <Card shadow="sm" className={groupId ? 'mt-6' : 'mx-6'}>
                 <CardHeader className="flex flex-col items-start">
-                    <h1 className="text-2xl">Group</h1>
-                    <div className="text-xs text-dimmed">Get started now by creating a group of participants to share expenses with</div>
+                    <h1 className="text-2xl">{t('groupEdit.groupSection.title')}</h1>
+                    <div className="text-xs text-dimmed">{t('groupEdit.groupSection.description')}</div>
                 </CardHeader>
                 <CardBody>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -109,9 +111,9 @@ export function GroupEdit() {
                             isRequired
                             autoFocus
                             type="text" 
-                            label="Group Name" 
+                            label={t('groupEdit.fields.groupName.label')} 
                             size="sm"
-                            description="Like 'Trip to Paris' or 'Sailing in the Croatia'"
+                            description={t('groupEdit.fields.groupName.description')}
                             value={party.name}
                             onChange={(e) => handleGroupChange({name: "name", value: e.target.value})}
                             isInvalid={!!fieldError("name")}
@@ -126,9 +128,9 @@ export function GroupEdit() {
                         <Input 
                             isRequired 
                             type="text" 
-                            label="Currency" 
+                            label={t('groupEdit.fields.currency.label')} 
                             size="sm"
-                            description="Will be used for all expenses in this group"
+                            description={t('groupEdit.fields.currency.description')}
                             value={party.currency}
                             onChange={(e) => handleGroupChange({name: "currency", value: e.target.value})}
                             isInvalid={!!fieldError("currency")}
@@ -145,8 +147,8 @@ export function GroupEdit() {
 
             <Card shadow="sm" className={`${groupId ? '' : 'mx-6'} mt-4`}>
                 <CardHeader className="flex flex-col items-start">
-                    <h1 className="text-2xl">Participants</h1>
-                    <div className="text-xs text-dimmed">Add participants who will be sharing expenses in this group</div>
+                    <h1 className="text-2xl">{t('groupEdit.participantsSection.title')}</h1>
+                    <div className="text-xs text-dimmed">{t('groupEdit.participantsSection.description')}</div>
                 </CardHeader>
                 <CardBody>
                     <div className={`text-xs text-danger ${!fieldError("participants") ? 'hidden': 'block'}`}>
@@ -159,7 +161,7 @@ export function GroupEdit() {
                             autoFocus={isParticipantFocus}
                             className="mb-1"
                             type="text" 
-                            label="Name" 
+                            label={t('groupEdit.fields.participantName.label')} 
                             size="sm"
                             labelPlacement="outside"
                             startContent={
@@ -202,7 +204,7 @@ export function GroupEdit() {
                 color="primary" 
                 onPress={() => void handleSave()}
             >
-                {groupId ? 'Update Group' : 'Create Group'}
+{groupId ? t('groupEdit.buttons.updateGroup') : t('groupEdit.buttons.createGroup')}
             </Button>
         </div>
     )

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAlerts } from "../utils/useAlerts";
 import { LinkIcon, PlusIcon } from "../icons";
+import { useTranslation } from "react-i18next";
 
 /**
  * The main menu for the group list page with create and add by url options
@@ -14,6 +15,7 @@ export function CreateGroupMenu() {
     const [groupLink, setGroupLink] = useState("");
     const navigate = useNavigate();
     const { alertError } = useAlerts();
+    const { t } = useTranslation();
 
     const handleAction = (key: React.Key ) => {
         setIsOpen(false);
@@ -26,7 +28,7 @@ export function CreateGroupMenu() {
             const match = groupLink.match("(^|/)([0-9a-zA-Z]{11})($|/)");
             setGroupLink("");
             if (!match?.[2]){
-                alertError("Unable to parse the link and find party id");
+                alertError(t('createGroupMenu.errors.parseLink'));
                 return;
             }
     
@@ -45,13 +47,13 @@ export function CreateGroupMenu() {
                 disableAnimation
             >
                 <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1">Add group by link</ModalHeader>
+                    <ModalHeader className="flex flex-col gap-1">{t('createGroupMenu.addByLinkModal.title')}</ModalHeader>
                     <ModalBody>
                         <p className="text-dimmed text-sm">
-                            If someone has shared a group link with you, you can paste it here to include the group in your list.
+                            {t('createGroupMenu.addByLinkModal.description')}
                         </p>
                         <Input
-                            label="Group link"
+                            label={t('createGroupMenu.addByLinkModal.linkLabel')}
                             className="mt-2"
                             variant="flat"
                             size="sm"
@@ -65,10 +67,10 @@ export function CreateGroupMenu() {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="default" variant="flat" onPress={linkModal.onClose}>
-                            Cancel
+                            {t('common.buttons.cancel')}
                         </Button>
                         <Button color="primary" variant="flat" onPress={() => void handleAction("confirmed")}>
-                            Add
+                            {t('common.buttons.add')}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -90,26 +92,26 @@ export function CreateGroupMenu() {
                 <PopoverContent className="p-2">
                     <div className="w-full max-w-[300px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
                         <div className="text-s font-bold ml-2">
-                            Create or add a new group
+                            {t('createGroupMenu.menu.title')}
                         </div>
-                        <Listbox variant="flat" aria-label="Create group menu" onAction={handleAction}>
+                        <Listbox variant="flat" aria-label={t('createGroupMenu.menu.ariaLabel')} onAction={handleAction}>
                             <ListboxItem
                                 key="create"
-                                description={<div>Simply put the group name and currency, and you're good to go!</div>}
+                                description={<div>{t('createGroupMenu.menu.createGroup.description')}</div>}
                                 startContent={<PlusIcon className="h-6 w-7 mx-1 bg-primary text-white rounded-lg" />}
                                 color="primary"
-                                textValue="Create Group"
+                                textValue={t('createGroupMenu.menu.createGroup.textValue')}
                             >
-                                <span className="text-foreground font-semibold">Create</span>
+                                <span className="text-foreground font-semibold">{t('createGroupMenu.menu.createGroup.text')}</span>
                             </ListboxItem>
                             <ListboxItem
                                 key="addbyurl"
-                                description="Paste a group link to join a group"
+                                description={t('createGroupMenu.menu.addByUrl.description')}
                                 startContent={<LinkIcon className="h-6 w-7 text-foreground mx-1" />}
                                 color="primary"
-                                textValue="Add by URL"
+                                textValue={t('createGroupMenu.menu.addByUrl.textValue')}
                             >
-                                <span className="text-foreground font-semibold">Add by URL</span>
+                                <span className="text-foreground font-semibold">{t('createGroupMenu.menu.addByUrl.text')}</span>
                             </ListboxItem>
                         </Listbox>
                     </div>

@@ -11,12 +11,14 @@ import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
 import { useState } from "react";
 import { usePartySetting } from "../utils/partySetting";
 import { intlFormatDistance, format } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 
 export function ExpenseList() {
 
     const navigate = useNavigate();
     const group = useOutletContext<PartyInfo>();
+    const { t } = useTranslation();
     const { isShowRefund, setIsShowRefund } = usePartySetting(group.id);
     const { lastViewed, setLastViewed } = usePartySetting(group.id);
     const [ lastViewedTmp ] = useState(lastViewed);
@@ -57,7 +59,7 @@ export function ExpenseList() {
                         className="-mr-1"
                     />
                 </div>
-                <div className="text-xs text-dimmed mr-1">{ isShowRefund ? "Hide" : "Show" } Refunds</div>
+                <div className="text-xs text-dimmed mr-1">{ isShowRefund ? t('expenseList.refundsToggle.hide') : t('expenseList.refundsToggle.show') } {t('expenseList.refundsToggle.label')}</div>
             </div>
         </div>
         { error && <ErrorCard error={error}/>}
@@ -74,10 +76,11 @@ export function ExpenseList() {
  * Display the empty list message
  */
 const EmptyList = ({groupId} : {groupId: string}) => {
+    const { t } = useTranslation();
     return (
         <div className="mt-16 text-dimmed bg-primary-50 p-2 rounded-lg">
-            It seems you have not added any expense yet...  <br/>
-            Start with <Link href={`/${groupId}/expenses/create`} >add</Link> the first expense. 
+            {t('expenseList.emptyState.message')}  <br/>
+            {t('expenseList.emptyState.startWith')} <Link href={`/${groupId}/expenses/create`} >{t('expenseList.emptyState.addLink')}</Link> {t('expenseList.emptyState.theFirstExpense')} 
         </div>
     )
 }
@@ -89,6 +92,8 @@ const EmptyList = ({groupId} : {groupId: string}) => {
  */
 const FullList = ({ group, expenses, lastViewed, isShowReimbursement }: 
     { group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string, isShowReimbursement: boolean }) => {
+
+    const { t } = useTranslation();
 
     let lastBorder = "";
     const borderIds: string[] = [];
@@ -149,11 +154,11 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     <div className="flex flex-row mt-1">
                         <div className="flex flex-col w-full ml-7">
                             <div>
-                                <span className="text-sm">Paid by </span>
+                                <span className="text-sm">{t('expenseList.labels.paidBy')} </span>
                                 <span className="text-xs text-dimmed">{expense.lenderName}</span>
                             </div>
                             <div>
-                                <span className="text-sm">{expense.isReimbursement ? "to ": "for "}</span>
+                                <span className="text-sm">{expense.isReimbursement ? t('expenseList.labels.to') : t('expenseList.labels.for')} </span>
                                 <span className="text-xs text-dimmed whitespace-normal">{expense.borrowers.map(b => b.participantName).join(", ")}</span>
                             </div>
                         </div>

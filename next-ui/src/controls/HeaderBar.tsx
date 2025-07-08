@@ -21,6 +21,7 @@ import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeW
 import { useNavigate } from "react-router-dom";
 import BoringAvatar from "boring-avatars";
 import { PartyIconStyle, useDeviceSetting } from "../utils/deviceSetting";
+import { useTranslation } from "react-i18next";
 
 
 export default function HeaderBar() {
@@ -28,6 +29,7 @@ export default function HeaderBar() {
     const {isDarkMode, toggle: toggleDarkMode } = useDarkMode();
     const {isOpen, onOpen, onClose} = useDisclosure();
     const {partyIconStyle, setPartyIconStyle} = useDeviceSetting();
+    const { t } = useTranslation();
 
     const navigate = useNavigate();
 
@@ -54,7 +56,7 @@ export default function HeaderBar() {
                             size="md"
                             onPress={() => navigate("/about")} 
                         >
-                            <span className="font-bold">iSplitApp</span>
+                            <span className="font-bold">{t('common.appName')}</span>
                         </Button>
                     </NavbarItem>
                 </NavbarContent>
@@ -78,7 +80,7 @@ export default function HeaderBar() {
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex flex-row">
                             <SettingsIcon className="h-[24px] w-[24px] text-primary mr-2" />
-                            <span className="text-md dark:text-zinc-100">Settings</span>
+                            <span className="text-md dark:text-zinc-100">{t('headerBar.settings.title')}</span>
                         </div>
                     </ModalHeader>
                     <ModalBody>
@@ -91,16 +93,16 @@ export default function HeaderBar() {
                             endContent={<MoonIcon />}
                             onChange={() => toggleDarkMode()}
                         >
-                            Dark mode
+                            {t('headerBar.settings.darkMode.label')}
                         </Switch>
                         <span className="text-xs text-dimmed -mt-1">
-                            You know what to do, right?
+                            {t('headerBar.settings.darkMode.description')}
                         </span>
 
                         <NotificationSwitch />
 
                         <Select 
-                            label="Group icon style" 
+                            label={t('headerBar.settings.iconStyle.label')} 
                             selectedKeys={new Set([partyIconStyle])}
                             startContent={ partyIconStyle === 'none' 
                                 ? <UsersIcon className="h-7 w-7 text-primary stroke-[1.5px]" /> 
@@ -116,23 +118,23 @@ export default function HeaderBar() {
                                 startContent = { <PartyAvatar variant="bauhaus"/> }
                                 
                             >
-                                Bauhaus
+                                {t('headerBar.settings.iconStyle.options.bauhaus')}
                             </SelectItem>
                             <SelectItem 
                                 key="marble"
                                 startContent = { <PartyAvatar variant="marble"/> }
                             >
-                                Marble
+                                {t('headerBar.settings.iconStyle.options.marble')}
                             </SelectItem>
                             <SelectItem 
                                 key="none"
                                 startContent = { <UsersIcon className="h-10 w-10 text-primary stroke-[1.5px]" /> }                                
                             >
-                                {"I'm fine"}
+                                {t('headerBar.settings.iconStyle.options.beam')}
                             </SelectItem>
                         </Select>
                         <span className="text-xs text-dimmed -mt-1">
-                            Generate random icons for groups to make them more recognizable
+                            {t('headerBar.settings.iconStyle.description')}
                         </span>
                     </ModalBody>
                     <ModalFooter>
@@ -148,7 +150,7 @@ export default function HeaderBar() {
  * A switch to enable or disable notifications
  */
 function NotificationSwitch() {
-
+    const { t } = useTranslation();
     const [isSubscribed, setSubscribed] = useState(false);
     const [isSwitchDisabled, setSwitchDisabled] = useState(false);
 
@@ -247,12 +249,12 @@ function NotificationSwitch() {
                 endContent={<BellRingIcon />}
                 onChange={() => void toggleSubscription()}
             >
-                Notifications
+                {t('headerBar.settings.notifications.label')}
             </Switch>
             <span className="text-xs text-dimmed -mt-1">
                 { isSwitchDisabled 
-                ? "To switch on or off notifications, you need to open Settings -> Notifications -> iSplitApp, toggle the notifications switch and reload iSplitApp."
-                : "Enable to be notified about the new or changed expenses in your groups."
+                ? t('headerBar.settings.notifications.descriptionDisabled')
+                : t('headerBar.settings.notifications.descriptionEnabled')
                 }
             </span>
         </>

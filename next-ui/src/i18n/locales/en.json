@@ -1,0 +1,291 @@
+{
+  "about": {
+    "title": "Share Expenses Effortlessly",
+    "titleParts": {
+      "share": "Share",
+      "expenses": "Expenses", 
+      "effortlessly": "Effortlessly"
+    },
+    "subtitle": "Intuitive, Clean, and Completely Free. No Ads, Ever.",
+    "createGroupButton": "Create Your Group",
+    "motivationTitle": "Why We Built This",
+    "motivationText": "While SplitWise has been a popular tool for managing shared expenses, its recent shift toward a cluttered interface, increased advertisements, and premium feature restrictions has frustrated many users.<br/>We created iSplit.app as a refreshing alternative — offering a completely free, intuitive, and streamlined solution for managing shared costs with friends and family.",
+    "featuresTitle": "Key Features",
+    "atGlanceTitle": "At a Glance",
+    "altText": "iSplit.app overview and features",
+    "features": {
+      "getStarted": {
+        "title": "Jump Right In",
+        "short": "Get started instantly—just add expenses and participants, no setup required",
+        "description": "Start splitting expenses immediately with zero friction.<br/>No account creation, app downloads, or verification codes needed.",
+        "stepsTitle": "It's as simple as 1, 2, 3:",
+        "step1": "Create a group and add participants",
+        "step2": "Log your shared expenses", 
+        "step3": "Share the group link with friends"
+      },
+      "noAds": {
+        "title": "Ad-Free Experience",
+        "short": "Clean interface without distracting ads",
+        "description": "Enjoy a clean, distraction-free interface that keeps you focused on managing your shared expenses efficiently."
+      },
+      "visualBalances": {
+        "title": "Clear Visual Insights", 
+        "short": "See exactly who owes what with intuitive charts and balance summaries",
+        "description": "• Visualize debts and credits at a glance with clear charts<br/>• Get smart reimbursement suggestions to minimize transactions<br/>• View comprehensive summaries of balances, transactions, and group spending"
+      },
+      "iosApp": {
+        "title": "Native iOS App",
+        "short": "Experience seamless integration with our dedicated iOS application",
+        "description": "Download our native iOS app for the best mobile experience, featuring direct link handling and push notifications for new expenses.",
+        "downloadLink": "Download on the App Store"
+      },
+      "easySharing": {
+        "title": "Effortless Collaboration",
+        "short": "Invite friends with a simple link—they join instantly with one click",
+        "description": "Share your expense group with a single link. Friends can join immediately without any registration or setup hassles."
+      },
+      "powerWebApp": {
+        "title": "Progressive Web App",
+        "short": "Install iSplit.app directly on your device for a native app experience",
+        "description": "Transform iSplit.app into a native-like application on your device, complete with push notifications and offline capabilities.",
+        "instructions": {
+          "step1": "Open https://isplit.app in your mobile browser",
+          "step2": "Tap the share button in your browser",
+          "step3": "Select \"Add to Home Screen\" to install"
+        }
+      }
+    }
+  },
+  "balance": {
+    "allSettled": {
+      "title": "Nothing to show—it looks like you're all set!",
+      "description": "Or maybe you haven't spent anything yet. In that case, you can",
+      "addLink": "add",
+      "expensesHere": "expenses here."
+    },
+    "reimbursements": {
+      "title": "Suggested Reimbursements",
+      "subtitle": "Here are some tips to help everyone get their fair share back",
+      "owes": "owes",
+      "addReimbursement": "Add<br/>Reimbursement"
+    }
+  },    "common": {
+    "appName": "iSplitApp",
+    "buttons": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "add": "Add",
+      "update": "Update",
+      "create": "Create",
+      "save": "Save",
+      "unfollow": "Unfollow"
+    },
+    "errors": {
+      "generic": "Oops, something went wrong! Please try again later.",
+      "apiDown": "Looks like our API is down.",
+      "unauthorized": "You aren't authorized to see this.",
+      "notFound": "This page doesn't exist!",
+      "tryAgainLater": "Something went wrong."
+    }
+  },
+  "notFound": {
+    "title": "Not Found"
+  },
+  "groupList": {
+    "groups": {
+      "title": "Groups",
+      "subtitle": "Recently visited groups",
+      "ariaLabel": "Groups"
+    },
+    "archive": {
+      "title": "Archive", 
+      "subtitle": "Archived groups",
+      "ariaLabel": "Archive"
+    }
+  },
+  "groupEdit": {
+    "defaultNames": ["Alice", "Bob"],
+    "errors": {
+      "saveFailed": "Failed to save the group. Please try again later."
+    },
+    "groupSection": {
+      "title": "Group",
+      "description": "Get started now by creating a group of participants to share expenses with"
+    },
+    "fields": {
+      "groupName": {
+        "label": "Group Name",
+        "description": "Like 'Trip to Paris' or 'Sailing in Croatia'"
+      },
+      "currency": {
+        "label": "Currency",
+        "description": "Will be used for all expenses in this group"
+      },
+      "participantName": {
+        "label": "Name"
+      }
+    },
+    "participantsSection": {
+      "title": "Participants",
+      "description": "Add participants who will be sharing expenses in this group"
+    },
+    "buttons": {
+      "updateGroup": "Update Group",
+      "createGroup": "Create Group"
+    }
+  },
+  "group": {
+    "tabs": {
+      "expenses": "Expenses",
+      "balance": "Balance",
+      "descriptions": {
+        "expenses": "Explore the group's expenses and money transfers here",
+        "balance": "Here is the total amount each member borrowed or lent to the group",
+        "edit": "Edit the group's details and members here"
+      }
+    },
+    "navigation": {
+      "toGroupList": "To Group List"
+    }
+  },
+  "expenseList": {
+    "refundsToggle": {
+      "show": "Show",
+      "hide": "Hide",
+      "label": "Refunds"
+    },
+    "emptyState": {
+      "message": "It looks like you haven't added any expenses yet...",
+      "startWith": "Start by",
+      "addLink": "adding",
+      "theFirstExpense": "the first expense."
+    },
+    "labels": {
+      "paidBy": "Paid by",
+      "to": "to",
+      "for": "for"
+    }
+  },
+  "expenseEdit": {
+    "errors": {
+      "deleteFailed": "Failed to delete the expense. Please try again later.",
+      "saveFailed": "Failed to save the expense. Please try again later."
+    },
+    "deleteModal": {
+      "title": "Delete Expense?",
+      "message": "This action is irreversible. Are you sure you want to delete the expense?"
+    },
+    "expenseInfoSection": {
+      "title": "Expense Info",
+      "description": "Simply fill in who spent the money and why"
+    },
+    "fields": {
+      "title": {
+        "label": "Expense Title",
+        "description": "What was the money spent on? e.g. 'Dinner at Hell's Kitchen'"
+      },
+      "amount": {
+        "label": "Amount",
+        "description": "How much was spent?"
+      },
+      "paidBy": {
+        "label": "Paid by",
+        "placeholder": "Select a payer",
+        "description": "Who paid for the expense?"
+      },
+      "date": {
+        "label": "Expense Date",
+        "description": "When was the expense made?",
+        "placeholder": "DD.MM.YYYY"
+      },
+      "reimbursement": {
+        "label": "Reimbursement",
+        "description": "Mark if this is a reimbursement."
+      }
+    },
+    "paidForSection": {
+      "title": "Paid For",
+      "selectAll": "ALL",
+      "selectNone": "NONE",
+      "splitBy": {
+        "label": "Split by",
+        "options": {
+          "evenly": "Evenly",
+          "share": "By Share", 
+          "percentage": "By Percentage",
+          "amount": "By Amount"
+        }
+      },
+      "participantsLabel": "Select participants who will share this expense"
+    }
+  },
+  "createGroupMenu": {
+    "errors": {
+      "parseLink": "Unable to parse the link and find party ID"
+    },
+    "addByLinkModal": {
+      "title": "Add group by link",
+      "description": "If someone has shared a group link with you, you can paste it here to include the group in your list.",
+      "linkLabel": "Group link"
+    },
+    "menu": {
+      "title": "Create or add a new group",
+      "ariaLabel": "Create group menu",
+      "createGroup": {
+        "description": "Simply enter the group name and currency, and you're good to go!",
+        "textValue": "Create Group",
+        "text": "Create"
+      },
+      "addByUrl": {
+        "description": "Paste a group link to join a group",
+        "textValue": "Add by URL",
+        "text": "Add by URL"
+      }
+    }
+  },
+  "errorCard": {
+    "title": "Oops!",
+    "defaultMessage": "Something went wrong! Please try again later."
+  },
+  "groupCard": {
+    "messages": {
+      "linkCopied": "The link has been successfully copied",
+      "archiveToggled": "The group '{{groupName}}' has been moved {{direction}}",
+      "archiveDirections": {
+        "into": "INTO Archive",
+        "outOf": "OUT of Archive"
+      },
+      "unfollowError": "Oops, something went wrong! Unable to unfollow the group. Please try again later."
+    },
+    "unfollowModal": {
+      "title": "Unfollow the group?",
+      "message": "You'll be following the group automatically if you visit it again."
+    }
+  },
+  "headerBar": {
+    "settings": {
+      "title": "Settings",
+      "darkMode": {
+        "label": "Dark mode",
+        "description": "You know what to do, right?"
+      },
+      "iconStyle": {
+        "label": "Group icon style",
+        "description": "Generate random icons for groups to make them more recognizable",
+        "options": {
+          "bauhaus": "Bauhaus",
+          "marble": "Marble",
+          "beam": "I'm fine"
+        }
+      },
+      "notifications": {
+        "label": "Notifications",
+        "descriptionDisabled": "To switch notifications on or off, you need to open Settings → Notifications → iSplitApp, toggle the notifications switch and reload iSplitApp.",
+        "descriptionEnabled": "Enable to be notified about new or changed expenses in your groups."
+      }
+    }
+  },
+  "footerBar": {
+    "appName": "iSplitApp"
+  }
+}
