@@ -8,6 +8,7 @@ spec:
   dnsNames:
     - "{{ .Values.appDomain }}"
     - "{{ .Values.apiDomain }}"
+    - "{{ .Values.otlpDomain }}"
   issuerRef:
     name: letsencrypt-dns
     kind: ClusterIssuer
