@@ -24,7 +24,8 @@ iOS users may also install a native version from the store https://apps.apple.co
 Work in progress on...
   - [ ] Preffered reimbursements
   - [ ] Offline mode
-
+  - [ ] Support multiple UI languages
+  - [ ] Add Deutsch and Russian UI
 
 ### Features
   - [x] No ads, paywalls and registration
@@ -36,7 +37,8 @@ Work in progress on...
   - [x] All statistics and balance at glance
   - [x] Precalculated reimbursements
   - [x] iOS application
-  - [x] REST API and CSV download 
+  - [x] REST API and CSV download
+  - [x] Add support for multiple UI languages
 
 
 
