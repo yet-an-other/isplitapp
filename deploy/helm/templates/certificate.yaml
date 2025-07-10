@@ -9,6 +9,7 @@ spec:
     - "{{ .Values.appDomain }}"
     - "{{ .Values.apiDomain }}"
 #    - "{{ .Values.otlpDomain }}"   not neeeded!!! use common domain for otlp
+
   issuerRef:
     name: letsencrypt-dns
     kind: ClusterIssuer
