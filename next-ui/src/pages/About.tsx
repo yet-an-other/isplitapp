@@ -115,10 +115,12 @@ export function About() {
 
     return (
         <>
-            <h1 className="text-4xl font-bold mt-24 text-center">
-                {t('about.titleParts.share')} <span className="text-primary">{t('about.titleParts.expenses')}</span> <br/> {t('about.titleParts.effortlessly')}
-            </h1>
-            <h5 className="text-xl text-dimmed mt-5">{t('about.subtitle')}</h5>
+            <div className="p-5 text-center">
+                <h1 className="text-4xl font-bold mt-24">
+                    {t('about.titleParts.share')} <span className="text-primary">{t('about.titleParts.expenses')}</span> <br/> {t('about.titleParts.effortlessly')}
+                </h1>
+                <h5 className="text-l text-dimmed mt-3">{t('about.subtitle')}</h5>
+            </div>
             <Button
                 size="lg" 
                 color="primary" 
@@ -164,7 +166,7 @@ export function About() {
 
             <h5 className="text-xl font-bold mt-[100px]">{t('about.atGlanceTitle')}</h5>
 
-            <img src="/isa-guide.png" alt={t('about.altText')} className="w-2/3 mx-auto p-2" />
+            <img src="/isa-guide.png" alt={t('about.altText')} className="ld:w-3/4 mx-auto p-2" />
 
             <CreateGroupMenu />
         </>
