@@ -1,6 +1,6 @@
 appDomain: "isplit.app"
 apiDomain: "api.isplit.app"
-otlpDomain: "otel.isplit.app"
+otlpDomain: "otel.ivan-b.com"
 image: 
   tag: "latest"
 logLevel: "Information"
