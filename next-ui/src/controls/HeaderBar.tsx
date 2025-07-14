@@ -63,7 +63,7 @@ export default function HeaderBar() {
                 </NavbarContent>
                 <NavbarContent justify="end">
                     <NavbarItem >
-                        <Button isIconOnly variant="light" onClick={e => {e.stopPropagation(); onOpen();}}>
+                        <Button isIconOnly variant="light" onPress={onOpen}>
                             <SettingsIcon className="h-[24px] w-[24px] text-primary dark:text-primary" />
                         </Button>  
                     </NavbarItem>
@@ -92,15 +92,17 @@ export default function HeaderBar() {
                             color="primary"
                             startContent={<SunIcon />}
                             endContent={<MoonIcon />}
-                            onChange={() => toggleDarkMode()}
+                            onChange={toggleDarkMode}
                         >
                             {t('headerBar.settings.darkMode.label')}
                         </Switch>
                         <span className="text-xs text-dimmed -mt-1">
                             {t('headerBar.settings.darkMode.description')}
                         </span>
+                        <br/>
 
                         <NotificationSwitch />
+                        <br/>
 
                         <Select 
                             label={t('headerBar.settings.iconStyle.label')} 
@@ -113,6 +115,7 @@ export default function HeaderBar() {
                                 const [style] = (k as Set<PartyIconStyle>);
                                 style && setPartyIconStyle(style);
                             }}
+                            description={t('headerBar.settings.iconStyle.description')}
                         >
                             <SelectItem 
                                 key="bauhaus"
@@ -134,24 +137,34 @@ export default function HeaderBar() {
                                 {t('headerBar.settings.iconStyle.options.beam')}
                             </SelectItem>
                         </Select>
-                        <span className="text-xs text-dimmed -mt-1">
-                            {t('headerBar.settings.iconStyle.description')}
-                        </span>
+                        <br/>
 
                         <Select 
                             label={t('headerBar.settings.language.label')} 
                             selectedKeys={new Set([i18n.language])}
+                            startContent={i18n.language === 'de' ? '🇩🇪' : '🇺🇸'}
                             onSelectionChange={k => {
                                 const [language] = k as Set<string>;
                                 language && i18n.changeLanguage(language);
                             }}
+                            description={t('headerBar.settings.language.description')}
                         >
-                            <SelectItem key="en">English</SelectItem>
-                            <SelectItem key="de">Deutsch</SelectItem>
+                            <SelectItem 
+                                className="dark:text-zinc-100" 
+                                key="en"
+                                startContent="🇺🇸"
+                            >
+                                English
+                            </SelectItem>
+                            <SelectItem 
+                                className="dark:text-zinc-100" 
+                                key="de"
+                                startContent="🇩🇪"
+                            >
+                                Deutsch
+                            </SelectItem>
                         </Select>
-                        <span className="text-xs text-dimmed -mt-1">
-                            {t('headerBar.settings.language.description')}
-                        </span>
+
                     </ModalBody>
                     <ModalFooter>
                         
