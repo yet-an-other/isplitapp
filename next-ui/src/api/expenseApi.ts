@@ -85,6 +85,7 @@ export async function deleteExpense(expenseId: string) {
 export async function registerSubscription(subscriptionPayload: PushSubscription | IosSubscriptionPayload) {
     const endpoint = `/users/subscribe`
     await sendRequest('POST', endpoint, subscriptionPayload);
+    console.debug("Push subscription registered successfully with payload:", subscriptionPayload);
 }
 
 /**
