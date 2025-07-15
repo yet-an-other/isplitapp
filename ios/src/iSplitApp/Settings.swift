@@ -8,7 +8,7 @@ struct Cookie {
 let gcmMessageIDKey = "579885024187" // update this with actual ID if using Firebase 
 
 // URL for first launch
-let rootUrl = URL(string: "https://dev.isplit.app")!
+let rootUrl = URL(string: "https://isplit.app")!
 
 // allowed origin is for what we are sticking to pwa domain
 // This should also appear in Info.plist
