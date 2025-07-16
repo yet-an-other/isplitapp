@@ -10,6 +10,7 @@ using LinqToDB;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Tests.DatabaseTests;
 
@@ -80,8 +81,9 @@ public class DeviceCommandTest : IClassFixture<DatabaseFixture>, IDisposable, IA
         
         // Act
         //
-
-        var endpoint = new RegisterSubscription();
+        var loggerMoq = new Logger<RegisterSubscription>(new LoggerFactory());
+        
+        var endpoint = new RegisterSubscription(loggerMoq);
         await (endpoint.Endpoint.DynamicInvoke(deviceId.ToString(), payload1, _validator, _db) as Task)!;
         await (endpoint.Endpoint.DynamicInvoke(deviceId.ToString(), payload2, _validator, _db) as Task)!;
         
