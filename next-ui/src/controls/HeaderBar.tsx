@@ -220,8 +220,11 @@ function NotificationSwitch() {
     // Handle the response from the iOS app regarding the registration for notifications
     //
     const handleIosRegister = async ({ detail }: RegisterEvent) => {
+        console.debug("Notification registration ", detail);
         if (detail.isRegistrationSuccess && detail.fcmToken) {
             await subscribeForIosPush(detail.fcmToken)
+            console.log("Successfully registered for notifications");
+            console.debug("Got token: ", detail.fcmToken);
         } else {
             console.warn("Failed to register for notifications", detail.error);
         }

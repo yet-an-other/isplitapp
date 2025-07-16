@@ -3,6 +3,7 @@ using IB.ISplitApp.Core.Infrastructure;
 using LinqToDB;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace IB.ISplitApp.Core.Devices.Endpoints;
 
 /// <summary>
@@ -10,6 +11,13 @@ namespace IB.ISplitApp.Core.Devices.Endpoints;
 /// </summary>
 public class RegisterSubscription: IEndpoint
 {
+    ILogger<RegisterSubscription> _logger;
+
+    public RegisterSubscription(ILogger<RegisterSubscription> logger)
+    {
+        _logger = logger;
+    }
+
     public string PathPattern => "/users/subscribe";
     public string Method => "POST";
     public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => builder.WithName("Subscribe");
@@ -25,13 +33,17 @@ public class RegisterSubscription: IEndpoint
                 .Validate(subscriptionPayload)
                 .ThrowOnError();
 
-            await db.Subscriptions
+            
+            
+            var affected = await db.Subscriptions
                 .Merge()
                 .Using([new Subscription(deviceId, subscriptionPayload)])
                 .On(t => t.DeviceId, s => s.DeviceId)
                 .InsertWhenNotMatched()
                 .UpdateWhenMatched()
                 .MergeAsync();
+
+            _logger.LogDebug("Subscribe {deviceId}, {payload}, {affected}", deviceId, subscriptionPayload, affected);
 
             return TypedResults.NoContent();
         };
