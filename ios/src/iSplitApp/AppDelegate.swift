@@ -27,13 +27,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // This function is added here only for debugging purposes, and can be removed if swizzling is enabled.
     // If swizzling is disabled then this function must be implemented so that the APNs token can be paired to
     // the FCM registration token.
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print("APNs token retrieved: \(deviceToken)")
-
-        // With swizzling disabled you must set the APNs token here.
-        Messaging.messaging().apnsToken = deviceToken
-        pushActualFcmToken()
-    }
+//    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+//        print("APNs token retrieved: \(deviceToken)")
+//
+//        // With swizzling disabled you must set the APNs token here.
+//        Messaging.messaging().apnsToken = deviceToken
+//    }
 }
 
 // Message handling
@@ -72,7 +71,7 @@ extension AppDelegate : MessagingDelegate {
     // On startup or refresh token
     //
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("Firebase registration token: \(String(describing: fcmToken))")
+        print("Firebase registration token received: \(String(describing: fcmToken))")
         
         //let dataDict:[String: String] = ["token": fcmToken ?? ""]
         //NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)

@@ -1,22 +1,28 @@
 import WebKit
 import FirebaseMessaging
 
+// Store the last FCM token to prevent duplicate dispatches
+private var lastFcmToken: String?
+
 /**
  Call the JS event in the react app
  */
 func dispatchToJs<T: Codable>(event: String, data: T) {
     DispatchQueue.main.async {
+        print("try to dispatch event: \(event)")
         if (!iSplitApp.webView.isHidden && !iSplitApp.webView.isLoading ) {
             do {
                 let jsonData = try JSONEncoder().encode(data)
                 let json = String(data: jsonData, encoding: .utf8)!
                 iSplitApp.webView.evaluateJavaScript("this.dispatchEvent(new CustomEvent('\(event)', { detail: \(json) }))")
+                print("dispatch ok")
             } catch {
                 print("dispatch error")
                 return
             }
         }
         else {
+            print("webview not ready, run later")
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 dispatchToJs(event: event, data: data)
             }
@@ -62,11 +68,17 @@ func pushActualFcmToken() {
                         data: RegistrationResult(isRegistrationSuccess: false, error: error.localizedDescription)
                     )
                 } else if let token = token {
-                    print("Success fetching FCM registration token: \(token)")
-                    dispatchToJs(
-                        event:"register-subscription",
-                        data: RegistrationResult(isRegistrationSuccess: true, fcmToken: token)
-                    )
+                    // Only dispatch if token has changed
+                    if lastFcmToken != token {
+                        print("Success fetching FCM registration token: \(token)")
+                        lastFcmToken = token
+                        dispatchToJs(
+                            event:"register-subscription",
+                            data: RegistrationResult(isRegistrationSuccess: true, fcmToken: token)
+                        )
+                    } else {
+                        print("FCM token unchanged, skipping dispatch: \(token)")
+                    }
                 }
             }
         }
@@ -85,6 +97,8 @@ func requestNotificationPermission() {
                 completionHandler: { (success, error) in
                     if error == nil && success == true {
                         dispatchPermissionGranted()
+                        // Reset last token to ensure registration event is sent after permission granted
+                        lastFcmToken = nil
                         pushActualFcmToken()
                     }
                     else {
