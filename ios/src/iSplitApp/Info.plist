@@ -98,6 +98,7 @@
 	<true/>
 	<key>WKAppBoundDomains</key>
 	<array>
+		<string>192.168.40.54</string>
 		<string>isplit.app</string>
 	</array>
 </dict>

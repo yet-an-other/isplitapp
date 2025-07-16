@@ -10,6 +10,16 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
       }
-    }
+    },
+    "http-pub": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "login",
+      "applicationUrl": "http://192.168.40.54:5096",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+      }
+    }    
   }
 }

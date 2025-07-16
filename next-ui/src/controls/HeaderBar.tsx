@@ -16,7 +16,7 @@ import {
 } from "@heroui/react";
 import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
 import { useNavigate } from "react-router-dom";
 import BoringAvatar from "boring-avatars";
@@ -33,6 +33,28 @@ export default function HeaderBar() {
     const { t } = useTranslation();
 
     const navigate = useNavigate();
+
+    // Handle the response from the iOS app regarding the registration for notifications
+    //
+    const handleIosRegister = useCallback(async ({ detail }: RegisterEvent) => {
+
+        if (detail.isRegistrationSuccess && detail.fcmToken) {
+            await subscribeForIosPush(detail.fcmToken)
+            console.debug("Successfully registered for notifications, token: ", detail.fcmToken);
+        } else {
+            console.warn("Failed to register for notifications", detail.error);
+        }
+    }, [])
+
+    // Add event listeners for the iOS app messages to update subsctription registration
+    //
+    useEffect(() => {
+        addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        return () => {
+            removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+        }
+    }, [handleIosRegister]);    
+
 
     return (
         <>
@@ -208,6 +230,9 @@ function NotificationSwitch() {
     // Handle the response from the iOS app regarding the notification permission status
     //
     const handleIosStatus = (e: CheckPermissionEvent) => {
+
+        console.debug("Notification permission status: ", e.detail.permissionStatus);
+
         if (e.detail.permissionStatus !== "not-determined"){
             setSwitchDisabled(true);
             setSubscribed(e.detail.permissionStatus === "granted");
@@ -217,26 +242,13 @@ function NotificationSwitch() {
         }
     }
 
-    // Handle the response from the iOS app regarding the registration for notifications
-    //
-    const handleIosRegister = async ({ detail }: RegisterEvent) => {
-        console.debug("Notification registration ", detail);
-        if (detail.isRegistrationSuccess && detail.fcmToken) {
-            await subscribeForIosPush(detail.fcmToken)
-            console.log("Successfully registered for notifications");
-            console.debug("Got token: ", detail.fcmToken);
-        } else {
-            console.warn("Failed to register for notifications", detail.error);
-        }
-    }
-
     // Add event listeners for the iOS app messages
     //
     useEffect(() => {
-        addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+     //   addEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
         addEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
         return () => {
-            removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
+     //       removeEventListener('register-subscription', (e) => void handleIosRegister(e as RegisterEvent), false);
             removeEventListener('permission-status', (e) => handleIosStatus(e as CheckPermissionEvent), false);
         }
     }, []);
