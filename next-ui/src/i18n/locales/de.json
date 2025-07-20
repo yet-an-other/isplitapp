@@ -71,7 +71,7 @@
     }
   },
   "common": {
-    "appName": "iSplitApp",
+    "appName": "gruppen",
     "buttons": {
       "cancel": "Abbrechen",
       "delete": "Löschen",

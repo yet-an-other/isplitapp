@@ -115,16 +115,16 @@ export function About() {
 
     return (
         <>
-            <div className="p-5 text-center">
-                <h1 className="text-4xl font-bold mt-24">
+            <div className="text-center">
+                <h1 className="text-4xl font-bold mt-[60px]">
                     {t('about.titleParts.share')} <span className="text-primary">{t('about.titleParts.expenses')}</span> <br/> {t('about.titleParts.effortlessly')}
                 </h1>
-                <h5 className="text-l text-dimmed mt-3">{t('about.subtitle')}</h5>
+                <h5 className="text-l text-dimmed mt-1">{t('about.subtitle')}</h5>
             </div>
             <Button
                 size="lg" 
                 color="primary" 
-                className="mt-15" 
+                className="mt-[100px] mb-[120px]" 
                 variant="solid"
                 as={Link}
                 href="/create"
@@ -132,41 +132,53 @@ export function About() {
                 {t('about.createGroupButton')}
             </Button>
 
-            <h5 className="text-xl font-bold mt-20">{t('about.motivationTitle')}</h5>
+            <div 
+                className="text-center bg-gray-50 dark:bg-zinc-900 py-[100px]" 
+                style={{marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw'}}>
 
-            <div className="flex text-sm text-dimmed p-5 text-justify">
-                <div dangerouslySetInnerHTML={{ __html: t('about.motivationText') }} />
-            </div>
+                <div className="max-w-5xl mx-auto px-5">
+                    <h5 className="text-xl font-bold">{t('about.motivationTitle')}</h5>
 
-            <h5 className="text-xl font-bold my-5 mt-[100px]">{t('about.featuresTitle')}</h5>
-
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-4 mt-5">
-                { features.map((feature, index) => 
-                    <div key={index}>
-                        <Card 
-                            className={`max-w-[170px] h-[170px]`} 
-                            isPressable
-                            onPress={() => feature.setIsOpen && feature.setIsOpen(true)}
-                        >
-                            <CardHeader className="flex py-2 gap-2">
-                                {feature.icon}
-                                <div  className="text-sm font-bold mb-2 pt-3">{t(feature.titleKey)}</div>
-                            </CardHeader>
-                            <CardBody className="pt-0 overflow-clip">
-                                
-                                <p className="text-sm text-dimmed">
-                                    {feature.shortKey && t(feature.shortKey)}
-                                </p>
-                            </CardBody>
-                        </Card>
-                        <FullDescription feature={feature} t={t}/>
+                    <div className="flex text-sm text-dimmed p-5 text-justify">
+                        <div dangerouslySetInnerHTML={{ __html: t('about.motivationText') }} />
                     </div>
-                )}
+
+                    <h5 className="text-xl font-bold my-5 mt-[20px]">{t('about.featuresTitle')}</h5>
+
+                    <div className="flex flex-wrap gap-4 justify-center mt-5 max-w-[720px] mx-auto">
+                        { features.map((feature, index) => 
+                            <div key={index}>
+                                <Card 
+                                    className={`max-w-[170px] h-[170px]`} 
+                                    isPressable
+                                    onPress={() => feature.setIsOpen && feature.setIsOpen(true)}
+                                >
+                                    <CardHeader className="flex py-2 gap-2">
+                                        {feature.icon}
+                                        <div  className="text-sm font-bold mb-2 pt-3">{t(feature.titleKey)}</div>
+                                    </CardHeader>
+                                    <CardBody className="pt-0 overflow-clip">
+                                        
+                                        <p className="text-sm text-dimmed">
+                                            {feature.shortKey && t(feature.shortKey)}
+                                        </p>
+                                    </CardBody>
+                                </Card>
+                                <FullDescription feature={feature} t={t}/>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
 
-            <h5 className="text-xl font-bold mt-[100px]">{t('about.atGlanceTitle')}</h5>
+            <h5 className="text-xl font-bold mt-[70px]">{t('about.atGlanceTitle')}</h5>
 
-            <img src="/isa-guide.png" alt={t('about.altText')} className="ld:w-3/4 mx-auto p-2" />
+            <div className="flex flex-wrap gap-6 items-center justify-center mt-5">
+                <img src="/guide-group-light.png" alt={t('about.altText')} width={300} className="dark:hidden" />
+                <img src="/guide-group-dark.png" alt={t('about.altText')} width={300} className="hidden dark:block" />
+                <img src="/guide-balance-light.png" width={300} className="dark:hidden" />
+                <img src="/guide-balance-dark.png" width={300} className="hidden dark:block" />
+            </div>
 
             <CreateGroupMenu />
         </>
