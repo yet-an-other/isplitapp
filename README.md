@@ -1,8 +1,7 @@
 # [iSplit.app](https://isplit.app)
 Share Expenses. Intuitive, Clean and Free. Ads Free.
 
-![/next-ui/public/isa-guide.png](/next-ui/public/isa-guide.png)
-![/Assets/Balance%20SSs.png](/Assets/Balance%20SSs.png) 
+ <img src="/next-ui/public/guide-group-light.png" width="300" />  <img src="/next-ui/public/guide-balance-light.png" width="300" />  <img src="/next-ui/public/guide-reimburse-light.png" width="300" />
 
 
 ## Motivation
@@ -20,12 +19,12 @@ Here is an attempt to build a yet another one application that offers a free, st
 ## Current Status
 
 The fully functional app is available here: https://isplit.app \
-iOS users may also install a native version from the store https://apps.apple.com/us/app/isplitapp/id6479542533\
+iOS users may also install a native version from the store https://apps.apple.com/us/app/isplitapp/id6479542533 \
 Work in progress on...
   - [ ] Preffered reimbursements
   - [ ] Offline mode
-  - [ ] Support multiple UI languages
   - [ ] Add Deutsch and Russian UI
+  - [ ] Default User for a group
 
 ### Features
   - [x] No ads, paywalls and registration
