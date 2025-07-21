@@ -15,8 +15,8 @@
     "altText": "iSplit.app overview and features",
     "features": {
       "getStarted": {
-        "title": "Jump Right In",
-        "short": "Get started instantly—just add expenses and participants, no setup required",
+        "title": "No Registration",
+        "short": "Get started instantly - just add expenses and participants, and share the link",
         "description": "Start splitting expenses immediately with zero friction.<br/>No account creation, app downloads, or verification codes needed.",
         "stepsTitle": "It's as simple as 1, 2, 3:",
         "step1": "Create a group and add participants",
@@ -31,7 +31,11 @@
       "visualBalances": {
         "title": "Clear Visual Insights", 
         "short": "See exactly who owes what with intuitive charts and balance summaries",
-        "description": "• Visualize debts and credits at a glance with clear charts<br/>• Get smart reimbursement suggestions to minimize transactions<br/>• View comprehensive summaries of balances, transactions, and group spending"
+        "description": {
+          "charts": "Visualize debts and credits at a glance with clear charts",
+          "suggestions": "Get smart reimbursement suggestions to minimize transactions",
+          "summaries": "View comprehensive summaries of balances, transactions, and group spending"
+        }
       },
       "iosApp": {
         "title": "Native iOS App",
@@ -49,7 +53,6 @@
         "short": "Install iSplit.app directly on your device for a native app experience",
         "description": "Transform iSplit.app into a native-like application on your device, complete with push notifications and offline capabilities.",
         "instructions": {
-          "step1": "Open https://isplit.app in your mobile browser",
           "step2": "Tap the share button in your browser",
           "step3": "Select \"Add to Home Screen\" to install"
         }

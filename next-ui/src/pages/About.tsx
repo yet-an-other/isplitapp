@@ -65,7 +65,23 @@ const createFeatures = (): FeatureItem[] => [
         shortKey: "about.features.visualBalances.short",
         content: (t) => 
             <div className="text-sm text-dimmed">
-                <div dangerouslySetInnerHTML={{ __html: t('about.features.visualBalances.description') }} />
+                <div>
+                    • {t('about.features.visualBalances.description.charts')}
+                </div>
+                <div className="flex flex-wrap gap-2 items-center justify-center my-4">
+                    <img src="/guide-balance-light.png" alt={t('about.altText')} className="w-full dark:hidden" />
+                    <img src="/guide-balance-dark.png" alt={t('about.altText')} className="w-full hidden dark:block" />
+                </div>
+                <div>
+                    • {t('about.features.visualBalances.description.suggestions')}
+                </div>
+                <div className="flex flex-wrap gap-2 items-center justify-center my-4">
+                    <img src="/guide-reimburse-light.png" alt={t('about.altText')} className="w-full dark:hidden" />
+                    <img src="/guide-reimburse-dark.png" alt={t('about.altText')} className="w-full hidden dark:block" />
+                </div>        
+                <div>
+                    • {t('about.features.visualBalances.description.summaries')}
+                </div>                        
             </div>
     },
     {
@@ -96,9 +112,6 @@ const createFeatures = (): FeatureItem[] => [
         content: (t) => 
             <div className="text-sm text-dimmed">
                 <div dangerouslySetInnerHTML={{ __html: t('about.features.powerWebApp.description') }} />
-                <div className="flex flex-row items-center m-1">
-                    {t('about.features.powerWebApp.instructions.step1')}
-                </div>
                 <div className="flex flex-row items-center m-1">
                     {t('about.features.powerWebApp.instructions.step2')} <ShareIcon className="w-5 h-5 text-dimmed mx-1 border-1 rounded-sm" />
                 </div>
@@ -155,7 +168,9 @@ export function About() {
                                 >
                                     <CardHeader className="flex py-2 gap-2">
                                         {feature.icon}
-                                        <div  className="text-sm font-bold mb-2 pt-3">{t(feature.titleKey)}</div>
+                                        <div  className="text-sm font-bold mb-2 pt-3 pl-2 text-left">
+                                            {t(feature.titleKey)}
+                                        </div>
                                     </CardHeader>
                                     <CardBody className="pt-0 overflow-clip">
                                         
@@ -203,7 +218,7 @@ const FullDescription = ({feature, t}: {feature: FeatureItem, t: TFunction}) => 
                 <ModalHeader className="flex flex-col">
                     <div className="flex flex-row gap-2 items-center">
                         {feature.icon}
-                        <div className="text-xl font-bold">{t(feature.titleKey)}</div>
+                        <div className="text-xl font-bold w-full text-center mr-7 dark:text-gray-200">{t(feature.titleKey)}</div>
                     </div>
                 </ModalHeader>
                 <ModalBody>
