@@ -9,8 +9,9 @@ let gcmMessageIDKey = "579885024187" // update this with actual ID if using Fire
 
 // URL for first launch
 
-let rootUrl = URL(string: "https://isplit.app")!
+//let rootUrl = URL(string: "https://isplit.app")!
 //let rootUrl = URL(string: "http://192.168.40.54:5173")!
+let rootUrl = URL(string: "http://localhost:5173")!
 
 // allowed origin is for what we are sticking to pwa domain
 // This should also appear in Info.plist

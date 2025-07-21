@@ -31,7 +31,11 @@
       "visualBalances": {
         "title": "Visuelle Einblicke",
         "short": "Schulden und Guthaben mit Diagrammen visualisieren",
-        "description": "• Visualisieren Sie Schulden und Guthaben auf einen Blick mit klaren Diagrammen<br/>• Erhalten Sie intelligente Erstattungsvorschläge zur Minimierung von Transaktionen<br/>• Betrachten Sie umfassende Zusammenfassungen von Salden, Transaktionen und Gruppenausgaben"
+        "description": {
+          "charts": "Visualisieren Sie Schulden und Guthaben auf einen Blick mit klaren Diagrammen",
+          "suggestions": "Erhalten Sie intelligente Erstattungsvorschläge zur Minimierung von Transaktionen",
+          "summaries": "Betrachten Sie umfassende Zusammenfassungen von Salden, Transaktionen und Gruppenausgaben"
+        }
       },
       "iosApp": {
         "title": "Native iOS-App",
@@ -71,7 +75,7 @@
     }
   },
   "common": {
-    "appName": "iSplitApp",
+    "appName": "gruppen",
     "buttons": {
       "cancel": "Abbrechen",
       "delete": "Löschen",

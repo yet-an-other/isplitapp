@@ -14,7 +14,7 @@ import {
     Switch, 
     useDisclosure 
 } from "@heroui/react";
-import { BellIcon, BellRingIcon, LogoIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
+import { BellIcon, BellRingIcon, LogoIcon, MenuIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useCallback, useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
@@ -58,12 +58,12 @@ export default function HeaderBar() {
 
     return (
         <>
-            <Navbar isBordered maxWidth="full">
+            <Navbar isBordered={false} isBlurred maxWidth="lg" className="shadow-md">
                 <NavbarBrand>
                     <Button 
                         isIconOnly 
                         variant="light" 
-                        onPress={() => navigate("/")}
+                        onPress={() => navigate("/about")}
                         className="-ml-2 data-[hover=true]:bg-transparent"
                     >
                         <LogoIcon 
@@ -77,16 +77,17 @@ export default function HeaderBar() {
                             color="primary" 
                             variant="light" 
                             size="md"
-                            onPress={() => navigate("/about")} 
+                            onPress={() => navigate("/")} 
                         >
-                            <span className="font-bold">{t('common.appName')}</span>
+                            <MenuIcon className="h-7 w-7 stroke-[1.5px]" />
+                            <span className="font-bold text-gl">{t('common.appName')}</span>
                         </Button>
                     </NavbarItem>
                 </NavbarContent>
                 <NavbarContent justify="end">
                     <NavbarItem >
                         <Button isIconOnly variant="light" onPress={onOpen}>
-                            <SettingsIcon className="h-[24px] w-[24px] text-primary dark:text-primary" />
+                            <SettingsIcon className="h-[28px] w-[28px] stroke-[1.5px] text-primary dark:text-primary" />
                         </Button>  
                     </NavbarItem>
                 </NavbarContent>

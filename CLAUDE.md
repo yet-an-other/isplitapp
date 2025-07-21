@@ -42,6 +42,89 @@ dotnet test Tests/             # Run specific test project
 docker build -t isplitapp .    # Build full application image
 ```
 
+## Technical Standards
+
+### Clear code principles
+- You shall never assume, always ask
+- You shall always use MCP tools
+- Write code that is clear and obvious
+- Make atomic descriptive commits
+- Always document why, not what
+- Test before declaring done
+- Research current docks, don't trust outdated knowledge
+- Use visual imputs and Playwrite MCP for the UI debugging
+
+- **NO CLEVER TRICKS**: Clear, obvious code only
+- **DESCRIPTIVE NAMING**: `processTextNodes()` not `ptn()` or `handleStuff()`
+- **COMMENT THE WHY**: Only explain why, never what. Code shows what
+- **SINGLE RESPONSIBILITY**: Each function does ONE thing
+- **EXPLICIT ERROR HANDLING**: No silent failures
+- **MEASURE THEN OPTIMIZE**: No premature optimization
+- **SIMPLICITY FIRST**: Remove everything non-essential
+
+### Honest Technical Assessment
+
+ALWAYS provide honest assessment of technical decisions:
+
+- If code has problems, explain the specific issues
+- If an approach has limitations, quantify them
+- If there are security risks, detail them clearly
+- If performance will degrade, provide metrics
+- If implementation is complex, justify why
+- If you chose a suboptimal solution, explain the tradeoffs
+- If you're uncertain, say so explicitly
+
+Examples of honest assessment:
+- "This will work for 1000 users but will break at 10,000 due to database bottleneck"
+- "This fix addresses the symptom but not the root cause - we'll see this bug again"
+- "This implementation is 3x more complex than needed because of legacy constraints"
+- "I'm not certain this handles all edge cases - particularly around concurrent access"
+- "This violates best practices but is necessary due to framework limitations"
+
+### Context and Documentation
+
+Preserve technical context. Never delete important information.
+
+Keep these details:
+- Code examples with line numbers
+- Performance measurements and metrics
+- Rationale for architectural decisions
+- Explanations of non-obvious patterns
+- Cross-references to related issues
+- Technology-specific best practices
+
+
+### Naming Conventions Frontend (React/TypeScript)
+
+Follow TypeScript/JavaScript standards:
+
+- Use ES modules (import/export) syntax, not CommonJS (require)
+- Destructure imports when possible (eg. import { foo } from 'bar')
+
+**Functions and Variables**:
+- Use `camelCase`: `getUserData`, `processRequest`
+- Boolean prefixes: `is`, `has`, `can`, `should`, `will`, `did`
+- Example: `isLoading`, `hasPermission`, `canEdit`
+
+**Types and Interfaces**:
+- Use `PascalCase`: `UserProfile`, `RequestHandler`
+- No `I` prefix for interfaces (use `User` not `IUser`)
+- Type for data: `UserData`, Interface for contracts: `UserService`
+
+**Constants**:
+- Global constants: `SCREAMING_SNAKE_CASE` (e.g., `MAX_RETRIES`)
+- Local constants: `camelCase` (e.g., `defaultTimeout`)
+- Enum values: `SCREAMING_SNAKE_CASE`
+
+**File Names**:
+- Components: `UserProfile.tsx`
+- Utilities: `date-helpers.ts`
+- Types: `user.types.ts`
+- Tests: `user.test.ts` or `user.spec.ts`
+- Constants: `constants.ts`
+
+
+
 ## Architecture Overview
 
 The application follows a clean architecture pattern:
@@ -121,3 +204,60 @@ Kubernetes deployment via Helm charts in `deploy/helm/` with environment-specifi
 3. **Expense splitting**: Support for uneven splits and complex reimbursements
 4. **Multi-platform**: Web app, iOS native, and PWA support
 5. **Offline capability**: Service worker for offline functionality
+
+## Version Control and Commits
+
+### Conventional Commits Standard
+
+Follow Conventional Commits v1.0.0:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Commit Types**:
+- `feat`: New feature (MINOR version)
+- `fix`: Bug fix (PATCH version)
+- `refactor`: Code restructuring without behavior change
+- `perf`: Performance improvement
+- `docs`: Documentation only
+- `test`: Test additions or corrections
+- `build`: Build system or dependency changes
+- `ci`: CI/CD configuration changes
+- `chore`: Maintenance tasks
+- `style`: Code formatting (whitespace, semicolons, etc)
+
+**Breaking Changes**:
+- Add `!` after type/scope: `feat(api)!: remove deprecated endpoints`
+- Or use footer: `BREAKING CHANGE: description of the breaking change`
+
+**Example Commit**:
+```
+fix(auth): prevent race condition in token refresh
+
+Add mutex to ensure only one token refresh happens at a time.
+Previous implementation could cause multiple simultaneous refreshes
+under high load.
+
+Fixes: #123
+```
+
+**Commit Requirements**:
+- One logical change per commit
+- Run tests before committing
+- Include context for future developers
+- Reference issue numbers when applicable
+- Never mention "Claude" or "AI" in commits
+
+### Styling
+
+Uses Tailwind CSS v4 with PostCSS processing. Dark mode support is implemented via CSS custom properties in the root layout.
+
+## MCP Tools
+
+- **Context7 MCP** - Use to fetch updated documentation for libraries and frameworks like heroui, Tailwind CSS, React and others
+- **Playwright MCP** - Use to check visual changes in the frontend with a real browser when UI modifications are made

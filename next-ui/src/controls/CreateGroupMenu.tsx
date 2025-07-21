@@ -84,9 +84,9 @@ export function CreateGroupMenu() {
                         color="primary" 
                         variant="shadow"
                         size="lg"
-                        className="fixed bottom-16 right-16"
+                        className="fixed bottom-16 right-16 lg:right-[max(64px,calc(50vw-512px+64px))]"
                     >
-                    <PlusIcon className="h-8 w-8 " />
+                        <PlusIcon className="h-8 w-8 " />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="p-2">

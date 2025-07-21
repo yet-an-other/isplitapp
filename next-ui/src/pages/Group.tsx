@@ -7,7 +7,6 @@ import { Outlet, useMatches, useNavigate, useParams } from "react-router-dom";
 import { Button, ButtonGroup } from "@heroui/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { BackIcon } from "../icons";
 import { useTranslation } from "react-i18next";
 
 export function Group() {    
@@ -41,15 +40,6 @@ export function Group() {
             { isLoading && <CardSkeleton />}
             { !error && !isLoading && !!party && 
                 <div>
-                    <div className="flex justify-end mb-4 -mt-2">
-                        <Button 
-                            variant="light"
-                            color="primary"
-                            onPress={() => navigate('/')}
-                        >
-                            <BackIcon className="stroke-1"/> {t('group.navigation.toGroupList')}
-                        </Button>
-                    </div>
                     <GroupCard party={party} disablePress />
                     <div className="mt-3">
                         <div className="flex flex-row">

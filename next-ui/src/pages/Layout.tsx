@@ -11,7 +11,7 @@ export function Layout() {
 
   return (
     <HeroUIProvider navigate={navigate}>
-      <main className="text-foreground bg-background flex flex-col items-center ">
+      <main className="text-foreground bg-background flex flex-col items-center">
         <AlertsProvider>
           <ScrollToTop />
           <HeaderBar />
