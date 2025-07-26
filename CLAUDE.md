@@ -21,9 +21,12 @@ iSplit.app is a full-stack expense sharing application with these main component
 ```bash
 cd next-ui
 npm install                    # Install dependencies
+npm install                    # Install dependencies
 npm run dev                    # Start development server
 npm run build                  # Build for production
 npm run lint                   # Run ESLint
+npm test                       # Run Vitest tests
+npm run test -- --ui           # Run tests with UI
 npm run dev:local              # Run with local environment config
 ```
 
@@ -35,6 +38,8 @@ dotnet build                   # Build all projects
 dotnet run --project core      # Run the API server
 dotnet test                    # Run all tests
 dotnet test Tests/             # Run specific test project
+dotnet test --filter "ClassName"      # Run specific test class
+dotnet test --logger "console;verbosity=detailed"  # Verbose test output
 ```
 
 ### Docker
@@ -55,7 +60,6 @@ docker build -t isplitapp .    # Build full application image
 - Use visual imputs and Playwrite MCP for the UI debugging
 
 - **NO CLEVER TRICKS**: Clear, obvious code only
-- **DESCRIPTIVE NAMING**: `processTextNodes()` not `ptn()` or `handleStuff()`
 - **COMMENT THE WHY**: Only explain why, never what. Code shows what
 - **SINGLE RESPONSIBILITY**: Each function does ONE thing
 - **EXPLICIT ERROR HANDLING**: No silent failures
@@ -123,8 +127,6 @@ Follow TypeScript/JavaScript standards:
 - Tests: `user.test.ts` or `user.spec.ts`
 - Constants: `constants.ts`
 
-
-
 ## Architecture Overview
 
 The application follows a clean architecture pattern:
@@ -144,12 +146,14 @@ The application follows a clean architecture pattern:
 - `Infrastructure/`: Cross-cutting concerns (validation, endpoints)
 
 ### Frontend Architecture
-- **React 18** with TypeScript
-- **NextUI** component library
-- **TailwindCSS** for styling
+- **React 19** with TypeScript
+- **HeroUI** component library (formerly NextUI)
+- **TailwindCSS v4** for styling
 - **SWR** for data fetching
 - **React Router** for navigation
 - **PWA** capabilities with service worker
+- **Vitest** for testing with jsdom environment
+- **Vite** as build tool with PWA plugin
 
 ### Key Frontend Structure
 - `pages/`: Route components
@@ -174,11 +178,29 @@ dotnet run -- down  # Run migrations down
 - Database integration tests with test fixtures
 - HTTP endpoint tests using Bruno (in `Tests/http-test/`)
 
-### Running Specific Tests
+### Frontend Tests
+- **Vitest** with jsdom environment
+- **React Testing Library** for component testing
+- Test setup file: `vitest.setup.ts`
+
+### Running Tests
 ```bash
+# Frontend tests
+cd next-ui
+npm test                              # Run all tests
+npm run test -- --ui                  # Run with Vitest UI
+npm run test -- --coverage            # Run with coverage
+
+# Backend tests
+cd isplitapp-core
+dotnet test                           # Run all tests
 dotnet test --filter "ClassName"      # Run specific test class
 dotnet test --logger "console;verbosity=detailed"  # Verbose output
 ```
+### Testing Requirements
+- **Write tests for all new features** unless explicitly told not to
+- **Run tests before committing** to ensure code quality and functionality
+- Tests should cover both happy path and edge cases for the new functionality
 
 ## Deployment
 
@@ -204,6 +226,8 @@ Kubernetes deployment via Helm charts in `deploy/helm/` with environment-specifi
 3. **Expense splitting**: Support for uneven splits and complex reimbursements
 4. **Multi-platform**: Web app, iOS native, and PWA support
 5. **Offline capability**: Service worker for offline functionality
+
+
 
 ## Version Control and Commits
 
@@ -259,5 +283,16 @@ Uses Tailwind CSS v4 with PostCSS processing. Dark mode support is implemented v
 
 ## MCP Tools
 
-- **Context7 MCP** - Use to fetch updated documentation for libraries and frameworks like heroui, Tailwind CSS, React and others
+- **Context7 MCP** - Use to fetch updated documentation for libraries and frameworks like HeroUI, Tailwind CSS, React and others
 - **Playwright MCP** - Use to check visual changes in the frontend with a real browser when UI modifications are made
+- **GitHub MCP** - For repository operations, PR management, and issue tracking
+
+## Important Instructions
+
+Do what has been asked; nothing more, nothing less.
+
+NEVER create files unless they're absolutely necessary for achieving your goal.
+
+ALWAYS prefer editing an existing file to creating a new one.
+
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
