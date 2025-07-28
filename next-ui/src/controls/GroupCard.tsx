@@ -49,7 +49,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
             <UnfollowConfirmation confirmationState={confirmationState} partyId={party.id} />
 
             <Card
-                className={`min-h-[120px] w-full mb-8 ${party.isArchived && 'text-dimmed'}`} 
+                className={`min-h-[120px] w-full mb-8 ${party.isArchived && 'text-dimmed'} `} 
                 isPressable = {!disablePress}
                 as = "form"
                 onPress={() => navigate(`/${party.id}`)}

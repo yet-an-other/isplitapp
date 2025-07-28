@@ -225,15 +225,27 @@
   },
   "createGroupMenu": {
     "errors": {
-      "parseLink": "Unable to parse the link and find party ID"
+      "parseLink": "Unable to parse the link and find party ID",
+      "invalidDeviceId": "Please enter a valid Device ID",
+      "noGroupsFound": "No groups found for the specified Device ID",
+      "importFailed": "Failed to import groups. Please check the Device ID and try again."
+    },
+    "success": {
+      "importSuccess": "Successfully imported {{count}} group{{plural}}"
     },
     "addByLinkModal": {
       "title": "Add group by link",
       "description": "If someone has shared a group link with you, you can paste it here to include the group in your list.",
       "linkLabel": "Group link"
     },
+    "importFromDeviceModal": {
+      "title": "Import groups from device",
+      "description": "Enter the Device ID from another device to import all its groups to your current device.",
+      "deviceIdLabel": "Device ID",
+      "importButton": "Import Groups"
+    },
     "menu": {
-      "title": "Create or add a new group",
+      "title": "New Group",
       "ariaLabel": "Create group menu",
       "createGroup": {
         "description": "Simply enter the group name and currency, and you're good to go!",
@@ -244,6 +256,11 @@
         "description": "Paste a group link to join a group",
         "textValue": "Add by URL",
         "text": "Add by URL"
+      },
+      "importFromDevice": {
+        "description": "Import all groups from another device using its Device ID",
+        "textValue": "Import from Device",
+        "text": "Import from Device"
       }
     }
   },
@@ -290,6 +307,14 @@
         "label": "Notifications",
         "descriptionDisabled": "To switch notifications on or off, you need to open Settings → Notifications → iSplitApp, toggle the notifications switch and reload iSplitApp.",
         "descriptionEnabled": "Enable to be notified about new or changed expenses in your groups."
+      },
+      "advanced": {
+        "title": "Advanced",
+        "deviceId": {
+          "label": "Device ID",
+          "description": "This unique identifier is used to link your device to your groups and expenses.",
+          "copied": "Device ID copied to clipboard!"
+        }
       }
     }
   },

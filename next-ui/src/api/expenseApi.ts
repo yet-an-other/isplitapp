@@ -4,6 +4,7 @@ import { ProblemError } from "./contract/ProblemError";
 import { ExpensePayload } from "./contract/ExpensePayload";
 import { PartySettingsPayload } from "./contract/PartySettingsPayload";
 import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
+import { PartyInfo } from "./contract/PartyInfo";
 import { API_URL } from "../utils/apiConfig";
 
 /**
@@ -96,6 +97,43 @@ export async function deleteSubscription() {
 }
 
 /**
+ * Fetch parties from another device by device ID
+ * @param deviceId the device ID to fetch parties from
+ * @returns array of party info
+ */
+export async function fetchPartiesByDeviceId(deviceId: string): Promise<PartyInfo[]> {
+    const endpoint = "/parties";
+    return await sendRequestWithDeviceId<undefined, PartyInfo[]>('GET', endpoint, deviceId, undefined);
+}
+
+/**
+ * Import parties from another device to current device
+ * @param sourceDeviceId the device ID to import parties from
+ * @returns array of imported party IDs
+ */
+export async function importPartiesFromDevice(sourceDeviceId: string): Promise<string[]> {
+    // First, fetch all parties from the source device
+    const sourceParties = await fetchPartiesByDeviceId(sourceDeviceId);
+    
+    const importedPartyIds: string[] = [];
+    
+    // Import each party one by one
+    for (const sourceParty of sourceParties) {
+        try {
+            // To import party we need to visit the party endpoint with the current device ID
+            //
+            const party = await fetcher<PartyInfo>(`/parties/${sourceParty.id}`); // load the party
+            importedPartyIds.push(party.id);
+        } catch (error) {
+            console.error(`Failed to import party "${sourceParty.name}":`, error);
+            // Continue with other parties even if one fails
+        }
+    }
+    
+    return importedPartyIds;
+}
+
+/**
  * Allowed Http methods
  */
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -110,7 +148,18 @@ type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
  */
 async function sendRequest<TBody, TResponse>(method:  HttpMethod, endpoint: string, body?: TBody): Promise<TResponse> {
     const deviceId = await ensureDeviceId();
+    return await sendRequestWithDeviceId<TBody, TResponse>(method, endpoint, deviceId, body);
+}
 
+/**
+ * Helper function to get/post/put/delete communication with the server using a specific device ID
+ * @param method HttpMethod
+ * @param endpoint method url
+ * @param deviceId specific device ID to use
+ * @param body request body or undefined
+ * @returns 
+ */
+async function sendRequestWithDeviceId<TBody, TResponse>(method:  HttpMethod, endpoint: string, deviceId: string, body?: TBody): Promise<TResponse> {
     const requestOptions = {
         method: method,
         headers: { 
