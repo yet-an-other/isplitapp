@@ -26,7 +26,7 @@ export const Alert = ({ message = '', severity = 'info', timeout = 0, handleDism
   }
 
   return message?.length && (
-    <div className={twMerge("z-[1000001] rounded-lg px-4 py-3 mb-4 shadow-md pointer-events-auto", classNames[severity])} role="alert">
+    <div className={twMerge("rounded-lg px-4 py-3 mb-4 shadow-md pointer-events-auto", classNames[severity])} role="alert">
       <div className="flex">
         <div className="py-1">
           <svg className={twMerge("fill-current h-6 w-6 mr-4 ", svgFillColors[severity])} viewBox="0 0 24 24">
