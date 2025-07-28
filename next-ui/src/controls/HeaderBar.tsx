@@ -1,5 +1,9 @@
 import { 
+    Accordion,
+    AccordionItem,
     Button, 
+    Divider, 
+    Input,
     Modal, 
     ModalBody, 
     ModalContent, 
@@ -14,7 +18,7 @@ import {
     Switch, 
     useDisclosure 
 } from "@heroui/react";
-import { BellIcon, BellRingIcon, LogoIcon, MenuIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
+import { BellIcon, BellRingIcon, CopyIcon, LogoIcon, MenuIcon, MoonIcon, SettingsIcon, SunIcon, UsersIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useCallback, useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
@@ -23,6 +27,9 @@ import BoringAvatar from "boring-avatars";
 import { PartyIconStyle, useDeviceSetting } from "../utils/deviceSetting";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
+import { ensureDeviceId } from "../api/userApi";
+import { useAlerts } from "../utils/useAlerts";
+
 
 
 export default function HeaderBar() {
@@ -58,7 +65,7 @@ export default function HeaderBar() {
 
     return (
         <>
-            <Navbar isBordered={false} isBlurred maxWidth="lg" className="shadow-md">
+            <Navbar isBordered={true} isBlurred maxWidth="lg" >
                 <NavbarBrand>
                     <Button 
                         isIconOnly 
@@ -104,7 +111,7 @@ export default function HeaderBar() {
                     <ModalHeader className="flex flex-col gap-1">
                         <div className="flex flex-row">
                             <SettingsIcon className="h-[24px] w-[24px] text-primary mr-2" />
-                            <span className="text-md dark:text-zinc-100">{t('headerBar.settings.title')}</span>
+                            <span className="text-md text-center w-full mr-6 dark:text-zinc-100">{t('headerBar.settings.title')}</span>
                         </div>
                     </ModalHeader>
                     <ModalBody>
@@ -188,6 +195,17 @@ export default function HeaderBar() {
                             </SelectItem>
                         </Select>
 
+                        <Divider className="mt-2 mb-[-10px]" />
+                        <Accordion className="px-0">
+                            <AccordionItem 
+                                key="advanced" 
+                                aria-label={t('headerBar.settings.advanced.title')}
+                                title={t('headerBar.settings.advanced.title')}
+                            >
+                                <DeviceIdSection onClose={onClose} />
+                            </AccordionItem>
+                        </Accordion>
+
                     </ModalBody>
                     <ModalFooter>
                         
@@ -196,6 +214,57 @@ export default function HeaderBar() {
             </Modal>
         </>
     )
+}
+
+/**
+ * A section to display device ID with copy functionality
+ */
+function DeviceIdSection({ onClose }: { onClose: () => void }) {
+    const { t } = useTranslation();
+    const [deviceId, setDeviceId] = useState<string>('');
+    const { alertSuccess } = useAlerts();
+
+    useEffect(() => {
+        ensureDeviceId().then(id => setDeviceId(id));
+    }, []);
+
+    const copyToClipboard = async () => {
+        try {
+            await navigator.clipboard.writeText(deviceId);
+            alertSuccess(t('headerBar.settings.advanced.deviceId.copied'));
+            onClose();
+            setDeviceId(""); 
+        } catch (err) {
+            console.error('Failed to copy device ID:', err);
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-2">
+            <Input
+                label={t('headerBar.settings.advanced.deviceId.label')}
+                value={deviceId || '...'}
+                isReadOnly
+                classNames={{
+                    input: "font-mono text-xs"
+                }}
+                endContent={
+                    <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        onPress={copyToClipboard}
+                        className="min-w-unit-6 w-unit-6 h-unit-6"
+                        isDisabled={!deviceId}
+                    >
+                        <CopyIcon className="h-[24px] w-[24px] stroke-[1.5px] text-primary" />
+                    </Button>
+                }
+                description={t('headerBar.settings.advanced.deviceId.description')}
+            />
+
+        </div>
+    );
 }
 
 /**

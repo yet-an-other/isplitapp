@@ -226,15 +226,27 @@
   },
   "createGroupMenu": {
     "errors": {
-      "parseLink": "Link konnte nicht geparst werden und Gruppen-ID nicht gefunden"
+      "parseLink": "Link konnte nicht geparst werden und Gruppen-ID nicht gefunden",
+      "invalidDeviceId": "Bitte geben Sie eine gültige Geräte-ID ein",
+      "noGroupsFound": "Keine Gruppen für die angegebene Geräte-ID gefunden",
+      "importFailed": "Fehler beim Importieren der Gruppen. Bitte überprüfen Sie die Geräte-ID und versuchen Sie es erneut."
+    },
+    "success": {
+      "importSuccess": "{{count}} Gruppe{{plural}} erfolgreich importiert"
     },
     "addByLinkModal": {
       "title": "Gruppe über Link hinzufügen",
       "description": "Wenn jemand einen Gruppenlink mit Ihnen geteilt hat, können Sie ihn hier einfügen, um die Gruppe zu Ihrer Liste hinzuzufügen.",
       "linkLabel": "Gruppenlink"
     },
+    "importFromDeviceModal": {
+      "title": "Gruppen von Gerät importieren",
+      "description": "Geben Sie die Geräte-ID von einem anderen Gerät ein, um alle seine Gruppen auf Ihr aktuelles Gerät zu importieren.",
+      "deviceIdLabel": "Geräte-ID",
+      "importButton": "Gruppen Importieren"
+    },
     "menu": {
-      "title": "Neue Gruppe erstellen oder hinzufügen",
+      "title": "Neue Gruppe",
       "ariaLabel": "Gruppe erstellen Menü",
       "createGroup": {
         "description": "Geben Sie einfach den Gruppennamen und die Währung ein, und los geht's!",
@@ -245,6 +257,11 @@
         "description": "Gruppenlink einfügen, um einer Gruppe beizutreten",
         "textValue": "Über URL Hinzufügen",
         "text": "Über URL Hinzufügen"
+      },
+      "importFromDevice": {
+        "description": "Alle Gruppen von einem anderen Gerät über dessen Geräte-ID importieren",
+        "textValue": "Von Gerät Importieren",
+        "text": "Von Gerät Importieren"
       }
     }
   },
@@ -291,6 +308,14 @@
         "label": "Benachrichtigungen",
         "descriptionDisabled": "Um Benachrichtigungen ein- oder auszuschalten, müssen Sie zu Einstellungen → Benachrichtigungen → iSplitApp gehen, den Benachrichtigungsschalter umschalten und iSplitApp neu laden.",
         "descriptionEnabled": "Aktivieren Sie, um über neue oder geänderte Ausgaben in Ihren Gruppen benachrichtigt zu werden."
+      },
+      "advanced": {
+        "title": "Erweitert",
+        "deviceId": {
+          "label": "Geräte-ID",
+          "description": "Diese eindeutige Kennung wird verwendet, um Ihr Gerät mit Ihren Gruppen und Ausgaben zu verknüpfen.",
+          "copied": "Geräte-ID in die Zwischenablage kopiert!"
+        }
       }
     }
   },
