@@ -16,6 +16,7 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useAlerts } from "../utils/useAlerts";
 import { useTranslation } from "react-i18next";
+import { usePartySetting } from "../utils/partySetting";
 
 
 function useQueryParams() {
@@ -32,14 +33,21 @@ export function ExpenseEdit() {
 
     const group = useOutletContext<PartyInfo>();
     const { expenseId } = useParams();
+    const partySettings = usePartySetting(group.id);
 
     const { title, lenderId, borrowerId, amount, isReimbursement } = useQueryParams();
+    
+    // Use default participant from party settings if available, otherwise use first participant
+    const defaultLenderId = lenderId ?? 
+        (partySettings.defaultParticipantId && group.participants.find(p => p.id === partySettings.defaultParticipantId)?.id) ?? 
+        group.participants[0].id;
+    
     const paramsExpense = {
         title: title ?? "",
         borrowers: borrowerId 
             ? [{participantId: borrowerId, amount: 0, share: 1, percent: 0}]
             : group.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percent: 0}}),
-        lenderId: lenderId ?? group.participants[0].id,
+        lenderId: defaultLenderId,
         amount: Number.parseFloat(amount ?? "0"),
         isReimbursement: Boolean(JSON.parse(isReimbursement ?? "false")),
         date: new Date(Date.now()),

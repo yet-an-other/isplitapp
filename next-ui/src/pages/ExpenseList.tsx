@@ -29,7 +29,9 @@ export function ExpenseList() {
         {
             onSuccess: (data) => {
                 if (data && data.length > 0) {
-                    const lastExpense = data.reduce((acc, cur) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur).updateTimestamp;
+                    const lastExpense = data
+                        .reduce((acc, cur) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur)
+                        .updateTimestamp;
                     setLastViewed(lastExpense);
                 }
             }
@@ -56,10 +58,9 @@ export function ExpenseList() {
                         onValueChange={setIsShowRefund}
                         size="md"
                         color="primary"
-                        className="-mr-1"
                     />
                 </div>
-                <div className="text-xs text-dimmed mr-1">{ isShowRefund ? t('expenseList.refundsToggle.hide') : t('expenseList.refundsToggle.show') } {t('expenseList.refundsToggle.label')}</div>
+                <div className="text-xs text-dimmed mr-1 pt-1">{ isShowRefund ? t('expenseList.refundsToggle.hide') : t('expenseList.refundsToggle.show') } {t('expenseList.refundsToggle.label')}</div>
             </div>
         </div>
         { error && <ErrorCard error={error}/>}
@@ -86,7 +87,6 @@ const EmptyList = ({groupId} : {groupId: string}) => {
 }
 
 
-
 /**
  * Display the expense list
  */
@@ -94,6 +94,7 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
     { group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string, isShowReimbursement: boolean }) => {
 
     const { t } = useTranslation();
+    const { defaultParticipantId } = usePartySetting(group.id);
 
     let lastBorder = "";
     const borderIds: string[] = [];
@@ -118,13 +119,13 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     key={expense.id} 
                     className="my-1 flex flex-col"
                 >
-                   {i > 0 && <Divider className="my-1 mb-2" />}
+                   {i > 0 && <Divider className="mt-1 mb-2" />}
                    {
                         borderIds.includes(expense.id) && 
                         <Chip
-                            variant="bordered"
+                            variant="light"
                             size="sm" 
-                            className={`ml-auto mr-auto ${i > 0 ? '-mt-[20px]' : '-mt-[24px]'} bg-white dark:bg-black text-dimmed`}>
+                            className={`mx-auto ${i > 0 ? '-mt-[20px]' : '-mt-[24px]'} bg-white dark:bg-black text-dimmed`}>
                             {intlFormatDistance(expense.date, Date.now())}
                         </Chip>
                     }
@@ -152,14 +153,20 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     </div>
 
                     <div className="flex flex-row mt-1">
-                        <div className="flex flex-col w-full ml-7">
+                        <div className="flex flex-col w-full ml-7 -mt-1">
                             <div>
                                 <span className="text-sm">{t('expenseList.labels.paidBy')} </span>
-                                <span className="text-xs text-dimmed">{expense.lenderName}</span>
+                                <span className={`text-xs ${expense.lenderId === defaultParticipantId ? 'text-primary' : 'text-dimmed'}`}>{expense.lenderName}</span>
                             </div>
-                            <div>
+                            <div className="-mt-1">
                                 <span className="text-sm">{expense.isReimbursement ? t('expenseList.labels.to') : t('expenseList.labels.for')} </span>
-                                <span className="text-xs text-dimmed whitespace-normal">{expense.borrowers.map(b => b.participantName).join(", ")}</span>
+                                <span className="text-xs text-dimmed whitespace-normal">
+                                    {expense.borrowers.map((b, index) => (
+                                        <span key={b.participantId} className={b.participantId === defaultParticipantId ? 'text-primary' : ''}>
+                                            {b.participantName}{index < expense.borrowers.length - 1 ? ', ' : ''}
+                                        </span>
+                                    ))}
+                                </span>
                             </div>
                         </div>
                         <div className="flex flex-row">
@@ -168,9 +175,44 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                             <div className="text-md text-dimmed">{group.currency}</div>
                         </div>
                     </div>
-                    <div className="flex flex-row justify-end items-center">
-                        <div className={`h-2 w-2 mr-1 rounded-full ${expense.updateTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
-                        <div className="flex text-xs text-dimmed ">{format(expense.date, "eee dd LLL yyyy")}</div>
+                    <div className="flex flex-row justify-between items-center mt-1">
+                        <div className="flex items-center ml-7 mb-1">
+                            {defaultParticipantId && (() => {
+                                const defaultBorrower = expense.borrowers.find(b => b.participantId === defaultParticipantId);
+                                const isDefaultLender = expense.lenderId === defaultParticipantId;
+                                
+                                if (isDefaultLender && defaultBorrower) {
+                                    // Default participant lent the full amount but also borrowed their share
+                                    const netAmount = expense.amount - defaultBorrower.amount;
+                                    if (netAmount > 0) {
+                                        return (
+                                            <div className="text-xs text-dimmed">
+                                                {t('expenseList.labels.youLent')} <span className="text-success-600 font-mono">{netAmount.toFixed(2)}</span> {group.currency}
+                                            </div>
+                                        );
+                                    }
+                                } else if (defaultBorrower) {
+                                    // Default participant only borrowed
+                                    return (
+                                        <div className="text-xs text-dimmed">
+                                            {t('expenseList.labels.youOwe')} <span className="text-danger-600 font-mono">{defaultBorrower.amount.toFixed(2)}</span> {group.currency}
+                                        </div>
+                                    );
+                                } else if (isDefaultLender) {
+                                    // Default participant only lent (not included in borrowers)
+                                    return (
+                                        <div className="text-xs text-dimmed">
+                                            {t('expenseList.labels.youLent')} <span className="text-success-600 font-mono">{expense.amount.toFixed(2)}</span> {group.currency}
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })()}
+                        </div>
+                        <div className="flex items-center mt-1">
+                            <div className={`h-2 w-2 mr-1 rounded-full ${expense.updateTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
+                            <div className="flex text-xs text-dimmed ">{format(expense.date, "eee dd LLL yyyy")}</div>
+                        </div>
                     </div>
                 </div>
             )}

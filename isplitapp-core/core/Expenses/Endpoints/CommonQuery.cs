@@ -2,6 +2,7 @@ using IB.ISplitApp.Core.Expenses.Data;
 using IB.Utils.Ids;
 using LinqToDB;
 using LinqToDB.Data;
+
 // ReSharper disable ArrangeRedundantParentheses
 
 namespace IB.ISplitApp.Core.Expenses.Endpoints;
@@ -65,5 +66,63 @@ internal static class CommonQuery
 
         long Evenly(int i) => (expense.FuAmount.ToMuAmount() / expense.Borrowers.Length)
                               + (expense.FuAmount.ToMuAmount() % expense.Borrowers.Length <= i ? 0 : 1);
+    }
+
+    /// <summary>
+    /// Core party creation logic - creates party and participants, returns party ID or null if conflict
+    /// </summary>
+    /// <param name="deviceId">Device ID requesting the creation</param>
+    /// <param name="party">Party payload data</param>
+    /// <param name="auidFactory">Factory for generating IDs</param>
+    /// <param name="db">Database connection</param>
+    /// <param name="providedPartyId">Optional party ID provided by client</param>
+    /// <returns>Created party ID or null if conflict occurred</returns>
+    internal static async Task<Auid?> CreatePartyInternalAsync(
+        Auid deviceId,
+        PartyPayload party,
+        AuidFactory auidFactory,
+        ExpenseDb db,
+        Auid? providedPartyId = null)
+    {
+        var partyId = providedPartyId ?? auidFactory.NewId();
+
+        // Check if party already exists (only when ID is provided)
+        if (providedPartyId.HasValue)
+        {
+            var existingParty = await db.GetTable<Party>()
+                .Where(p => p.Id == providedPartyId.Value)
+                .FirstOrDefaultAsync();
+                
+            if (existingParty != null)
+            {
+                return null; // Indicates conflict
+            }
+        }
+
+        // Create Party
+        await db.BeginTransactionAsync();
+        await db.InsertAsync(new Party
+        {
+            Id = partyId,
+            Name = party.Name,
+            Currency = party.Currency,
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow,
+            Timestamp = auidFactory.Timestamp()
+        });
+
+        // Create Participants - use client-provided IDs if available, otherwise generate
+        var participants = party.Participants.Select(p => new Participant 
+        { 
+            Id = p.Id != Auid.Empty ? p.Id : auidFactory.NewId(), 
+            Name = p.Name, 
+            PartyId = partyId 
+        });
+        await db.BulkCopyAsync(participants);
+
+        await EnsureDevicePartyVisibility(deviceId, partyId, db);
+        await db.CommitTransactionAsync();
+        
+        return partyId;
     }
 }

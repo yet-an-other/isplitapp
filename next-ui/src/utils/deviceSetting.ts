@@ -6,6 +6,8 @@ export type PartyIconStyle = 'bauhaus' | 'marble' | 'none';
 export class DeviceSetting {
 
     partyIconStyle : PartyIconStyle = 'bauhaus';
+    
+    defaultUserName: string = '';
 
     static save(settings: DeviceSetting) {
         localStorage.setItem(
@@ -37,6 +39,8 @@ export function useDeviceSetting() {
     }, [deviceSettings]);
 
     const setPartyIconStyle = (partyIconStyle: PartyIconStyle) => setDeviceSettings({...deviceSettings, partyIconStyle: partyIconStyle});
+    
+    const setDefaultUserName = (defaultUserName: string) => setDeviceSettings({...deviceSettings, defaultUserName: defaultUserName});
 
-    return {...deviceSettings, setPartyIconStyle} as const;
+    return {...deviceSettings, setPartyIconStyle, setDefaultUserName} as const;
 }

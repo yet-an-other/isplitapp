@@ -9,6 +9,7 @@ export class PartySetting {
     isArchived = false;
     isShowRefund = true;
     lastViewed = "zzzzzzz";
+    defaultParticipantId: string | null = null;
 
     static save(setting: PartySetting) {
         localStorage.setItem(
@@ -37,6 +38,7 @@ export function usePartySetting(partyId: string)
     const setIsShowRefund = (isShowRefund: boolean) => setPartySettings({...partySettings, isShowRefund: isShowRefund});
     const setLastViewed = (lastViewed: string) => setPartySettings({...partySettings, lastViewed: lastViewed});
     const setIsArchived = (isArchived: boolean) => setPartySettings({...partySettings, isArchived: isArchived});
+    const setDefaultParticipantId = (defaultParticipantId: string | null) => setPartySettings({...partySettings, defaultParticipantId: defaultParticipantId});
 
-    return {...partySettings, setIsShowRefund, setLastViewed, setIsArchived} as const;
+    return {...partySettings, setIsShowRefund, setLastViewed, setIsArchived, setDefaultParticipantId} as const;
 }

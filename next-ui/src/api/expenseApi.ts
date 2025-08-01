@@ -17,13 +17,12 @@ export async function fetcher<TResponse>(key: string) {
 
 /**
  * Creates new party
+ * @param partyId party id (generated client-side)
  * @param partyPayload new party data
- * @returns location
  */
-export async function createParty(partyPayload: PartyPayload) {
-    const endpoint = "/parties"
-    const { partyId } = await sendRequest<PartyPayload, { partyId: string }>('POST', endpoint, partyPayload);
-    return partyId;
+export async function createParty(partyId: string, partyPayload: PartyPayload) {
+    const endpoint = `/parties/${partyId}`;
+    await sendRequest('POST', endpoint, partyPayload);
 }
 
 /**

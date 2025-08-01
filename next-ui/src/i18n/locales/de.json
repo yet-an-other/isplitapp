@@ -132,11 +132,13 @@
     },
     "participantsSection": {
       "title": "Teilnehmer",
-      "description": "Fügen Sie Teilnehmer hinzu, die Ausgaben in dieser Gruppe teilen werden"
+      "description": "Fügen Sie Teilnehmer hinzu, die Ausgaben in dieser Gruppe teilen werden",
+      "defaultParticipantHelper": "💡 Tipp: Klicken Sie auf das Benutzersymbol neben dem Namen eines Teilnehmers, um ihn als Standard-Zahler für neue Ausgaben auf diesem Gerät festzulegen"
     },
     "buttons": {
       "updateGroup": "Gruppe Aktualisieren",
-      "createGroup": "Gruppe Erstellen"
+      "createGroup": "Gruppe Erstellen",
+      "addParticipant": "Teilnehmer Hinzufügen"
     }
   },
   "group": {
@@ -168,7 +170,9 @@
     "labels": {
       "paidBy": "Bezahlt von",
       "to": "an",
-      "for": "für"
+      "for": "Für",
+      "youLent": "Du hast geliehen",
+      "youOwe": "Du schuldest"
     }
   },
   "expenseEdit": {
@@ -308,6 +312,11 @@
         "label": "Benachrichtigungen",
         "descriptionDisabled": "Um Benachrichtigungen ein- oder auszuschalten, müssen Sie zu Einstellungen → Benachrichtigungen → iSplitApp gehen, den Benachrichtigungsschalter umschalten und iSplitApp neu laden.",
         "descriptionEnabled": "Aktivieren Sie, um über neue oder geänderte Ausgaben in Ihren Gruppen benachrichtigt zu werden."
+      },
+      "defaultUser": {
+        "label": "Standard-Parteimitgleid",
+        "description": "Ihr Name wird automatisch ausgefüllt, wenn Sie neue Gruppen erstellen oder Ausgaben hinzufügen.",
+        "placeholder": "Ihr Name"
       },
       "advanced": {
         "title": "Erweitert",
