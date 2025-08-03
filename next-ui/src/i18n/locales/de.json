@@ -314,7 +314,7 @@
         "descriptionEnabled": "Aktivieren Sie, um über neue oder geänderte Ausgaben in Ihren Gruppen benachrichtigt zu werden."
       },
       "defaultUser": {
-        "label": "Standard-Parteimitgleid",
+        "label": "Hauptteilnehmer",
         "description": "Ihr Name wird automatisch ausgefüllt, wenn Sie neue Gruppen erstellen oder Ausgaben hinzufügen.",
         "placeholder": "Ihr Name"
       },
