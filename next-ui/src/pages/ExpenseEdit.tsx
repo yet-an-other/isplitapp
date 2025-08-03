@@ -39,7 +39,7 @@ export function ExpenseEdit() {
     
     // Use default participant from party settings if available, otherwise use first participant
     const defaultLenderId = lenderId ?? 
-        (partySettings.defaultParticipantId && group.participants.find(p => p.id === partySettings.defaultParticipantId)?.id) ?? 
+        (partySettings.primaryParticipantId && group.participants.find(p => p.id === partySettings.primaryParticipantId)?.id) ?? 
         group.participants[0].id;
     
     const paramsExpense = {
@@ -84,6 +84,8 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
     const [validationResult, setValidationResult] = 
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
+
+    const partySettings = usePartySetting(group.id);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
 
@@ -228,12 +230,14 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
         const result = ExpensePayloadSchema.safeParse(expense);
         setValidationResult(result);
         setIsShowErrors(true);
+
         if (result.success) {
             try {
                 expenseId 
                     ? await updateExpense(expenseId, expense)
                     : await createExpense(group.id, expense);
                 await mutate(`/parties/${group.id}`);
+                await mutate(`/parties/${group.id}${partySettings.primaryParticipantId ? `?ppId=${partySettings.primaryParticipantId}` : ''}`);
                 navigate(`/${group.id}/expenses`);
             }
             catch(e) {

@@ -33,15 +33,15 @@ export function GroupEdit() {
 
     const initParty = new PartyPayload();
     if (defaultUserName && defaultUserName.trim() !== '') {
-        const defaultParticipantId = auidGenerator.generate();
+        const primaryParticipantId = auidGenerator.generate();
         initParty.participants = [
-            {name: defaultUserName.trim(), id: defaultParticipantId, canDelete: true}, 
+            {name: defaultUserName.trim(), id: primaryParticipantId, canDelete: true}, 
             {name: "", id: auidGenerator.generate(), canDelete: true}
         ]
         
-        // For new parties, automatically set the first participant as default if it matches defaultUserName
-        if (!groupId && partySettings.defaultParticipantId === null) {
-            partySettings.setDefaultParticipantId(defaultParticipantId);
+        // For new parties, automatically set the first participant as primary if it matches defaultUserName
+        if (!groupId && partySettings.primaryParticipantId === null) {
+            partySettings.setPrimaryParticipantId(primaryParticipantId);
         }
     } else  {
         initParty.participants = [
@@ -66,6 +66,9 @@ export function GroupEdit() {
     const [isParticipantFocus, setParticipantFocus] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [filteredCurrencies, setFilteredCurrencies] = useState(COMMON_CURRENCIES);
+    
+    // Track current primary participant selection locally to avoid async state issues
+    const [localPrimaryParticipantId, setLocalPrimaryParticipantId] = useState<string | null>(partySettings.primaryParticipantId);
     const alertError = useAlerts().alertError;
     
     /**
@@ -130,12 +133,13 @@ export function GroupEdit() {
             return;
         }
         
-        // Now we can use localStorage for both new and existing parties
-        // since we have generated participant IDs locally
-        if (partySettings.defaultParticipantId === participant.id) {
-            partySettings.setDefaultParticipantId(null);
+        // Update both local state and localStorage-backed state
+        if (localPrimaryParticipantId === participant.id) {
+            setLocalPrimaryParticipantId(null);
+            partySettings.setPrimaryParticipantId(null);
         } else {
-            partySettings.setDefaultParticipantId(participant.id);
+            setLocalPrimaryParticipantId(participant.id);
+            partySettings.setPrimaryParticipantId(participant.id);
         }
     }
 
@@ -152,7 +156,8 @@ export function GroupEdit() {
                     // Creating new party - use our locally generated ID
                     await createParty(localPartyId, party);
                 }
-                await mutate(`/parties/${localPartyId}`);
+
+                await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${localPartyId}`));
                 await mutate(`/parties`);
                 navigate(`/${localPartyId}/expenses`);
             } 
@@ -248,7 +253,7 @@ export function GroupEdit() {
                 <CardHeader className="flex flex-col items-start">
                     <h1 className="text-2xl">{t('groupEdit.participantsSection.title')}</h1>
                     <div className="text-xs text-dimmed">{t('groupEdit.participantsSection.description')}</div>
-                    <div className="text-xs text-dimmed">{t('groupEdit.participantsSection.defaultParticipantHelper')}</div>
+                    <div className="text-xs text-dimmed">{t('groupEdit.participantsSection.primaryParticipantHelper')}</div>
                 </CardHeader>
                 <CardBody>
                     <div className={`text-xs text-danger ${!fieldError("participants") ? 'hidden': 'block'}`}>
@@ -272,7 +277,7 @@ export function GroupEdit() {
                                     disabled={!p.name || p.name.trim() === ''}
                                     className="-ml-2"
                                 >
-                                    {partySettings.defaultParticipantId === p.id ? (
+                                    {localPrimaryParticipantId === p.id ? (
                                         <UserStarIcon className="w-6 h-6 text-primary fill-current stroke-1.5" />
                                     ) : (
                                         <UserIcon className={`w-6 h-6 ${!p.name || p.name.trim() === '' ? "text-dimmed" : "text-primary"}` } />

@@ -133,7 +133,7 @@
     "participantsSection": {
       "title": "Teilnehmer",
       "description": "Fügen Sie Teilnehmer hinzu, die Ausgaben in dieser Gruppe teilen werden",
-      "defaultParticipantHelper": "💡 Tipp: Klicken Sie auf das Benutzersymbol neben dem Namen eines Teilnehmers, um ihn als Standard-Zahler für neue Ausgaben auf diesem Gerät festzulegen"
+      "primaryParticipantHelper": "💡 Tipp: Klicken Sie auf das Benutzersymbol neben dem Namen eines Teilnehmers, um ihn als primären Teilnehmer für dieses Gerät festzulegen"
     },
     "buttons": {
       "updateGroup": "Gruppe Aktualisieren",

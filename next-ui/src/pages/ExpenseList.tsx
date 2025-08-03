@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 export function ExpenseList() {
 
     const navigate = useNavigate();
-    const group = useOutletContext<PartyInfo>();
+    const { party: group } = useOutletContext<{ party: PartyInfo, primaryParticipantId: string | null }>();
     const { t } = useTranslation();
     const { isShowRefund, setIsShowRefund } = usePartySetting(group.id);
     const { lastViewed, setLastViewed } = usePartySetting(group.id);
@@ -94,7 +94,7 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
     { group: PartyInfo, expenses: ExpenseInfo[], lastViewed: string, isShowReimbursement: boolean }) => {
 
     const { t } = useTranslation();
-    const { defaultParticipantId } = usePartySetting(group.id);
+    const { primaryParticipantId } = usePartySetting(group.id);
 
     let lastBorder = "";
     const borderIds: string[] = [];
@@ -156,13 +156,13 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                         <div className="flex flex-col w-full ml-7 -mt-1">
                             <div>
                                 <span className="text-sm">{t('expenseList.labels.paidBy')} </span>
-                                <span className={`text-xs ${expense.lenderId === defaultParticipantId ? 'text-primary' : 'text-dimmed'}`}>{expense.lenderName}</span>
+                                <span className={`text-xs ${expense.lenderId === primaryParticipantId ? 'text-primary' : 'text-dimmed'}`}>{expense.lenderName}</span>
                             </div>
                             <div className="-mt-1">
                                 <span className="text-sm">{expense.isReimbursement ? t('expenseList.labels.to') : t('expenseList.labels.for')} </span>
                                 <span className="text-xs text-dimmed whitespace-normal">
                                     {expense.borrowers.map((b, index) => (
-                                        <span key={b.participantId} className={b.participantId === defaultParticipantId ? 'text-primary' : ''}>
+                                        <span key={b.participantId} className={b.participantId === primaryParticipantId ? 'text-primary' : ''}>
                                             {b.participantName}{index < expense.borrowers.length - 1 ? ', ' : ''}
                                         </span>
                                     ))}
@@ -177,13 +177,13 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     </div>
                     <div className="flex flex-row justify-between items-center mt-1">
                         <div className="flex items-center ml-7 mb-1">
-                            {defaultParticipantId && (() => {
-                                const defaultBorrower = expense.borrowers.find(b => b.participantId === defaultParticipantId);
-                                const isDefaultLender = expense.lenderId === defaultParticipantId;
+                            {primaryParticipantId && (() => {
+                                const primaryBorrower = expense.borrowers.find(b => b.participantId === primaryParticipantId);
+                                const isPrimaryLender = expense.lenderId === primaryParticipantId;
                                 
-                                if (isDefaultLender && defaultBorrower) {
-                                    // Default participant lent the full amount but also borrowed their share
-                                    const netAmount = expense.amount - defaultBorrower.amount;
+                                if (isPrimaryLender && primaryBorrower) {
+                                    // Primary participant lent the full amount but also borrowed their share
+                                    const netAmount = expense.amount - primaryBorrower.amount;
                                     if (netAmount > 0) {
                                         return (
                                             <div className="text-xs text-dimmed">
@@ -191,15 +191,15 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                                             </div>
                                         );
                                     }
-                                } else if (defaultBorrower) {
-                                    // Default participant only borrowed
+                                } else if (primaryBorrower) {
+                                    // Primary participant only borrowed
                                     return (
                                         <div className="text-xs text-dimmed">
-                                            {t('expenseList.labels.youOwe')} <span className="text-danger-600 font-mono">{defaultBorrower.amount.toFixed(2)}</span> {group.currency}
+                                            {t('expenseList.labels.youOwe')} <span className="text-danger-600 font-mono">{primaryBorrower.amount.toFixed(2)}</span> {group.currency}
                                         </div>
                                     );
-                                } else if (isDefaultLender) {
-                                    // Default participant only lent (not included in borrowers)
+                                } else if (isPrimaryLender) {
+                                    // Primary participant only lent (not included in borrowers)
                                     return (
                                         <div className="text-xs text-dimmed">
                                             {t('expenseList.labels.youLent')} <span className="text-success-600 font-mono">{expense.amount.toFixed(2)}</span> {group.currency}

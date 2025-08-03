@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export class PartySetting {
 
@@ -9,7 +9,7 @@ export class PartySetting {
     isArchived = false;
     isShowRefund = true;
     lastViewed = "zzzzzzz";
-    defaultParticipantId: string | null = null;
+    primaryParticipantId: string | null = null;
 
     static save(setting: PartySetting) {
         localStorage.setItem(
@@ -29,16 +29,48 @@ export class PartySetting {
 
 export function usePartySetting(partyId: string)
 {
-    const [partySettings, setPartySettings] = useState(PartySetting.load(partyId));
+    const [partySettings, setPartySettings] = useState(() => PartySetting.load(partyId));
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+    // Debounce saving to localStorage to prevent excessive writes
     useEffect(() => {
-        PartySetting.save(partySettings);
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+        saveTimeoutRef.current = setTimeout(() => {
+            PartySetting.save(partySettings);
+        }, 100);
+
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
     }, [partySettings]);
 
-    const setIsShowRefund = (isShowRefund: boolean) => setPartySettings({...partySettings, isShowRefund: isShowRefund});
-    const setLastViewed = (lastViewed: string) => setPartySettings({...partySettings, lastViewed: lastViewed});
-    const setIsArchived = (isArchived: boolean) => setPartySettings({...partySettings, isArchived: isArchived});
-    const setDefaultParticipantId = (defaultParticipantId: string | null) => setPartySettings({...partySettings, defaultParticipantId: defaultParticipantId});
+    // Memoize setter functions to prevent infinite re-renders
+    const setIsShowRefund = useCallback((isShowRefund: boolean) => {
+        setPartySettings(prev => ({...prev, isShowRefund}));
+    }, []);
 
-    return {...partySettings, setIsShowRefund, setLastViewed, setIsArchived, setDefaultParticipantId} as const;
+    const setLastViewed = useCallback((lastViewed: string) => {
+        setPartySettings(prev => ({...prev, lastViewed}));
+    }, []);
+
+    const setIsArchived = useCallback((isArchived: boolean) => {
+        setPartySettings(prev => ({...prev, isArchived}));
+    }, []);
+
+    const setPrimaryParticipantId = useCallback((primaryParticipantId: string | null) => {
+        setPartySettings(prev => ({...prev, primaryParticipantId}));
+    }, []);
+
+    // Memoize the return object to prevent unnecessary re-renders
+    return useMemo(() => ({
+        ...partySettings, 
+        setIsShowRefund, 
+        setLastViewed, 
+        setIsArchived, 
+        setPrimaryParticipantId
+    }), [partySettings, setIsShowRefund, setLastViewed, setIsArchived, setPrimaryParticipantId]);
 }

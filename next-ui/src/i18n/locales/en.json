@@ -132,7 +132,7 @@
     "participantsSection": {
       "title": "Participants",
       "description": "Add participants who will be sharing expenses in this group",
-      "defaultParticipantHelper": "💡 Tip: Click the user icon next to a participant's name to set them as the default payer for new expenses on this device"
+      "primaryParticipantHelper": "💡 Tip: Click the user icon next to a participant's name to set them as the primary participant for this device"
     },
     "buttons": {
       "updateGroup": "Update Group",
