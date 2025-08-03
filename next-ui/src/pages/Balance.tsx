@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 export function Balance(){
 
-    const group = useOutletContext<PartyInfo>();
+    const { party: group, primaryParticipantId } = useOutletContext<{ party: PartyInfo, primaryParticipantId: string | null }>();
     const {data: balanceInfo, error, isLoading } = useSWR<BalanceInfo, ProblemError>(`/parties/${group.id}/balance`, fetcher);
 
     if (error)
@@ -26,15 +26,15 @@ export function Balance(){
     if (balanceInfo) {
         return (
             <div className="mt-6">
-                <BalanceChart balances={balanceInfo.balances} party={group}/>
-                <ReimbursementList reimbursements={balanceInfo.reimbursements} party={group}/>
+                <BalanceChart balances={balanceInfo.balances} party={group} primaryParticipantId={primaryParticipantId}/>
+                <ReimbursementList reimbursements={balanceInfo.reimbursements} party={group} primaryParticipantId={primaryParticipantId}/>
             </div>
         )
     }
     return null;
 }
 
-function BalanceChart({balances, party}: {balances: BalanceEntry[], party: PartyInfo}) {
+function BalanceChart({balances, party, primaryParticipantId}: {balances: BalanceEntry[], party: PartyInfo, primaryParticipantId: string | null}) {
     const { t } = useTranslation();
 
     if (party.outstandingBalance === 0) {
@@ -53,13 +53,14 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
                 //.filter(b => b.amount != 0)
                 .map( balance => {
                 const isPositive = balance.amount >= 0;
+                const isPrimaryParticipant = balance.participantId === primaryParticipantId;
                 return(
                     <div 
                         key={balance.participantId}
                         className={`w-full h-10 flex bg-transparent items-center justify-center ${isPositive ? 'flex-row' : 'flex-row-reverse'}`}
                     >
                         <div className={`w-1/2 px-1 flex ${isPositive ? 'justify-end' : 'justify-start'}`}>
-                            <div className="text-sm font-bold ">
+                            <div className={`text-sm font-bold ${isPrimaryParticipant ? 'text-primary' : ''}`}>
                                 {balance.participantName}
                             </div>
                         </div>
@@ -83,7 +84,7 @@ function BalanceChart({balances, party}: {balances: BalanceEntry[], party: Party
 }
 
 
-function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEntry[], party: PartyInfo}) {
+function ReimbursementList({reimbursements, party, primaryParticipantId}: {reimbursements: ReimburseEntry[], party: PartyInfo, primaryParticipantId: string | null}) {
     const { t } = useTranslation();
 
     if (reimbursements.length === 0) 
@@ -94,13 +95,16 @@ function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEn
             <div className=" text-2xl">{t('balance.reimbursements.title')}</div>
             <div className="text-sm text-dimmed mb-4">{t('balance.reimbursements.subtitle')}</div>
             <div className="border-1 p-2 rounded-lg ">
-            {reimbursements.map((reimburse, i) =>(
+            {reimbursements.map((reimburse, i) =>{
+                const isFromPrimary = reimburse.fromId === primaryParticipantId;
+                const isToPrimary = reimburse.toId === primaryParticipantId;
+                return (
                 <div key={reimburse.fromId + reimburse.toId} className={`flex flex-row py-3 ${i > 0 && 'border-t-1'}`}>
                     <div>
                         <div>
-                            <span className="font-bold">{reimburse.fromName}</span>
+                            <span className={`font-bold ${isFromPrimary ? 'text-primary' : ''}`}>{reimburse.fromName}</span>
                             <span className="text-dimmed"> {t('balance.reimbursements.owes')} </span>
-                            <span className="font-bold">{reimburse.toName}</span>
+                            <span className={`font-bold ${isToPrimary ? 'text-primary' : ''}`}>{reimburse.toName}</span>
                         </div>
                         <div className="flex flex-row items-end mt-1">
                             <Button 
@@ -126,7 +130,8 @@ function ReimbursementList({reimbursements, party}: {reimbursements: ReimburseEn
                         <span className="text-md text-dimmed">{party.currency}</span>
                     </div>
                 </div>
-            ))}
+                );
+            })}
             </div>
         </div>
     )

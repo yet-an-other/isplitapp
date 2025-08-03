@@ -131,11 +131,13 @@
     },
     "participantsSection": {
       "title": "Participants",
-      "description": "Add participants who will be sharing expenses in this group"
+      "description": "Add participants who will be sharing expenses in this group",
+      "primaryParticipantHelper": "💡 Tip: Click the user icon next to a participant's name to set them as the primary participant for this device"
     },
     "buttons": {
       "updateGroup": "Update Group",
-      "createGroup": "Create Group"
+      "createGroup": "Create Group",
+      "addParticipant": "Add Participant"
     }
   },
   "group": {
@@ -167,7 +169,9 @@
     "labels": {
       "paidBy": "Paid by",
       "to": "to",
-      "for": "for"
+      "for": "For",
+      "youLent": "You lent",
+      "youOwe": "You owe"
     }
   },
   "expenseEdit": {
@@ -307,6 +311,11 @@
         "label": "Notifications",
         "descriptionDisabled": "To switch notifications on or off, you need to open Settings → Notifications → iSplitApp, toggle the notifications switch and reload iSplitApp.",
         "descriptionEnabled": "Enable to be notified about new or changed expenses in your groups."
+      },
+      "defaultUser": {
+        "label": "Default participant",
+        "description": "Your name will be automatically filled when creating new groups or adding expenses.",
+        "placeholder": "Your name"
       },
       "advanced": {
         "title": "Advanced",

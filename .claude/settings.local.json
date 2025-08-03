@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Bash(dotnet --version)",
@@ -23,7 +24,12 @@
       "mcp__playwright__browser_type",
       "Bash(npm run dev:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__playwright__browser_close",
+      "Bash(pkill:*)",
+      "Bash(dotnet test:*)",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_evaluate"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

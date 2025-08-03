@@ -30,5 +30,9 @@ export class PartyInfo {
     updateTimestamp = "zzzzzzz";
 
     lastExpenseTimestamp = "zzzzzzz"
+
+    primaryParticipantBalance: number | null = null;
+
+    primaryParticipantExpenses: number | null = null;
 }
 

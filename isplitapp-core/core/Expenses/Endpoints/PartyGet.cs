@@ -17,16 +17,25 @@ public class PartyGet : IEndpoint
     public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => builder.WithName("GetParty");
 
     public Delegate Endpoint =>
-        new Func<string?, string?, RequestValidator, ExpenseDb, Task<Results<Ok<PartyInfo>, NotFound>>>(
+        new Func<string?, string?, string?, RequestValidator, ExpenseDb, Task<Results<Ok<PartyInfo>, NotFound>>>(
             async (
                 [FromHeader(Name = HeaderName.Device)] rawDeviceId,
-                [FromRoute(Name = "partyId")] rawPartyId, 
+                [FromRoute(Name = "partyId")] rawPartyId,
+                [FromQuery(Name = "ppId")] rawPrimaryParticipantId,
                 validator, db) =>
             {
                 validator
                     .TryParseId(rawDeviceId, out var deviceId, "deviceId")
-                    .TryParseId(rawPartyId, out var partyId, "partyId")
-                    .ThrowOnError();
+                    .TryParseId(rawPartyId, out var partyId, "partyId");
+
+                Auid? primaryParticipantId = null;
+                if (!string.IsNullOrWhiteSpace(rawPrimaryParticipantId))
+                {
+                    validator.TryParseId(rawPrimaryParticipantId, out var parsedPrimaryParticipantId, "ppId");
+                    primaryParticipantId = parsedPrimaryParticipantId;
+                }
+
+                validator.ThrowOnError();
 
                 var partyQuery = from p in db.Parties
                     where p.Id == partyId
@@ -74,7 +83,26 @@ public class PartyGet : IEndpoint
                             )
                             .Where(a => a > 0)
                             .Sum()
-                            .ToFuAmount()
+                            .ToFuAmount(),
+
+                        FuPrimaryParticipantBalance = primaryParticipantId == null ? (decimal?)null :
+                            (db.Expenses
+                                .Where(e => e.LenderId == primaryParticipantId.Value && e.PartyId == partyId)
+                                .Select(e => e.MuAmount)
+                                .Sum()
+                            - db.Borrowers
+                                .Where(b => b.ParticipantId == primaryParticipantId.Value &&
+                                           db.Expenses.Any(e => e.Id == b.ExpenseId && e.PartyId == partyId))
+                                .Select(b => b.MuAmount)
+                                .Sum())
+                            .ToFuAmount(),
+
+                        FuPrimaryParticipantExpenses = primaryParticipantId == null ? (decimal?)null :
+                            db.Expenses
+                                .Where(e => e.LenderId == primaryParticipantId.Value && e.PartyId == partyId && !e.IsReimbursement)
+                                .Select(e => e.MuAmount)
+                                .Sum()
+                                .ToFuAmount()
                     };
 
                 var party = await partyQuery.FirstOrDefaultAsync();

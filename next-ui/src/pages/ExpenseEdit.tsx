@@ -16,6 +16,7 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useAlerts } from "../utils/useAlerts";
 import { useTranslation } from "react-i18next";
+import { usePartySetting } from "../utils/partySetting";
 
 
 function useQueryParams() {
@@ -32,14 +33,21 @@ export function ExpenseEdit() {
 
     const group = useOutletContext<PartyInfo>();
     const { expenseId } = useParams();
+    const partySettings = usePartySetting(group.id);
 
     const { title, lenderId, borrowerId, amount, isReimbursement } = useQueryParams();
+    
+    // Use default participant from party settings if available, otherwise use first participant
+    const defaultLenderId = lenderId ?? 
+        (partySettings.primaryParticipantId && group.participants.find(p => p.id === partySettings.primaryParticipantId)?.id) ?? 
+        group.participants[0].id;
+    
     const paramsExpense = {
         title: title ?? "",
         borrowers: borrowerId 
             ? [{participantId: borrowerId, amount: 0, share: 1, percent: 0}]
             : group.participants.map(p => {return {participantId: p.id, amount: 0, share: 1, percent: 0}}),
-        lenderId: lenderId ?? group.participants[0].id,
+        lenderId: defaultLenderId,
         amount: Number.parseFloat(amount ?? "0"),
         isReimbursement: Boolean(JSON.parse(isReimbursement ?? "false")),
         date: new Date(Date.now()),
@@ -76,6 +84,8 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
     const [validationResult, setValidationResult] = 
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
+
+    const partySettings = usePartySetting(group.id);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
 
@@ -220,12 +230,14 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
         const result = ExpensePayloadSchema.safeParse(expense);
         setValidationResult(result);
         setIsShowErrors(true);
+
         if (result.success) {
             try {
                 expenseId 
                     ? await updateExpense(expenseId, expense)
                     : await createExpense(group.id, expense);
                 await mutate(`/parties/${group.id}`);
+                await mutate(`/parties/${group.id}${partySettings.primaryParticipantId ? `?ppId=${partySettings.primaryParticipantId}` : ''}`);
                 navigate(`/${group.id}/expenses`);
             }
             catch(e) {

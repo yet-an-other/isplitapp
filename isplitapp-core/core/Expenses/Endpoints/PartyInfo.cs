@@ -71,4 +71,16 @@ public record PartyInfo
     public string UpdateTimestamp { get; init; } = AuidFactory.MinTimestamp;
 
     public string LastExpenseTimestamp { get; init; } = AuidFactory.MinTimestamp;
+
+    /// <summary>
+    /// Primary participant's balance (positive if they are owed money, negative if they owe money)  
+    /// </summary>
+    [JsonPropertyName("primaryParticipantBalance")]
+    public decimal? FuPrimaryParticipantBalance { get; init; } = null;
+
+    /// <summary>
+    /// Total expenses paid by the primary participant
+    /// </summary>
+    [JsonPropertyName("primaryParticipantExpenses")]
+    public decimal? FuPrimaryParticipantExpenses { get; init; } = null;
 }

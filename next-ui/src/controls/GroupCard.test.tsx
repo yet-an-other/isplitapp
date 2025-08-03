@@ -69,6 +69,8 @@ describe('GroupCard', () => {
     isArchived: false,
     updateTimestamp: '2023-01-02T00:00:00Z',
     lastExpenseTimestamp: '2023-01-02T00:00:00Z',
+    primaryParticipantBalance: null,
+    primaryParticipantExpenses: null,
   };
 
   it('renders party information correctly', () => {
@@ -183,5 +185,78 @@ describe('GroupCard', () => {
     // Check for the main card element that's pressable
     const pressableCard = document.querySelector('.cursor-pointer');
     expect(pressableCard).toBeInTheDocument();
+  });
+
+  it('displays primary participant balance when available', () => {
+    const partyWithPrimaryParticipant = { 
+      ...mockPartyInfo, 
+      primaryParticipantBalance: 25.50,
+      primaryParticipantExpenses: 100.00
+    };
+
+    render(
+      <TestWrapper>
+        <GroupCard party={partyWithPrimaryParticipant} />
+      </TestWrapper>
+    );
+
+    // Check that primary participant balance is displayed
+    expect(screen.getByText('25.50')).toBeInTheDocument();
+  });
+
+  it('does not display primary participant balance when null', () => {
+    const partyWithoutPrimaryParticipant = { 
+      ...mockPartyInfo, 
+      primaryParticipantBalance: null,
+      primaryParticipantExpenses: null
+    };
+
+    render(
+      <TestWrapper>
+        <GroupCard party={partyWithoutPrimaryParticipant} />
+      </TestWrapper>
+    );
+
+    // Check that primary participant balance line is not displayed
+    // The UserIcon should not be in the document when balance is null
+    const userIcon = document.querySelector('svg[data-testid="user-icon"]');
+    expect(userIcon).not.toBeInTheDocument();
+  });
+
+  it('displays primary participant balance with correct color styling', () => {
+    // Test positive balance (owed money - should be success/green)
+    const positiveBalanceParty = { 
+      ...mockPartyInfo, 
+      primaryParticipantBalance: 25.50
+    };
+
+    const { rerender } = render(
+      <TestWrapper>
+        <GroupCard party={positiveBalanceParty} />
+      </TestWrapper>
+    );
+
+    let balanceElement = screen.getByText('25.50');
+    expect(balanceElement).toHaveClass('text-success-600');
+
+    // Test negative balance (owes money - should be danger/red)
+    rerender(
+      <TestWrapper>
+        <GroupCard party={{...mockPartyInfo, primaryParticipantBalance: -15.25}} />
+      </TestWrapper>
+    );
+
+    balanceElement = screen.getByText('-15.25');
+    expect(balanceElement).toHaveClass('text-danger-600');
+
+    // Test zero balance (should be primary)
+    rerender(
+      <TestWrapper>
+        <GroupCard party={{...mockPartyInfo, primaryParticipantBalance: 0}} />
+      </TestWrapper>
+    );
+
+    balanceElement = screen.getByText('0.00');
+    expect(balanceElement).toHaveClass('text-primary');
   });
 });

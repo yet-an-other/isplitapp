@@ -9,8 +9,8 @@ public class AuidFactoryTest
     public void SequenceShouldIncreaseEveryInvocation()
     {
         var factory = new AuidFactory(
-            new ConstFidProvider(0), 
-            new AuidStructure(), 
+            new ConstFidProvider(0),
+            new AuidStructure(),
             new TimeSourceMock());
 
         Assert.Equal("00000000000", factory.NewId().ToString());
@@ -25,18 +25,18 @@ public class AuidFactoryTest
         //
         var ts = new TimeSourceMock();
         var factory = new AuidFactory(new ConstFidProvider(22), new AuidStructure(), ts);
-        
+
         // Act
         //
         var id = factory.NewId();
         var idInfo = factory.ExtractInfo(id);
-        
+
         // Assert
         //
         Assert.Equal(22528, idInfo.Lid);
         Assert.Equal(22U, idInfo.FactoryId);
         Assert.Equal(0U, idInfo.CounterValue);
-        
+
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class AuidFactoryTest
     {
         var ts = new TimeSourceMock();
         var factory = new AuidFactory(new ConstFidProvider(0), new AuidStructure(), ts);
-        
+
         Assert.Equal("00000000000", factory.NewId().ToString());
         ts.NextTick();
         var id1 = factory.NewId();
@@ -53,15 +53,15 @@ public class AuidFactoryTest
         var id2 = factory.NewId();
         Assert.Equal(0U, factory.ExtractInfo(id2).CounterValue);
     }
-    
+
     [Fact]
     //[ExpectedException(typeof(InvalidSystemClockException))]
-    
+
     public void NewIdShouldThrowsOnClockBackwards()
     {
         var ts = new TimeSourceMock();
         var factory = new AuidFactory(new ConstFidProvider(0), new AuidStructure(), ts);
-        
+
         ts.NextTick();
         ts.NextTick();
         ts.NextTick();
@@ -70,7 +70,7 @@ public class AuidFactoryTest
         ts.PreviousTick(); // Set clock back 1 'tick', this results in the time going from "100" to "99"
         Assert.Throws<ArithmeticException>(() => factory.NewId());
     }
-    
+
     [Fact]
     public void TimestampsShouldBeProperlyOrdered()
     {
@@ -85,17 +85,29 @@ public class AuidFactoryTest
         ts.NextTick();
         var id4 = factory.NewId();
 
-        var array = new[] {id4, id3, id2, id1};
+        var array = new[] { id4, id3, id2, id1 };
         var sorted = array.OrderBy(i => i).ToArray();
         Assert.Equal(sorted[0], id1);
         Assert.Equal(sorted[1], id2);
         Assert.Equal(sorted[2], id3);
         Assert.Equal(sorted[3], id4);
-        
+
         sorted = array.OrderByDescending(i => i).ToArray();
         Assert.Equal(sorted[0], id4);
         Assert.Equal(sorted[1], id3);
         Assert.Equal(sorted[2], id2);
-        Assert.Equal(sorted[3], id1);        
+        Assert.Equal(sorted[3], id1);
+    }
+    
+    [Fact]
+    public void GeneratedIdCheck()
+    {
+        var factory = new AuidFactory();
+
+        factory.TryExtractInfo(Auid.FromString("0sYHV8URvea"), out var info);
+
+        Assert.Equal(0U, info.CounterValue);
+        Assert.Equal(2694U, info.FactoryId);
+        Assert.Equal(new DateTime(2025, 7, 30, 20, 7, 9, 393), info.Timestamp);
     }
 }

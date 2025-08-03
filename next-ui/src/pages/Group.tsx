@@ -8,13 +8,22 @@ import { Button, ButtonGroup } from "@heroui/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useTranslation } from "react-i18next";
+import { PartySetting } from "../utils/partySetting";
 
 export function Group() {    
     const navigate = useNavigate();
     const { groupId } = useParams();
     const { t } = useTranslation();
+    
+    // Load fresh data from localStorage
+    const currentSettings = PartySetting.load(groupId || '');
+    const primaryParticipantId = currentSettings.primaryParticipantId;
 
-    const { data: party, isLoading, error} = useSWR<PartyInfo, ProblemError>(groupId && `/parties/${groupId}`, fetcher);
+    const partyUrl = groupId 
+        ? `/parties/${groupId}${primaryParticipantId ? `?ppId=${primaryParticipantId}` : ''}`
+        : null;
+    const { data: party, isLoading, error} = 
+        useSWR<PartyInfo, ProblemError>(partyUrl, fetcher);
     
     const matches = useMatches();
     const current = matches
@@ -67,7 +76,7 @@ export function Group() {
                         </div>
                     </div>
 
-                    <Outlet context={party} />
+                    <Outlet context={{ party, primaryParticipantId }} />
                 </div>
             }
         </div>

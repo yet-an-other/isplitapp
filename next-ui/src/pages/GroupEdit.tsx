@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
-import { UserIcon, TrashIcon, UserPlusIcon } from "../icons";
+import { UserIcon, TrashIcon, UserPlusIcon, UserStarIcon } from "../icons";
 import { PartyPayload, PartyPayloadSchema } from "../api/contract/PartyPayload";
 import { useEffect, useState } from "react";
 import { ZodError, z } from "zod";
@@ -13,15 +13,42 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useTranslation } from "react-i18next";
 import { COMMON_CURRENCIES } from "../utils/currencies";
+import { useDeviceSetting } from "../utils/deviceSetting";
+import { usePartySetting } from "../utils/partySetting";
+import { Auid } from "../utils/auid";
 
 export function GroupEdit() {
 
     const navigate = useNavigate();
     const { groupId } = useParams();
     const { t } = useTranslation();
+    const { defaultUserName } = useDeviceSetting();
+    const auidGenerator = new Auid();
+    
+    // Generate local party ID for new parties, use existing groupId for updates
+    const [localPartyId] = useState(() => groupId || auidGenerator.generate());
+    
+    // Use party settings (works for both new and existing parties now)
+    const partySettings = usePartySetting(localPartyId);
 
     const initParty = new PartyPayload();
-    initParty.participants = [{name: t('groupEdit.defaultNames.0'), id: "", canDelete: true}, {name: t('groupEdit.defaultNames.1'), id: "", canDelete: true}]
+    if (defaultUserName && defaultUserName.trim() !== '') {
+        const primaryParticipantId = auidGenerator.generate();
+        initParty.participants = [
+            {name: defaultUserName.trim(), id: primaryParticipantId, canDelete: true}, 
+            {name: "", id: auidGenerator.generate(), canDelete: true}
+        ]
+        
+        // For new parties, automatically set the first participant as primary if it matches defaultUserName
+        if (!groupId && partySettings.primaryParticipantId === null) {
+            partySettings.setPrimaryParticipantId(primaryParticipantId);
+        }
+    } else  {
+        initParty.participants = [
+            {name: t('groupEdit.defaultNames.0'), id: auidGenerator.generate(), canDelete: true}, 
+            {name: t('groupEdit.defaultNames.1'), id: auidGenerator.generate(), canDelete: true}
+        ]
+    }
 
     const [party, setParty] = useState<PartyPayload>(initParty);
     const { data, error, isLoading } = useSWR<PartyInfo, ProblemError>(
@@ -39,6 +66,9 @@ export function GroupEdit() {
     const [isParticipantFocus, setParticipantFocus] = useState(false);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [filteredCurrencies, setFilteredCurrencies] = useState(COMMON_CURRENCIES);
+    
+    // Track current primary participant selection locally to avoid async state issues
+    const [localPrimaryParticipantId, setLocalPrimaryParticipantId] = useState<string | null>(partySettings.primaryParticipantId);
     const alertError = useAlerts().alertError;
     
     /**
@@ -76,7 +106,7 @@ export function GroupEdit() {
     }
 
     const handleAddParticipant = () => {
-        const newParty = {...party, participants:[...party.participants, {id: "", name: "", canDelete: true}]};
+        const newParty = {...party, participants:[...party.participants, {id: auidGenerator.generate(), name: "", canDelete: true}]};
         setParty(newParty);
         setValidationResult(PartyPayloadSchema.safeParse(newParty));
         setParticipantFocus(true);
@@ -96,17 +126,40 @@ export function GroupEdit() {
         setValidationResult(PartyPayloadSchema.safeParse(newParty));
     }
 
+    const handleParticipantIconClick = (index: number) => {
+        const participant = party.participants[index];
+        // Only allow clicking if the participant has a name
+        if (!participant.name || participant.name.trim() === '') {
+            return;
+        }
+        
+        // Update both local state and localStorage-backed state
+        if (localPrimaryParticipantId === participant.id) {
+            setLocalPrimaryParticipantId(null);
+            partySettings.setPrimaryParticipantId(null);
+        } else {
+            setLocalPrimaryParticipantId(participant.id);
+            partySettings.setPrimaryParticipantId(participant.id);
+        }
+    }
+
     const handleSave = async () => {
         const result = PartyPayloadSchema.safeParse(party);
         setValidationResult(result);
         setIsShowErrors(true);
         if (result.success) {
             try {
-                groupId && await updateParty(groupId, party);
-                const partyId = groupId ?? await createParty(party);
-                await mutate(`/parties/${partyId}`);
+                if (groupId) {
+                    // Updating existing party
+                    await updateParty(localPartyId, party);
+                } else {
+                    // Creating new party - use our locally generated ID
+                    await createParty(localPartyId, party);
+                }
+
+                await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${localPartyId}`));
                 await mutate(`/parties`);
-                navigate(`/${partyId}/expenses`);
+                navigate(`/${localPartyId}/expenses`);
             } 
             catch (error) {
                 alertError(t('groupEdit.errors.saveFailed'));
@@ -200,38 +253,53 @@ export function GroupEdit() {
                 <CardHeader className="flex flex-col items-start">
                     <h1 className="text-2xl">{t('groupEdit.participantsSection.title')}</h1>
                     <div className="text-xs text-dimmed">{t('groupEdit.participantsSection.description')}</div>
+                    <div className="text-xs text-dimmed">{t('groupEdit.participantsSection.primaryParticipantHelper')}</div>
                 </CardHeader>
                 <CardBody>
                     <div className={`text-xs text-danger ${!fieldError("participants") ? 'hidden': 'block'}`}>
                         {fieldError("participants")}
                     </div>
                     {party.participants.map((p, i) => 
-                    <div className="flex flex-row mb-2" key={p.id + i}>
+                    <div className="flex flex-row items-start gap-2 my-2" key={p.id + i}>
                         <Input
                             isRequired
                             autoFocus={isParticipantFocus}
-                            className="mb-1"
                             type="text" 
-                            label={t('groupEdit.fields.participantName.label')} 
+                            placeholder={t('groupEdit.fields.participantName.label')}
                             size="sm"
-                            labelPlacement="outside"
                             startContent={
-                                <UserIcon className="w-6 h-6 text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                                <Button
+                                    isIconOnly
+                                    type="button"
+                                    variant="flat"
+                                    size="sm"
+                                    onPress={() => handleParticipantIconClick(i)}
+                                    disabled={!p.name || p.name.trim() === ''}
+                                    className="-ml-2"
+                                >
+                                    {localPrimaryParticipantId === p.id ? (
+                                        <UserStarIcon className="w-6 h-6 text-primary fill-current stroke-1.5" />
+                                    ) : (
+                                        <UserIcon className={`w-6 h-6 ${!p.name || p.name.trim() === '' ? "text-dimmed" : "text-primary"}` } />
+                                    )}
+                                </Button>
                             }
                             onChange={(e) => handleNameChange(i, e.target.value)}
                             value={p.name}
                             isInvalid={!!fieldError(`participants.${i}.name`)}
                             errorMessage={fieldError(`participants.${i}.name`)}
                             classNames={{
-                                label: "text-dimmed",
-                                description: "text-dimmed",
                                 input: "text-[16px]"
                             }}
                         />
                         <Button 
                             onPress={() => handleDeleteParticipant(i)}
                             isDisabled={!p.canDelete}
-                            isIconOnly variant="light" className={`self-end ml-2 ${!!fieldError(`participants.${i}.name`) && 'mb-6' }`}>
+                            isIconOnly 
+                            variant="light" 
+                            size="sm"
+                            className="min-w-unit-8 w-unit-8 h-unit-8"
+                        >
                             <TrashIcon className="h-6 w-6 text-danger"/>
                         </Button>
                     </div>
@@ -239,11 +307,14 @@ export function GroupEdit() {
                 </CardBody>
                 <CardFooter>
                     <Button 
-                        isIconOnly
+                        
                         variant="light"
                         onPress={handleAddParticipant} 
+                        color="primary"
+                        className="bg-primary-50 pl-2"
                     >
                         <UserPlusIcon className="h-8 w-8 text-primary" />
+                        {t('groupEdit.buttons.addParticipant')}
                     </Button>
                 </CardFooter>
             </Card>
@@ -251,11 +322,11 @@ export function GroupEdit() {
             <Button 
                 className="mx-6 mt-8 self-end" 
                 size="md" 
-                variant="solid" 
+                variant="shadow" 
                 color="primary" 
                 onPress={() => void handleSave()}
             >
-{groupId ? t('groupEdit.buttons.updateGroup') : t('groupEdit.buttons.createGroup')}
+                {groupId ? t('groupEdit.buttons.updateGroup') : t('groupEdit.buttons.createGroup')}
             </Button>
         </div>
     )
