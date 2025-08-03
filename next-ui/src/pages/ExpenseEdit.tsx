@@ -31,7 +31,7 @@ function useQueryParams() {
 
 export function ExpenseEdit() {
 
-    const group = useOutletContext<PartyInfo>();
+    const { party: group } = useOutletContext<{ party: PartyInfo, primaryParticipantId: string | null }>();
     const { expenseId } = useParams();
     const partySettings = usePartySetting(group.id);
 
