@@ -162,8 +162,11 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                                 <span className="text-sm">{expense.isReimbursement ? t('expenseList.labels.to') : t('expenseList.labels.for')} </span>
                                 <span className="text-xs text-dimmed whitespace-normal">
                                     {expense.borrowers.map((b, index) => (
-                                        <span key={b.participantId} className={b.participantId === primaryParticipantId ? 'text-primary' : ''}>
-                                            {b.participantName}{index < expense.borrowers.length - 1 ? ', ' : ''}
+                                        <span key={b.participantId}>
+                                            <span className={b.participantId === primaryParticipantId ? 'text-primary' : ''}>
+                                                {b.participantName}
+                                            </span>
+                                            <>{index < expense.borrowers.length - 1 ? ', ' : ''}</> 
                                         </span>
                                     ))}
                                 </span>

@@ -13,7 +13,7 @@ import {
     SelectItem, 
     Switch
 } from "@heroui/react";
-import { BellIcon, BellRingIcon, CopyIcon, MoonIcon, SettingsIcon, SunIcon, UserIcon, UsersIcon } from "../icons";
+import { BellIcon, BellRingIcon, CopyIcon, MoonIcon, SettingsIcon, SunIcon, UserStarIcon, UsersIcon } from "../icons";
 import { useDarkMode } from "../utils/useDarkMode";
 import { useCallback, useEffect, useState } from "react";
 import { getSubscription, subscribeForIosPush, subscribeForWebPush, unsubscribeWebPush } from "../utils/notification";
@@ -96,7 +96,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         value={defaultUserName}
                         variant="flat"
                         size="md"
-                        startContent={<UserIcon className="-mb-1 -ml-1 h-7 w-7 text-primary stroke-[1.5px]" />}
+                        startContent={<UserStarIcon className="-mb-1 -ml-1 h-7 w-7 text-primary fill-primary stroke-[1.5px]" />}
                         onChange={(e) => setDefaultUserName(e.target.value)}
                         description={t('headerBar.settings.defaultUser.description')}
                         placeholder={t('headerBar.settings.defaultUser.placeholder')}

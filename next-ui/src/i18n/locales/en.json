@@ -313,7 +313,7 @@
         "descriptionEnabled": "Enable to be notified about new or changed expenses in your groups."
       },
       "defaultUser": {
-        "label": "Default participant",
+        "label": "Primary participant",
         "description": "Your name will be automatically filled when creating new groups or adding expenses.",
         "placeholder": "Your name"
       },
