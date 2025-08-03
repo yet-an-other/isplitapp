@@ -316,7 +316,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         //
         var ep = new PartyGet();
         var getResult = await (ep.Endpoint.DynamicInvoke(
-            deviceId.ToString(), controlPartyId.ToString(), _validator, _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;
+            deviceId.ToString(), controlPartyId.ToString(), null, _validator, _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;
         
         // Assert
         //
@@ -344,7 +344,7 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         //
         var ep = new PartyGet();
         var getResult = await (ep.Endpoint.DynamicInvoke(
-            _auidFactory.NewId().ToString(), _auidFactory.NewId().ToString(), _validator, _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;        
+            _auidFactory.NewId().ToString(), _auidFactory.NewId().ToString(), null, _validator, _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;        
 
         
         // Check userId
@@ -897,8 +897,133 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         Assert.Equal(2, balance!.Balances.Length);
         Assert.Equal(0, balance.Balances.Sum(b=>b.FuAmount));
     }
-    
 
+    [Fact]
+    public async Task GetPartyWithPrimaryParticipantShouldReturnParticipantBalanceAndExpenses()
+    {
+        // Setup
+        //
+        var deviceId = _auidFactory.NewId();
+        var partyId = _auidFactory.NewId();
+        var participant1Id = _auidFactory.NewId();
+        var participant2Id = _auidFactory.NewId();
+        var expense1Id = _auidFactory.NewId();
+        var expense2Id = _auidFactory.NewId();
+        
+        var party = new Party
+        {
+            Id = partyId,
+            Currency = "USD",
+            Name = "Test Party",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        var participants = new List<Participant>
+        {
+            new() { Id = participant1Id, PartyId = partyId, Name = "Participant 1" },
+            new() { Id = participant2Id, PartyId = partyId, Name = "Participant 2" }
+        };
+
+        // Participant 1 paid 100, participant 2 owes 100
+        var expense1 = new Expense
+        {
+            Id = expense1Id,
+            PartyId = partyId,
+            LenderId = participant1Id,
+            Title = "Expense 1",
+            MuAmount = 10000, // 100.00
+            Date = DateTime.UtcNow,
+            IsReimbursement = false
+        };
+
+        // Participant 2 paid 50, participant 1 owes 50  
+        var expense2 = new Expense
+        {
+            Id = expense2Id,
+            PartyId = partyId,
+            LenderId = participant2Id,
+            Title = "Expense 2", 
+            MuAmount = 5000, // 50.00
+            Date = DateTime.UtcNow,
+            IsReimbursement = false
+        };
+
+        var borrowers = new List<Borrower>
+        {
+            new() { ExpenseId = expense1Id, ParticipantId = participant2Id, MuAmount = 10000 },
+            new() { ExpenseId = expense2Id, ParticipantId = participant1Id, MuAmount = 5000 }
+        };
+
+        await _db.InsertAsync(party);
+        await _db.BulkCopyAsync(participants);
+        await _db.InsertAsync(expense1);
+        await _db.InsertAsync(expense2);
+        await _db.BulkCopyAsync(borrowers);
+
+        // Act - Get party with participant1 as primary participant
+        //
+        var ep = new PartyGet();
+        var getResult = await (ep.Endpoint.DynamicInvoke(
+            deviceId.ToString(), 
+            partyId.ToString(), 
+            participant1Id.ToString(), 
+            _validator, 
+            _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;
+
+        // Assert
+        //
+        Assert.IsType<Ok<PartyInfo>>(getResult.Result);
+        var response = (getResult.Result as Ok<PartyInfo>)!.Value!;
+        
+        // Participant 1 balance: lent 100, owes 50 = +50 balance
+        Assert.Equal(50.00m, response.FuPrimaryParticipantBalance);
+        
+        // Participant 1 total expenses: paid 100
+        Assert.Equal(100.00m, response.FuPrimaryParticipantExpenses);
+        
+        // Verify other party data is still correct
+        Assert.Equal(party.Name, response.Name);
+        Assert.Equal(party.Currency, response.Currency);
+        Assert.Equal(2, response.Participants.Length);
+    }
+
+    [Fact]
+    public async Task GetPartyWithoutPrimaryParticipantShouldReturnNullForParticipantData()
+    {
+        // Setup
+        //
+        var deviceId = _auidFactory.NewId();
+        var partyId = _auidFactory.NewId();
+        var party = new Party
+        {
+            Id = partyId,
+            Currency = "USD",
+            Name = "Test Party",
+            Created = DateTime.UtcNow,
+            Updated = DateTime.UtcNow
+        };
+
+        await _db.InsertAsync(party);
+
+        // Act - Get party without primary participant
+        //
+        var ep = new PartyGet();
+        var getResult = await (ep.Endpoint.DynamicInvoke(
+            deviceId.ToString(), 
+            partyId.ToString(), 
+            null, 
+            _validator, 
+            _db) as Task<Results<Ok<PartyInfo>, NotFound>>)!;
+
+        // Assert
+        //
+        Assert.IsType<Ok<PartyInfo>>(getResult.Result);
+        var response = (getResult.Result as Ok<PartyInfo>)!.Value!;
+        
+        Assert.Null(response.FuPrimaryParticipantBalance);
+        Assert.Null(response.FuPrimaryParticipantExpenses);
+    }
 
     private PartyInfo LoadParties(Auid partyId)
     {
