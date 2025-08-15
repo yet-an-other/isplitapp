@@ -21,13 +21,9 @@ iSplit.app is a full-stack expense sharing application with these main component
 ```bash
 cd next-ui
 npm install                    # Install dependencies
-npm install                    # Install dependencies
-npm run dev                    # Start development server
+npm run dev:local              # Start development server
 npm run build                  # Build for production
 npm run lint                   # Run ESLint
-npm test                       # Run Vitest tests
-npm run test -- --ui           # Run tests with UI
-npm run dev:local              # Run with local environment config
 ```
 
 ### Backend (.NET)
@@ -36,10 +32,6 @@ cd isplitapp-core
 dotnet restore                 # Restore NuGet packages
 dotnet build                   # Build all projects
 dotnet run --project core      # Run the API server
-dotnet test                    # Run all tests
-dotnet test Tests/             # Run specific test project
-dotnet test --filter "ClassName"      # Run specific test class
-dotnet test --logger "console;verbosity=detailed"  # Verbose test output
 ```
 
 ### Docker
@@ -53,17 +45,11 @@ docker build -t isplitapp .    # Build full application image
 - You shall never assume, always ask
 - You shall always use MCP tools
 - Write code that is clear and obvious
-- Make atomic descriptive commits
-- Always document why, not what
 - Test before declaring done
 - Research current docks, don't trust outdated knowledge
-- Use visual imputs and Playwrite MCP for the UI debugging
-
-- **NO CLEVER TRICKS**: Clear, obvious code only
-- **COMMENT THE WHY**: Only explain why, never what. Code shows what
+- Use visual imputs and Playwrite MCP to make sure the changes are correct
 - **SINGLE RESPONSIBILITY**: Each function does ONE thing
 - **EXPLICIT ERROR HANDLING**: No silent failures
-- **MEASURE THEN OPTIMIZE**: No premature optimization
 - **SIMPLICITY FIRST**: Remove everything non-essential
 
 ### Honest Technical Assessment
@@ -88,6 +74,7 @@ Examples of honest assessment:
 ### Context and Documentation
 
 Preserve technical context. Never delete important information.
+- **COMMENT THE WHY**: Only explain why, never what. Code shows what
 
 Keep these details:
 - Code examples with line numbers
@@ -201,6 +188,8 @@ dotnet test --logger "console;verbosity=detailed"  # Verbose output
 - **Write tests for all new features** unless explicitly told not to
 - **Run tests before committing** to ensure code quality and functionality
 - Tests should cover both happy path and edge cases for the new functionality
+- use Playwrite MCP for the UI testing. Assume the frontend server is already running on http://localhost:5173
+
 
 ## Deployment
 
@@ -226,7 +215,6 @@ Kubernetes deployment via Helm charts in `deploy/helm/` with environment-specifi
 3. **Expense splitting**: Support for uneven splits and complex reimbursements
 4. **Multi-platform**: Web app, iOS native, and PWA support
 5. **Offline capability**: Service worker for offline functionality
-
 
 
 ## Version Control and Commits
@@ -275,7 +263,7 @@ Fixes: #123
 - Run tests before committing
 - Include context for future developers
 - Reference issue numbers when applicable
-- Never mention "Claude" or "AI" in commits
+- Never mention "Claude", "Athropic" or "AI" in commits
 
 ### Styling
 
