@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Auid } from './auid';
+import { Auid } from '../../utils/auid';
 
 describe('Auid', () => {
     it('should generate unique IDs', () => {

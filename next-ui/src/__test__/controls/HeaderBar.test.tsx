@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom'; // Import this for the matchers
-import HeaderBar from './HeaderBar';
+import HeaderBar from '../../controls/HeaderBar';
 import { BrowserRouter } from 'react-router-dom';
 
 // Mock the translation hook
