@@ -271,10 +271,10 @@ Uses Tailwind CSS v4 with PostCSS processing. Dark mode support is implemented v
 
 ## MCP Tools
 
-- **Context7 MCP** - Use to fetch updated documentation for libraries and frameworks like HeroUI, Tailwind CSS, React and others
-- **Chrome MCP** - Use to check visual changes in the frontend with the chrom browser when UI modifications are made or UI test is needed
-- **Playwright MCP** - Use to check visual changes in the frontend with a real browser when UI modifications are made
-- **GitHub MCP** - For repository operations, PR management, and issue tracking
+- **Context7** - Use to fetch updated documentation for libraries and frameworks like HeroUI, Tailwind CSS, React and others
+- **chrome-mcp** - Use to check visual changes in the frontend with the chrom browser when UI modifications are made or UI test is needed. Assume the app is running on http://localhost:5173
+- **playwright** - Use to check visual changes in the frontend with a real browser when UI modifications are made. Assume the app is running on http://localhost:5173
+- **GitHub** - For repository operations, PR management, and issue tracking
 
 ## Important Instructions
 
