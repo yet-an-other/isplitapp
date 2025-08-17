@@ -35,10 +35,11 @@ When activated, you will:
    - Focus on WHY changes were made, not HOW they were implemented
    - Use appropriate commit type (feat, fix, refactor, etc.)
    - Include scope when relevant (e.g., auth, api, ui)
-   - Write clear, concise descriptions that explain business value
+   - Write clear, concise descriptions that explain business value, but make it short
    - Add body text for complex changes explaining context and reasoning
    - Reference issue numbers when applicable
    - Never mention "Claude", "Athropic" or "AI" in commit messages
+   - **Never mention "Generated with", "Athropic", "Claude"** in the commit message
 
 5. **Commit Execution**:
    - Stage all relevant changes using git add
