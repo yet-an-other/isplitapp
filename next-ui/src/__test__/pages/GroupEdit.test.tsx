@@ -27,16 +27,25 @@ vi.mock('react-i18next', () => ({
         'groupEdit.participantsSection.title': 'Participants',
         'groupEdit.participantsSection.description': 'Add participants who will be sharing expenses in this group',
         'groupEdit.buttons.createGroup': 'Create Group',
-        'groupEdit.buttons.addParticipant': 'Add Participant'
+        'groupEdit.buttons.updateGroup': 'Update Group',
+        'groupEdit.buttons.addParticipant': 'Add Participant',
+        'groupEdit.success.groupCreated': 'Group created successfully!',
+        'groupEdit.success.groupUpdated': 'Group updated successfully!',
+        'groupEdit.errors.saveFailed': 'Failed to save the group. Please try again later.'
       };
       return translations[key] || key;
     }
   })
 }));
 
-// Mock other dependencies
-vi.mock('../../utils/useHeroUIAlerts', () => ({
-  useHeroUIAlerts: () => ({ alertError: vi.fn() })
+
+// Mock all modules without referencing variables
+vi.mock('../../utils/useAlerts', () => ({
+  useAlerts: () => ({ 
+    alertError: vi.fn(),
+    alertSuccess: vi.fn()
+  })
+
 }));
 
 vi.mock('../../utils/deviceSetting', () => ({
@@ -45,16 +54,26 @@ vi.mock('../../utils/deviceSetting', () => ({
 
 vi.mock('../../utils/partySetting', () => ({
   usePartySetting: () => ({
-    defaultParticipantId: null,
-    setDefaultParticipantId: vi.fn()
+    primaryParticipantId: null,
+    setPrimaryParticipantId: vi.fn()
   })
 }));
 
 vi.mock('../../api/expenseApi', () => ({
-  createParty: vi.fn().mockResolvedValue(undefined),
-  updateParty: vi.fn().mockResolvedValue(undefined),
+  createParty: vi.fn(),
+  updateParty: vi.fn(),
   fetcher: vi.fn()
 }));
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom') as any;
+  return {
+    ...actual,
+    MemoryRouter: actual.MemoryRouter,
+    useNavigate: () => vi.fn(),
+    useParams: () => vi.fn().mockReturnValue({})()
+  };
+});
 
 describe('GroupEdit with AUID improvements', () => {
   it('should generate participant IDs using AUID for new parties', () => {

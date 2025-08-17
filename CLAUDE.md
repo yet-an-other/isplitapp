@@ -19,7 +19,7 @@ iSplit.app is a full-stack expense sharing application with these main component
 
 ### Frontend (React/TypeScript)
 ```bash
-cd next-ui
+cd $PROJECTS_DIR/isplitapp/next-ui
 npm install                    # Install dependencies
 npm run dev:local              # Start development server
 npm run build                  # Build for production
@@ -28,7 +28,7 @@ npm run lint                   # Run ESLint
 
 ### Backend (.NET)
 ```bash
-cd isplitapp-core
+cd $PROJECTS_DIR/isplitapp/isplitapp-core
 dotnet restore                 # Restore NuGet packages
 dotnet build                   # Build all projects
 dotnet run --project core      # Run the API server
@@ -272,6 +272,7 @@ Uses Tailwind CSS v4 with PostCSS processing. Dark mode support is implemented v
 ## MCP Tools
 
 - **Context7 MCP** - Use to fetch updated documentation for libraries and frameworks like HeroUI, Tailwind CSS, React and others
+- **Chrome MCP** - Use to check visual changes in the frontend with the chrom browser when UI modifications are made or UI test is needed
 - **Playwright MCP** - Use to check visual changes in the frontend with a real browser when UI modifications are made
 - **GitHub MCP** - For repository operations, PR management, and issue tracking
 

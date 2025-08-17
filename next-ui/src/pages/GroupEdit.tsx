@@ -69,7 +69,7 @@ export function GroupEdit() {
     
     // Track current primary participant selection locally to avoid async state issues
     const [localPrimaryParticipantId, setLocalPrimaryParticipantId] = useState<string | null>(partySettings.primaryParticipantId);
-    const alertError = useAlerts().alertError;
+    const { alertError, alertSuccess } = useAlerts();
     
     /**
      * Handle a change in the group's name or currency.
@@ -152,9 +152,11 @@ export function GroupEdit() {
                 if (groupId) {
                     // Updating existing party
                     await updateParty(localPartyId, party);
+                    alertSuccess(t('groupEdit.success.groupUpdated'));
                 } else {
                     // Creating new party - use our locally generated ID
                     await createParty(localPartyId, party);
+                    alertSuccess(t('groupEdit.success.groupCreated'));
                 }
 
                 await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${localPartyId}`));
