@@ -35,8 +35,8 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock other dependencies
-vi.mock('../../utils/useAlerts', () => ({
-  useAlerts: () => ({ alertError: vi.fn() })
+vi.mock('../../utils/useHeroUIAlerts', () => ({
+  useHeroUIAlerts: () => ({ alertError: vi.fn() })
 }));
 
 vi.mock('../../utils/deviceSetting', () => ({

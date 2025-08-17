@@ -23,8 +23,8 @@ vi.mock('../../utils/deviceSetting', () => ({
   })),
 }));
 
-vi.mock('../../utils/useAlerts', () => ({
-  useAlerts: vi.fn(() => ({
+vi.mock('../../utils/useHeroUIAlerts', () => ({
+  useHeroUIAlerts: vi.fn(() => ({
     alertSuccess: vi.fn(),
     alertError: vi.fn(),
   })),
@@ -139,7 +139,7 @@ describe('SettingsModal', () => {
     // Import mocked modules
     mockUseDarkMode = vi.mocked((await import('../../utils/useDarkMode')).useDarkMode);
     mockUseDeviceSetting = vi.mocked((await import('../../utils/deviceSetting')).useDeviceSetting);
-    mockUseAlerts = vi.mocked((await import('../../utils/useAlerts')).useAlerts);
+    mockUseAlerts = vi.mocked((await import('../../utils/useHeroUIAlerts')).useHeroUIAlerts);
     mockNotification = vi.mocked(await import('../../utils/notification'));
     mockUserApi = vi.mocked(await import('../../api/userApi'));
     mockI18n = vi.mocked((await import('../../i18n')).default);

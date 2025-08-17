@@ -1,8 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FooterBar } from "../controls/FooterBar";
 import HeaderBar from "../controls/HeaderBar";
-import { HeroUIProvider } from "@heroui/react";
-import { AlertsProvider } from "../controls/AlertContext";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { useEffect } from "react";
 
 export function Layout() {
@@ -11,15 +10,22 @@ export function Layout() {
 
   return (
     <HeroUIProvider navigate={navigate}>
+      <ToastProvider 
+        placement="bottom-center"
+        maxVisibleToasts={3}
+        toastProps={{
+          radius: "md",
+          variant: "flat",
+          timeout: 5000,
+        }}
+      />
       <main className="text-foreground bg-background flex flex-col items-center">
-        <AlertsProvider>
-          <ScrollToTop />
-          <HeaderBar />
-            <div className="min-h-[calc(100vh-161px)] flex flex-col items-center pb-24 pt-8 max-w-5xl w-full">
-              <Outlet />
-            </div>
-          <FooterBar />
-        </AlertsProvider>
+        <ScrollToTop />
+        <HeaderBar />
+          <div className="min-h-[calc(100vh-161px)] flex flex-col items-center pb-24 pt-8 max-w-5xl w-full">
+            <Outlet />
+          </div>
+        <FooterBar />
       </main>
     </HeroUIProvider>
   )
