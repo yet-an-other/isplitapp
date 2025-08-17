@@ -36,7 +36,7 @@ export default [
       ...react.configs['jsx-runtime'].rules,
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true, allowExportNames: ['AlertsContext', 'AlertsProvider'] },
+        { allowConstantExport: true },
       ],
       '@typescript-eslint/no-unused-expressions': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],

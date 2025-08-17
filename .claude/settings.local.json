@@ -37,6 +37,11 @@
       "mcp__chrome-mcp-stdio__chrome_get_interactive_elements",
       "mcp__chrome-mcp-stdio__chrome_click_element",
       "mcp__chrome-mcp-stdio__chrome_fill_or_select"
+      "mcp__github__list_issues",
+      "mcp__github__get_issue",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__playwright__browser_navigate_back"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

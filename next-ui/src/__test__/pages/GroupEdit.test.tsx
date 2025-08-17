@@ -38,12 +38,14 @@ vi.mock('react-i18next', () => ({
   })
 }));
 
+
 // Mock all modules without referencing variables
 vi.mock('../../utils/useAlerts', () => ({
   useAlerts: () => ({ 
     alertError: vi.fn(),
     alertSuccess: vi.fn()
   })
+
 }));
 
 vi.mock('../../utils/deviceSetting', () => ({

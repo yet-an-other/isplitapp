@@ -22,7 +22,7 @@ import { PartyIconStyle, useDeviceSetting } from "../utils/deviceSetting";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
 import { ensureDeviceId } from "../api/userApi";
-import { useAlerts } from "../utils/useAlerts";
+import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 
 interface SettingsModalProps {
     isOpen: boolean;

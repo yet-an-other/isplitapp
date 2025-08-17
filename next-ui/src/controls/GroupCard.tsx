@@ -4,7 +4,7 @@ import { ArchiveIcon, CashIcon, EditIcon, ExportIcon, ShareIcon, TransactionsIco
 import { useMatch, useNavigate } from "react-router-dom"
 import { unfollowParty, updatePartySetings } from "../api/expenseApi"
 import { mutate } from "swr"
-import { useAlerts } from "../utils/useAlerts"
+import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts"
 import { shareLink } from "../utils/shareLink"
 import { generateReport } from "../utils/generateReport"
 import BoringAvatar from "boring-avatars"
@@ -24,7 +24,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
     const match = useMatch('/:groupId/edit');
     const confirmationState = useDisclosure();
     const { partyIconStyle } = useDeviceSetting();
-    const { lastViewed } = usePartySetting(party.id);
+    const partySettings = usePartySetting(party.id);
     const { t } = useTranslation();
 
     const handleShare = async () => {
@@ -36,8 +36,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
 
     const handleArchive = async () => {
         await updatePartySetings(party.id, {isArchived: !party.isArchived});
-        await mutate(`/parties`);
-        await mutate(`/parties/${party.id}`);
+        await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${party.id}`));
         alertInfo(t('groupCard.messages.archiveToggled', { 
             groupName: party.name, 
             direction: party.isArchived ? t('groupCard.messages.archiveDirections.outOf') : t('groupCard.messages.archiveDirections.into') 
@@ -203,7 +202,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     </div>
 
                     <div className="flex flex-row justify-end items-center ml-auto">
-                        <div className={`h-2 w-2 mr-1 rounded-full ${party.lastExpenseTimestamp > lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
+                        <div className={`h-2 w-2 mr-1 rounded-full ${party.lastExpenseTimestamp > partySettings.lastViewed ? 'bg-primary' : 'bg-transparent'}`}  />
                         <div className="flex text-xs text-dimmed ">{format(party.created, "eee dd LLL yyyy")}</div>
                     </div>
                 </CardFooter>
