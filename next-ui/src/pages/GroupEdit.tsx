@@ -8,7 +8,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useSWR, { mutate } from "swr";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ProblemError } from "../api/contract/ProblemError";
-import { useAlerts } from "../utils/useAlerts";
+import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useTranslation } from "react-i18next";

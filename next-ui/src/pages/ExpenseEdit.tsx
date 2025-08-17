@@ -14,7 +14,7 @@ import { ProblemError } from "../api/contract/ProblemError";
 import useSWR from "swr";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { useAlerts } from "../utils/useAlerts";
+import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 import { useTranslation } from "react-i18next";
 import { usePartySetting } from "../utils/partySetting";
 
@@ -84,8 +84,6 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
     const [validationResult, setValidationResult] = 
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
-
-    const partySettings = usePartySetting(group.id);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
 
@@ -217,7 +215,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
         if (isConfirmed && expenseId) {
             try {
                 await deleteExpense(expenseId);
-                await mutate(`/parties/${group.id}`);
+                await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
                 navigate(`/${group.id}/expenses`);
             }
             catch {
@@ -236,8 +234,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 expenseId 
                     ? await updateExpense(expenseId, expense)
                     : await createExpense(group.id, expense);
-                await mutate(`/parties/${group.id}`);
-                await mutate(`/parties/${group.id}${partySettings.primaryParticipantId ? `?ppId=${partySettings.primaryParticipantId}` : ''}`);
+                await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
                 navigate(`/${group.id}/expenses`);
             }
             catch(e) {

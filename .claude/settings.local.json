@@ -30,7 +30,12 @@
       "Bash(dotnet test:*)",
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_evaluate",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "mcp__github__list_issues",
+      "mcp__github__get_issue",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__playwright__browser_navigate_back"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

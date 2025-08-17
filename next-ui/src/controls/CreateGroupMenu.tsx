@@ -1,7 +1,7 @@
 import { Button, Input, Listbox, ListboxItem, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@heroui/react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAlerts } from "../utils/useAlerts";
+import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 import { ImportIcon, LinkIcon, PasteIcon, PlusIcon } from "../icons";
 import { useTranslation } from "react-i18next";
 import { importPartiesFromDevice } from "../api/expenseApi";
