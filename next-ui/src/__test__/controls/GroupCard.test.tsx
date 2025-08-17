@@ -2,13 +2,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { GroupCard } from './GroupCard';
+import { GroupCard } from '../../controls/GroupCard';
 import { BrowserRouter } from 'react-router-dom';
 import { HeroUIProvider } from '@heroui/react';
-import { PartyInfo } from '../api/contract/PartyInfo';
+import { PartyInfo } from '../../api/contract/PartyInfo';
 
 // Mock the hooks and utilities
-vi.mock('../utils/useAlerts', () => ({
+vi.mock('../../utils/useAlerts', () => ({
   useAlerts: () => ({
     alertSuccess: vi.fn(),
     alertInfo: vi.fn(),
@@ -16,27 +16,27 @@ vi.mock('../utils/useAlerts', () => ({
   }),
 }));
 
-vi.mock('../utils/deviceSetting', () => ({
+vi.mock('../../utils/deviceSetting', () => ({
   useDeviceSetting: () => ({
     partyIconStyle: 'beam',
   }),
 }));
 
-vi.mock('../utils/partySetting', () => ({
+vi.mock('../../utils/partySetting', () => ({
   usePartySetting: () => ({
     lastViewed: '2023-01-01T00:00:00Z',
   }),
 }));
 
-vi.mock('../utils/shareLink', () => ({
+vi.mock('../../utils/shareLink', () => ({
   shareLink: vi.fn(),
 }));
 
-vi.mock('../utils/generateReport', () => ({
+vi.mock('../../utils/generateReport', () => ({
   generateReport: vi.fn(),
 }));
 
-vi.mock('../api/expenseApi', () => ({
+vi.mock('../../api/expenseApi', () => ({
   unfollowParty: vi.fn(),
   updatePartySetings: vi.fn(),
 }));

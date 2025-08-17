@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { GroupEdit } from './GroupEdit';
-import { Auid } from '../utils/auid';
+import { GroupEdit } from '../../pages/GroupEdit';
+import { Auid } from '../../utils/auid';
 
 // Mock the SWR library
 vi.mock('swr', () => ({
@@ -35,22 +35,22 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock other dependencies
-vi.mock('../utils/useAlerts', () => ({
+vi.mock('../../utils/useAlerts', () => ({
   useAlerts: () => ({ alertError: vi.fn() })
 }));
 
-vi.mock('../utils/deviceSetting', () => ({
+vi.mock('../../utils/deviceSetting', () => ({
   useDeviceSetting: () => ({ defaultUserName: 'TestUser' })
 }));
 
-vi.mock('../utils/partySetting', () => ({
+vi.mock('../../utils/partySetting', () => ({
   usePartySetting: () => ({
     defaultParticipantId: null,
     setDefaultParticipantId: vi.fn()
   })
 }));
 
-vi.mock('../api/expenseApi', () => ({
+vi.mock('../../api/expenseApi', () => ({
   createParty: vi.fn().mockResolvedValue(undefined),
   updateParty: vi.fn().mockResolvedValue(undefined),
   fetcher: vi.fn()
