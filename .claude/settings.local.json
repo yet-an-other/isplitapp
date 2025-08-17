@@ -30,7 +30,13 @@
       "Bash(dotnet test:*)",
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_evaluate",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "mcp__chrome-mcp-stdio__chrome_navigate",
+      "mcp__chrome-mcp-stdio__chrome_get_web_content",
+      "mcp__chrome-mcp-stdio__get_windows_and_tabs",
+      "mcp__chrome-mcp-stdio__chrome_get_interactive_elements",
+      "mcp__chrome-mcp-stdio__chrome_click_element",
+      "mcp__chrome-mcp-stdio__chrome_fill_or_select"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

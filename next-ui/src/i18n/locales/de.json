@@ -113,6 +113,10 @@
     "errors": {
       "saveFailed": "Gruppe konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
     },
+    "success": {
+      "groupCreated": "Gruppe erfolgreich erstellt!",
+      "groupUpdated": "Gruppe erfolgreich aktualisiert!"
+    },
     "groupSection": {
       "title": "Gruppe",
       "description": "Starten Sie jetzt, indem Sie eine Gruppe von Teilnehmern erstellen, um Ausgaben zu teilen"
