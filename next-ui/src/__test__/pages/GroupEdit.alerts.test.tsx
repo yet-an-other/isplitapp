@@ -39,8 +39,8 @@ vi.mock('react-i18next', () => ({
   })
 }));
 
-vi.mock('../../utils/useAlerts', () => ({
-  useAlerts: () => ({ 
+vi.mock('../../utils/useHeroUIAlerts', () => ({
+  useHeroUIAlerts: () => ({ 
     alertError: mockAlertError,
     alertSuccess: mockAlertSuccess 
   })
