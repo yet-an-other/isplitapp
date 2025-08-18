@@ -44,7 +44,9 @@
       "mcp__playwright__browser_navigate_back",
       "Bash(npm run test:*)",
       "mcp__chrome-mcp__chrome_keyboard",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "mcp__chrome-mcp__chrome_console",
+      "mcp__chrome-mcp__chrome_screenshot"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

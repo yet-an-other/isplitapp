@@ -57,6 +57,7 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                     <div className="float-left mr-4">
                         <Badge content={party.totalParticipants} size="lg" className={'bg-primary-100'}>
                             <Avatar
+                                key={`${party.id}-${partyIconStyle}`}
                                 radius="sm"
                                 icon={
                                     partyIconStyle === 'none'

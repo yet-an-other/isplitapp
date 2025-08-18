@@ -8,7 +8,7 @@ import { Button, ButtonGroup } from "@heroui/react";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useTranslation } from "react-i18next";
-import { PartySetting } from "../utils/partySetting";
+import { usePartySetting } from "../utils/partySetting";
 
 export function Group() {    
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ export function Group() {
     const { t } = useTranslation();
     
     // Load fresh data from localStorage
-    const currentSettings = PartySetting.load(groupId || '');
+    const currentSettings = usePartySetting(groupId || '');
     const primaryParticipantId = currentSettings.primaryParticipantId;
 
     const partyUrl = groupId 

@@ -50,8 +50,14 @@
   ],
   "handle_links": "preferred",
   "scope_extensions": [
-      {"origin": "isplit.app"},
-      {"origin": "*.isplit.app"}
+      { 
+        "type": "origin",
+        "origin": "https://isplit.app"
+      },
+      {
+        "type": "origin",
+        "origin": "https://*.isplit.app"
+      }
     ],
   "categories": [
     "finance",

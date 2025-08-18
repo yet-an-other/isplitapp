@@ -106,7 +106,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <Select 
                         label={t('headerBar.settings.iconStyle.label')} 
                         selectedKeys={new Set([partyIconStyle])}
-                        startContent={ partyIconStyle === 'none' 
+                        startContent={ (partyIconStyle === 'none')
                             ? <UsersIcon className="h-7 w-7 text-primary stroke-[1.5px]" /> 
                             : <PartyAvatar variant={partyIconStyle} size={20} />
                         }
@@ -130,10 +130,16 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             {t('headerBar.settings.iconStyle.options.marble')}
                         </SelectItem>
                         <SelectItem 
+                            key="beam"
+                            startContent = { <PartyAvatar variant="beam"/> }                                
+                        >
+                            {t('headerBar.settings.iconStyle.options.beam')}
+                        </SelectItem>
+                        <SelectItem 
                             key="none"
                             startContent = { <UsersIcon className="h-10 w-10 text-primary stroke-[1.5px]" /> }                                
                         >
-                            {t('headerBar.settings.iconStyle.options.beam')}
+                            {t('headerBar.settings.iconStyle.options.none')}
                         </SelectItem>
                     </Select>
                     <br/>
@@ -369,7 +375,7 @@ interface INotify {
     postMessage: (message: { message: string }) => void;
 }
 
-const PartyAvatar = ({variant, size = 40}: {variant: "bauhaus" | "marble", size?: number }) => {
+const PartyAvatar = ({variant, size = 40}: {variant: "bauhaus" | "marble" | "beam", size?: number }) => {
     return (
         <div className="rounded-md overflow-clip">
             <BoringAvatar
