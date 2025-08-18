@@ -305,7 +305,8 @@
         "options": {
           "bauhaus": "Bauhaus",
           "marble": "Marmor",
-          "beam": "Mir ist das egal"
+          "beam": "Beam",
+          "none": "Mir ist das egal"
         }
       },
       "language": {

@@ -1,28 +1,15 @@
-import { useEffect, useState } from "react";
+
+import { useCallback, useMemo } from "react";
+import useLocalStorageState from "use-local-storage-state";
 
 const settingsKey = 'settings';
-export type PartyIconStyle = 'bauhaus' | 'marble' | 'none';
+export type PartyIconStyle = 'bauhaus' | 'marble' | 'beam' | 'none';
 
 export class DeviceSetting {
 
     partyIconStyle : PartyIconStyle = 'bauhaus';
     
     defaultUserName: string = '';
-
-    static save(settings: DeviceSetting) {
-        localStorage.setItem(
-            settingsKey, 
-            JSON.stringify(settings)
-        );
-    }
-
-    static load(): DeviceSetting {
-        const setting = localStorage.getItem(settingsKey);
-        if (setting) {
-            return JSON.parse(setting) as DeviceSetting;
-        }
-        return new DeviceSetting();
-    }
 }
 
     /**
@@ -32,15 +19,27 @@ export class DeviceSetting {
      * and changed settings are saved to local storage when the component is unmounted.
      */
 export function useDeviceSetting() {
-    const [deviceSettings, setDeviceSettings] = useState(DeviceSetting.load());
 
-    useEffect(() => {
-        DeviceSetting.save(deviceSettings);
-    }, [deviceSettings]);
+    const [deviceSettings, setDeviceSettings] = useLocalStorageState<DeviceSetting>(
+        settingsKey, 
+        { 
+            defaultValue: new DeviceSetting(),
+            storageSync: true,
+        }
+    );
 
-    const setPartyIconStyle = (partyIconStyle: PartyIconStyle) => setDeviceSettings({...deviceSettings, partyIconStyle: partyIconStyle});
+    const setPartyIconStyle = useCallback((partyIconStyle: PartyIconStyle) => {
+        setDeviceSettings(prev => ({...prev, partyIconStyle}));
+    }, [setDeviceSettings]);
     
-    const setDefaultUserName = (defaultUserName: string) => setDeviceSettings({...deviceSettings, defaultUserName: defaultUserName});
+    const setDefaultUserName = useCallback((defaultUserName: string) => {
+        setDeviceSettings(prev => ({...prev, defaultUserName}));
+    }, [setDeviceSettings]);
 
-    return {...deviceSettings, setPartyIconStyle, setDefaultUserName} as const;
+    return useMemo(() => 
+        ({...deviceSettings, setPartyIconStyle, setDefaultUserName}),
+        [deviceSettings, setPartyIconStyle, setDefaultUserName]
+    );
 }
+
+
