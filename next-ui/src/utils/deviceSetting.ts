@@ -1,5 +1,5 @@
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import useLocalStorageState from "use-local-storage-state";
 
 const settingsKey = 'settings';
@@ -30,13 +30,16 @@ export function useDeviceSetting() {
 
     const setPartyIconStyle = useCallback((partyIconStyle: PartyIconStyle) => {
         setDeviceSettings(prev => ({...prev, partyIconStyle}));
-    }, []);
+    }, [setDeviceSettings]);
     
     const setDefaultUserName = useCallback((defaultUserName: string) => {
         setDeviceSettings(prev => ({...prev, defaultUserName}));
-    }, []);
+    }, [setDeviceSettings]);
 
-    return {...deviceSettings, setPartyIconStyle, setDefaultUserName};
+    return useMemo(() => 
+        ({...deviceSettings, setPartyIconStyle, setDefaultUserName}),
+        [deviceSettings, setPartyIconStyle, setDefaultUserName]
+    );
 }
 
 
