@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Common Guides
+- IMPORTANT: Use **codebase-navigator** subagent for search, discovery, locate specific code elements, understand code structure, or find relevant files in the codebase
+- IMPORTANT: Use **csharp-developer** subagent for working with C# code
+- IMPORTANT: Use **frontend-developer** subagent for working with frontend project
+- IMPORTANT: Use **test-automator** subagent for writing tests
+- IMPORTANT: Use **sql-pro** subagent for working with sql queries
+- IMPORTANT: Use **context-manager** subagent to orchestrate and organize subagents work
+- IMPORTANT: Go to root directory, before cd to the specific project   
+
 ## Project Structure
 
 iSplit.app is a full-stack expense sharing application with these main components:
@@ -47,7 +56,7 @@ docker build -t isplitapp .    # Build full application image
 - Write code that is clear and obvious
 - Test before declaring done
 - Research current docks, don't trust outdated knowledge
-- Use visual imputs and Playwrite MCP to make sure the changes are correct
+- Use visual inputs and Playwrite MCP to make sure the changes are correct
 - **SINGLE RESPONSIBILITY**: Each function does ONE thing
 - **EXPLICIT ERROR HANDLING**: No silent failures
 - **SIMPLICITY FIRST**: Remove everything non-essential

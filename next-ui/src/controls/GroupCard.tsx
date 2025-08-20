@@ -87,10 +87,10 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                         </Button>
                     <h1 className="text-lg">{party.name}</h1>
                 </CardHeader>
-                <CardBody className={`flex flex-row ${party.primaryParticipantBalance && party.primaryParticipantBalance !== null && 'py-1 -mt-1'}`}>
+                <CardBody className={`flex flex-row items-start py-1 -mt-1`}>
 
 
-                    <div className="table-auto mt-auto">
+                    <div className="table-auto">
                         <div className="table-row leading-tight">
                             <div className="table-cell text-right align-middle">
                                 <span className="text-xl font-bold font-mono leading-none">{party.totalExpenses.toFixed(2)}</span>
@@ -99,21 +99,25 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                                 <span className="text-dimmed ml-1.5 text-xl leading-none">{party.currency}</span>
                             </div>
                         </div>
-                        {party.primaryParticipantExpenses !== null && party.primaryParticipantExpenses !== undefined && (
-                            <div className="table-row leading-none">
-                                <div className="table-cell text-right align-middle">
-                                    <span className="mr-1 text-sm font-mono text-dimmed leading-none">
-                                        &#10551;
-                                    </span>
-                                    <span className="text-sm font-mono text-dimmed leading-none">
-                                        {party.primaryParticipantExpenses.toFixed(2)}
-                                    </span>
-                                </div>
-                                <div className="table-cell text-left align-middle">
-                                    <UserStarIcon  className="fill-current stroke-[1px] ml-1.5 h-4 w-4 text-dimmed leading-none" />
-                                </div>
+                        <div className="table-row leading-tight">
+                            <div className="table-cell text-right align-middle">
+                                {party.primaryParticipantExpenses !== null && party.primaryParticipantExpenses !== undefined ? (
+                                    <>
+                                        <span className="mr-1 text-sm font-mono text-dimmed leading-none">
+                                            &#10551;
+                                        </span>
+                                        <span className="text-sm font-mono text-dimmed leading-none">
+                                            {party.primaryParticipantExpenses.toFixed(2)}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <span className="text-sm font-mono leading-none invisible">0.00</span>
+                                )}
                             </div>
-                        )}
+                            <div className="table-cell text-left align-middle">
+                                <UserStarIcon className={`fill-current stroke-[1px] ml-1.5 h-4 w-4 leading-none ${party.primaryParticipantExpenses !== null && party.primaryParticipantExpenses !== undefined ? 'text-dimmed' : 'invisible'}`} />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex flex-col ml-auto">
@@ -134,17 +138,25 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             <span className={`ml-auto ${party.outstandingBalance === 0 ? 'text-primary': 'text-danger-600'}`}>{party.outstandingBalance.toFixed(2)} </span> 
                             <span className="font-sans text-dimmed pl-1 text-[10px]">{party.currency}</span>
                         </div>
-                        {party.primaryParticipantBalance !== null && party.primaryParticipantBalance !== undefined && (
-                            <div className="whitespace-nowrap flex flex-row text-sm leading-none mt-1 font-mono items-end text-right">
-                                <UserStarIcon className={`fill-current stroke-[1px] h-4 w-4 mr-2 text-dimmed`} /> 
-                                <span 
-                                    className={`ml-auto ${party.primaryParticipantBalance === 0 ? 'text-primary': party.primaryParticipantBalance > 0 ? 'text-success-600': 'text-danger-600'}`}
-                                >
-                                    {party.primaryParticipantBalance.toFixed(2)} 
-                                </span> 
-                                <span className="font-sans text-dimmed pl-1 text-[10px]">{party.currency}</span>
-                            </div>
-                        )}
+                        <div className="whitespace-nowrap flex flex-row text-sm leading-none mt-1 font-mono items-end text-right">
+                            <UserStarIcon className={`fill-current stroke-[1px] h-4 w-4 mr-2 ${party.primaryParticipantBalance !== null && party.primaryParticipantBalance !== undefined ? 'text-dimmed' : 'invisible'}`} /> 
+                            {party.primaryParticipantBalance !== null && party.primaryParticipantBalance !== undefined ? (
+                                <>
+                                    <span 
+                                        className={`ml-auto ${party.primaryParticipantBalance === 0 ? 'text-primary': party.primaryParticipantBalance > 0 ? 'text-success-600': 'text-danger-600'}`}
+                                    >
+                                        {party.primaryParticipantBalance.toFixed(2)} 
+                                    </span> 
+                                    <span className="font-sans text-dimmed pl-1 text-[10px]">{party.currency}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="ml-auto text-sm font-mono leading-none invisible">0.00</span>
+                                    <span className="font-sans text-dimmed pl-1 text-[10px] invisible">{party.currency}</span>
+                                </>
+                            )}
+                        </div>
+                        
                     </div>
                 </CardBody>
                 <CardFooter className="flex -mt-2 items-end">
