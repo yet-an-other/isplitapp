@@ -129,6 +129,11 @@
         "label": "Currency",
         "description": "Will be used for all expenses in this group"
       },
+      "description": {
+        "label": "Description",
+        "description": "Optional description for your group",
+        "placeholder": "Add a description for your group..."
+      },
       "participantName": {
         "label": "Name"
       }

@@ -9,6 +9,8 @@ export class PartyInfo {
     
     name: string = "";
 
+    description: string | null = null;
+
     currency: string = "";
     
     created: Date = new Date();

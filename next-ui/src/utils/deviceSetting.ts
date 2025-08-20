@@ -9,7 +9,7 @@ export class DeviceSetting {
 
     partyIconStyle : PartyIconStyle = 'bauhaus';
     
-    defaultUserName: string = '';
+    defaultUserName = '';
 }
 
     /**

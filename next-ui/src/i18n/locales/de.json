@@ -130,6 +130,11 @@
         "label": "Währung",
         "description": "Wird für alle Ausgaben in dieser Gruppe verwendet"
       },
+      "description": {
+        "label": "Beschreibung",
+        "description": "Optionale Beschreibung für Ihre Gruppe",
+        "placeholder": "Beschreibung für Ihre Gruppe hinzufügen..."
+      },
       "participantName": {
         "label": "Name"
       }

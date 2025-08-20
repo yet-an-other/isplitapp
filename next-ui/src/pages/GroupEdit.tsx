@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, CardHeader, Input } from "@heroui/react";
+import { Button, Card, CardBody, CardFooter, CardHeader, Input, Textarea } from "@heroui/react";
 import { UserIcon, TrashIcon, UserPlusIcon, UserStarIcon } from "../icons";
 import { PartyPayload, PartyPayloadSchema } from "../api/contract/PartyPayload";
 import { useEffect, useState } from "react";
@@ -247,6 +247,27 @@ export function GroupEdit() {
                                 </div>
                             )}
                         </div>
+                    </div>
+                    <div className="mt-4">
+                        <Textarea
+                            type="text" 
+                            label={t('groupEdit.fields.description.label')} 
+                            size="sm"
+                            description={t('groupEdit.fields.description.description')}
+                            placeholder={t('groupEdit.fields.description.placeholder')}
+                            value={party.description || ""}
+                            onChange={(e) => handleGroupChange({name: "description", value: e.target.value})}
+                            isInvalid={!!fieldError("description")}
+                            errorMessage={fieldError("description")}
+                            maxLength={500}
+                            minRows={2}
+                            maxRows={6}
+                            classNames={{
+                                label: "group-data-[filled-within=true]:text-dimmed group-data-[filled-within=true]:-mt-0.5",
+                                description: "text-dimmed",
+                                input: "text-[16px]"
+                            }}
+                        />
                     </div>
                 </CardBody>
             </Card>

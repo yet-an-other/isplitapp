@@ -86,8 +86,11 @@ export const GroupCard = ({party, disablePress}: GroupCardProps) => {
                             <ShareIcon className="w-5 h-5" />
                         </Button>
                     <h1 className="text-lg">{party.name}</h1>
+                    {party.description && (
+                        <p className="text-sm text-dimmed mt-1 leading-tight">{party.description}</p>
+                    )}
                 </CardHeader>
-                <CardBody className={`flex flex-row items-start py-1 -mt-1`}>
+                <CardBody className={`flex flex-row items-start py-1 -mb-1`}>
 
 
                     <div className="table-auto">

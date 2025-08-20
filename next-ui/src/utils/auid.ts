@@ -31,8 +31,8 @@ export class Auid {
     
     // Instance variables for sequence management
     private factoryId: number;
-    private lastTimestamp: bigint = -1n;
-    private sequence: number = 0;
+    private lastTimestamp = -1n;
+    private sequence = 0;
     
     static {
         // Initialize base62 lookup table
