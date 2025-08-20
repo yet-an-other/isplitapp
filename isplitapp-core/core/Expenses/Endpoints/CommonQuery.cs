@@ -106,6 +106,7 @@ internal static class CommonQuery
             Id = partyId,
             Name = party.Name,
             Currency = party.Currency,
+            Description = party.Description,
             Created = DateTime.UtcNow,
             Updated = DateTime.UtcNow,
             Timestamp = auidFactory.Timestamp()

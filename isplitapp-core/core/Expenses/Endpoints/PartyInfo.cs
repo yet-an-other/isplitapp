@@ -24,6 +24,11 @@ public record PartyInfo
     public string Currency { get; init; } = "USD";
     
     /// <summary>
+    /// Optional description of the party
+    /// </summary>
+    public string? Description { get; init; } = null;
+    
+    /// <summary>
     /// When the party was created in UTC time
     /// </summary>
     public DateTime Created { get; init; } = DateTime.UtcNow;

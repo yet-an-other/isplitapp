@@ -29,6 +29,12 @@ public record Party
     public string Currency { get; init; } = "USD";
     
     /// <summary>
+    /// Optional description of the party
+    /// </summary>
+    [Column("description")]
+    public string? Description { get; init; } = null;
+    
+    /// <summary>
     /// When the party was created in UTC time
     /// </summary>
     [Column("created", DbType = "timestamptz")]

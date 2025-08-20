@@ -36,6 +36,7 @@ public class PartyUpdate: IEndpoint
                 .Where(p => p.Id == partyId)
                 .Set(p => p.Name, party.Name)
                 .Set(p => p.Currency, party.Currency)
+                .Set(p => p.Description, party.Description)
                 .Set(p => p.Updated, DateTime.UtcNow)
                 .Set(p => p.Timestamp, auidFactory.Timestamp())
                 .UpdateAsync();

@@ -37,6 +37,7 @@ public class PartyGetList: IEndpoint
                 Id = p.Id,
                 Name = p.Name,
                 Currency = p.Currency,
+                Description = p.Description,
                 Created = p.Created,
                 Updated = p.Updated,
                 UpdateTimestamp = p.Timestamp,
