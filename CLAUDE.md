@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Common Guides
+## Important Instructions
 - IMPORTANT: Use **codebase-navigator** subagent for search, discovery, locate specific code elements, understand code structure, or find relevant files in the codebase
 - IMPORTANT: Use **csharp-developer** subagent for working with C# code
 - IMPORTANT: Use **frontend-developer** subagent for working with frontend project
@@ -10,6 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - IMPORTANT: Use **sql-pro** subagent for working with sql queries
 - IMPORTANT: Use **context-manager** subagent to orchestrate and organize subagents work
 - IMPORTANT: Go to root directory, before cd to the specific project   
+- Do what has been asked; nothing more, nothing less.
+- NEVER create files unless they're absolutely necessary for achieving your goal.
+- ALWAYS prefer editing an existing file to creating a new one.
+- NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 
 ## Project Structure
 
@@ -267,12 +271,6 @@ under high load.
 Fixes: #123
 ```
 
-**Commit Requirements**:
-- One logical change per commit
-- Run tests before committing
-- Include context for future developers
-- Reference issue numbers when applicable
-- Never mention "Claude", "Athropic" or "AI" in commits
 
 ### Styling
 
@@ -283,14 +281,5 @@ Uses Tailwind CSS v4 with PostCSS processing. Dark mode support is implemented v
 - **Context7** - Use to fetch updated documentation for libraries and frameworks like HeroUI, Tailwind CSS, React and others
 - **chrome-mcp** - Use to check visual changes in the frontend with the chrom browser when UI modifications are made or UI test is needed. Assume the app is running on http://localhost:5173
 - **playwright** - Use to check visual changes in the frontend with a real browser when UI modifications are made. Assume the app is running on http://localhost:5173
-- **GitHub** - For repository operations, PR management, and issue tracking
+- **gh** - For repository operations, PR management, and issue tracking
 
-## Important Instructions
-
-Do what has been asked; nothing more, nothing less.
-
-NEVER create files unless they're absolutely necessary for achieving your goal.
-
-ALWAYS prefer editing an existing file to creating a new one.
-
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

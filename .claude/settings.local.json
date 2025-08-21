@@ -46,7 +46,10 @@
       "mcp__chrome-mcp__chrome_keyboard",
       "Bash(git push:*)",
       "mcp__chrome-mcp__chrome_console",
-      "mcp__chrome-mcp__chrome_screenshot"
+      "mcp__chrome-mcp__chrome_screenshot",
+      "mcp__playwright__browser_resize",
+      "Bash(dotnet run:*)",
+      "mcp__playwright__browser_console_messages"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

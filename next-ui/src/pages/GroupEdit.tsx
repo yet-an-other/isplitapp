@@ -71,6 +71,11 @@ export function GroupEdit() {
     const [localPrimaryParticipantId, setLocalPrimaryParticipantId] = useState<string | null>(partySettings.primaryParticipantId);
     const { alertError, alertSuccess } = useAlerts();
     
+    // Sync local primary participant state with party settings
+    useEffect(() => {
+        setLocalPrimaryParticipantId(partySettings.primaryParticipantId);
+    }, [partySettings.primaryParticipantId]);
+    
     /**
      * Handle a change in the group's name or currency.
      * 
