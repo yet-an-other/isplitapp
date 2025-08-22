@@ -11,6 +11,8 @@
 *.sln.docstates
 *.secret*
 *.decrypted.*
+*.playwright-mcp*
+*.local*
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

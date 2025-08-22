@@ -49,6 +49,7 @@ describe('generateReport', () => {
   const createMockParty = (overrides: Partial<PartyInfo> = {}): PartyInfo => ({
     id: 'party-123',
     name: 'Test Party',
+    description: null,
     currency: 'USD',
     created: new Date('2023-01-01'),
     updated: new Date('2023-01-02'),

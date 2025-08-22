@@ -18,6 +18,11 @@ public record PartyPayload
     public string Currency { get; init; } = "USD";
     
     /// <summary>
+    /// Optional description of the party
+    /// </summary>
+    public string? Description { get; init; } = null;
+    
+    /// <summary>
     /// List of all participants in the party
     /// </summary>
     public ParticipantPayload[] Participants { get; init; } = [];
@@ -29,12 +34,15 @@ public record PartyPayload
 public class PartyRequestValidator : AbstractValidator<PartyPayload>
 {
     private const int NameLength = 100;
+    private const int DescriptionLength = 500;
     
     public PartyRequestValidator()
     {
         RuleFor(g => g.Name).NotEmpty().Length(1, NameLength)
             .WithMessage($"Group Name must not be empty or greater than {NameLength} characters");
         RuleFor(g => g.Currency).NotEmpty().WithMessage("Group Currency must not be empty");
+        RuleFor(g => g.Description).MaximumLength(DescriptionLength)
+            .WithMessage($"Group Description must not be greater than {DescriptionLength} characters");
         RuleFor(g => g.Participants).NotEmpty().WithMessage("In group must be at least one participant");
         RuleForEach(g => g.Participants)
             .Must(p => !string.IsNullOrWhiteSpace(p.Name) || p.Name.Length > NameLength)
