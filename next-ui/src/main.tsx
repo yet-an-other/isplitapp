@@ -11,6 +11,7 @@ import { Group } from './pages/Group'
 import { ExpenseList } from './pages/ExpenseList'
 import { ExpenseEdit } from './pages/ExpenseEdit'
 import { Balance } from './pages/Balance'
+import { ActivityList } from './pages/ActivityList'
 import { RootBoundary } from './pages/RootErrorBoundary'
 import { NotFound } from './pages/NotFound'
 import { initOpenTelemetry } from './utils/openTelemetry'
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
         { index: true, element: <ExpenseList />, handle: "expenses"},
         { path: 'edit', element: <GroupEdit />, handle: "edit" },
         { path: 'balance', element: <Balance />, handle: "balance" },
+        { path: 'activity', element: <ActivityList />, handle: "activity" },
         { path: 'expenses', element: <ExpenseList />, handle: "expenses" },
         { path: 'expenses/create', element: <ExpenseEdit /> },
         { path: 'expenses/:expenseId/edit', element: <ExpenseEdit /> },

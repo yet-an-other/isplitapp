@@ -47,6 +47,23 @@ public class ExpenseUpdate: IEndpoint
 
                 await db.Borrowers.Where(b => b.ExpenseId == expenseId).DeleteAsync();
                 await CommonQuery.InsertBorrowersAsync(expenseId, expense, db);
+                
+                // Get party ID for activity logging
+                var partyId = await db.Expenses
+                    .Where(e => e.Id == expenseId)
+                    .Select(e => e.PartyId)
+                    .SingleAsync();
+                
+                // Log expense update activity
+                await CommonQuery.LogActivityAsync(
+                    partyId, 
+                    deviceId, 
+                    "ExpenseUpdated", 
+                    $"Updated expense: {expense.Title}", 
+                    db, 
+                    auidFactory, 
+                    expenseId);
+                    
                 await db.CommitTransactionAsync();
 
                 await notificationService.PushExpenseUpdateMessage(deviceId, expenseId, "Expense updated");

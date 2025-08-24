@@ -9,11 +9,13 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useTranslation } from "react-i18next";
 import { usePartySetting } from "../utils/partySetting";
+import { useDeviceSetting } from "../utils/deviceSetting";
 
 export function Group() {    
     const navigate = useNavigate();
     const { groupId } = useParams();
     const { t } = useTranslation();
+    const { enableActivityLog } = useDeviceSetting();
     
     // Load fresh data from localStorage
     const currentSettings = usePartySetting(groupId || '');
@@ -30,13 +32,19 @@ export function Group() {
         .filter((match) => Boolean(match.handle))
         .map((match) => match.handle)[0] as keyof typeof items;
 
-    const items = {
+    const baseItems = {
         expenses: t('group.tabs.expenses'), 
         balance: t('group.tabs.balance'), 
     };
+    
+    const items = enableActivityLog 
+        ? { ...baseItems, activity: t('group.tabs.activity') }
+        : baseItems;
+    
     const itemsDesc = {
         expenses: t('group.tabs.descriptions.expenses'), 
         balance: t('group.tabs.descriptions.balance'), 
+        activity: t('group.tabs.descriptions.activity'),
         edit: t('group.tabs.descriptions.edit')
     };
 

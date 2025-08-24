@@ -1,5 +1,6 @@
 using IB.ISplitApp.Core.Expenses.Data;
 using IB.Utils.Ids;
+using IB.Utils.Ids.Converters;
 using LinqToDB;
 using LinqToDB.Data;
 
@@ -125,5 +126,40 @@ internal static class CommonQuery
         await db.CommitTransactionAsync();
         
         return partyId;
+    }
+
+    /// <summary>
+    /// Logs an activity to the activity log for audit trail
+    /// </summary>
+    /// <param name="partyId">ID of the party where activity occurred</param>
+    /// <param name="deviceId">ID of the device that performed the activity</param>
+    /// <param name="activityType">Type of activity (e.g., "ExpenseAdded", "GroupUpdated")</param>
+    /// <param name="description">Human-readable description of the activity</param>
+    /// <param name="db">Database connection</param>
+    /// <param name="auidFactory">Factory for generating IDs and timestamps</param>
+    /// <param name="entityId">Optional ID of the entity affected (expense, participant, etc.)</param>
+    internal static async Task LogActivityAsync(
+        Auid partyId, 
+        Auid deviceId, 
+        string activityType, 
+        string description, 
+        ExpenseDb db, 
+        AuidFactory auidFactory,
+        Auid? entityId = null)
+    {
+        var activityId = auidFactory.NewId();
+        var timestamp = auidFactory.Timestamp();
+
+        await db.InsertAsync(new ActivityLog
+        {
+            Id = activityId,
+            PartyId = partyId,
+            DeviceId = deviceId,
+            ActivityType = activityType,
+            EntityId = entityId,
+            Description = description,
+            Created = DateTime.UtcNow,
+            Timestamp = timestamp
+        });
     }
 }

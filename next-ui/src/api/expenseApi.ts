@@ -5,6 +5,7 @@ import { ExpensePayload } from "./contract/ExpensePayload";
 import { PartySettingsPayload } from "./contract/PartySettingsPayload";
 import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
 import { PartyInfo } from "./contract/PartyInfo";
+import { ActivityInfo } from "./contract/ActivityInfo";
 import { API_URL } from "../utils/apiConfig";
 
 /**
@@ -130,6 +131,16 @@ export async function importPartiesFromDevice(sourceDeviceId: string): Promise<s
     }
     
     return importedPartyIds;
+}
+
+/**
+ * Fetch activity log for a party
+ * @param partyId the party ID to fetch activities for
+ * @returns array of activity info
+ */
+export async function fetchActivities(partyId: string): Promise<ActivityInfo[]> {
+    const endpoint = `/parties/${partyId}/activities`;
+    return await sendRequest<undefined, ActivityInfo[]>('GET', endpoint);
 }
 
 /**
