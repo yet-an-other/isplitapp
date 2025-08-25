@@ -20,6 +20,8 @@ vi.mock('../../utils/deviceSetting', () => ({
     setPartyIconStyle: vi.fn(),
     defaultUserName: 'TestUser',
     setDefaultUserName: vi.fn(),
+    enableActivityLog: true,
+    setEnableActivityLog: vi.fn(),
   })),
 }));
 
@@ -61,6 +63,8 @@ vi.mock('react-i18next', () => ({
         'headerBar.settings.notifications.label': 'Notifications',
         'headerBar.settings.notifications.descriptionEnabled': 'Get notified when expenses are added or updated',
         'headerBar.settings.notifications.descriptionDisabled': 'Notifications are disabled by your browser',
+        'headerBar.settings.activityLog.label': 'Enable Activity Log',
+        'headerBar.settings.activityLog.description': 'Show activity log entries in the user interface',
         'headerBar.settings.advanced.title': 'Advanced',
         'headerBar.settings.advanced.deviceId.label': 'Device ID',
         'headerBar.settings.advanced.deviceId.description': 'Unique identifier for this device',
@@ -170,6 +174,8 @@ describe('SettingsModal', () => {
       setPartyIconStyle: vi.fn(),
       defaultUserName: 'TestUser',
       setDefaultUserName: vi.fn(),
+      enableActivityLog: true,
+      setEnableActivityLog: vi.fn(),
     });
 
     mockUseAlerts.mockReturnValue({
@@ -927,6 +933,179 @@ describe('SettingsModal', () => {
       await userEvent.click(darkModeSwitch);
       
       expect(mockToggle).toHaveBeenCalled();
+    });
+  });
+
+  describe('Activity Log Toggle', () => {
+    it('displays activity log toggle with correct label and description', async () => {
+      render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Enable Activity Log')).toBeInTheDocument();
+      });
+      
+      expect(screen.getByText('Show activity log entries in the user interface')).toBeInTheDocument();
+    });
+
+    it('shows activity log toggle as enabled when enableActivityLog is true', async () => {
+      mockUseDeviceSetting.mockReturnValue({
+        partyIconStyle: 'bauhaus',
+        setPartyIconStyle: vi.fn(),
+        defaultUserName: 'TestUser',
+        setDefaultUserName: vi.fn(),
+        enableActivityLog: true,
+        setEnableActivityLog: vi.fn(),
+      });
+
+      render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const activityLogSwitch = screen.getByRole('switch', { name: /enable activity log/i });
+        expect(activityLogSwitch).toBeInTheDocument();
+        expect(activityLogSwitch).toBeChecked();
+      });
+    });
+
+    it('shows activity log toggle as disabled when enableActivityLog is false', async () => {
+      mockUseDeviceSetting.mockReturnValue({
+        partyIconStyle: 'bauhaus',
+        setPartyIconStyle: vi.fn(),
+        defaultUserName: 'TestUser',
+        setDefaultUserName: vi.fn(),
+        enableActivityLog: false,
+        setEnableActivityLog: vi.fn(),
+      });
+
+      render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} />
+        </TestWrapper>
+      );
+
+      await waitFor(() => {
+        const activityLogSwitch = screen.getByRole('switch', { name: /enable activity log/i });
+        expect(activityLogSwitch).toBeInTheDocument();
+        expect(activityLogSwitch).not.toBeChecked();
+      });
+    });
+
+    it('calls setEnableActivityLog when toggle is clicked', async () => {
+      const mockSetEnableActivityLog = vi.fn();
+      mockUseDeviceSetting.mockReturnValue({
+        partyIconStyle: 'bauhaus',
+        setPartyIconStyle: vi.fn(),
+        defaultUserName: 'TestUser',
+        setDefaultUserName: vi.fn(),
+        enableActivityLog: true,
+        setEnableActivityLog: mockSetEnableActivityLog,
+      });
+
+      render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} />
+        </TestWrapper>
+      );
+
+      const activityLogSwitch = await waitFor(() => 
+        screen.getByRole('switch', { name: /enable activity log/i })
+      );
+      
+      await userEvent.click(activityLogSwitch);
+      
+      expect(mockSetEnableActivityLog).toHaveBeenCalledOnce();
+    });
+
+    it('toggles from disabled to enabled when clicked', async () => {
+      const mockSetEnableActivityLog = vi.fn();
+      mockUseDeviceSetting.mockReturnValue({
+        partyIconStyle: 'bauhaus',
+        setPartyIconStyle: vi.fn(),
+        defaultUserName: 'TestUser',
+        setDefaultUserName: vi.fn(),
+        enableActivityLog: false,
+        setEnableActivityLog: mockSetEnableActivityLog,
+      });
+
+      render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} />
+        </TestWrapper>
+      );
+
+      const activityLogSwitch = await waitFor(() => 
+        screen.getByRole('switch', { name: /enable activity log/i })
+      );
+      
+      await userEvent.click(activityLogSwitch);
+      
+      expect(mockSetEnableActivityLog).toHaveBeenCalledOnce();
+    });
+
+    it('has proper accessibility attributes', async () => {
+      render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} />
+        </TestWrapper>
+      );
+
+      const activityLogSwitch = await waitFor(() => 
+        screen.getByRole('switch', { name: /enable activity log/i })
+      );
+      
+      // Verify the switch is accessible with proper role and can be checked
+      expect(activityLogSwitch).toHaveAttribute('role', 'switch');
+      expect(activityLogSwitch).toBeChecked(); // Since enableActivityLog defaults to true
+    });
+
+    it('preserves state when modal is reopened', async () => {
+      const mockSetEnableActivityLog = vi.fn();
+      mockUseDeviceSetting.mockReturnValue({
+        partyIconStyle: 'bauhaus',
+        setPartyIconStyle: vi.fn(),
+        defaultUserName: 'TestUser',
+        setDefaultUserName: vi.fn(),
+        enableActivityLog: false,
+        setEnableActivityLog: mockSetEnableActivityLog,
+      });
+
+      const { rerender } = render(
+        <TestWrapper>
+          <SettingsModal {...mockProps} isOpen={true} />
+        </TestWrapper>
+      );
+
+      // Check initial state
+      let activityLogSwitch = await waitFor(() => 
+        screen.getByRole('switch', { name: /enable activity log/i })
+      );
+      expect(activityLogSwitch).not.toBeChecked();
+
+      // Close and reopen modal
+      rerender(
+        <TestWrapper>
+          <SettingsModal {...mockProps} isOpen={false} />
+        </TestWrapper>
+      );
+
+      rerender(
+        <TestWrapper>
+          <SettingsModal {...mockProps} isOpen={true} />
+        </TestWrapper>
+      );
+
+      // Check state is preserved
+      activityLogSwitch = await waitFor(() => 
+        screen.getByRole('switch', { name: /enable activity log/i })
+      );
+      expect(activityLogSwitch).not.toBeChecked();
     });
   });
 });

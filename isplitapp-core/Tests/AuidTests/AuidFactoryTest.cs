@@ -1,10 +1,20 @@
+using System.Text;
 using IB.Utils.Ids;
 using IB.Utils.Ids.FidProviders;
+using Xunit.Abstractions;
+
 
 namespace Tests.AuidTests;
 
 public class AuidFactoryTest
 {
+    public AuidFactoryTest(ITestOutputHelper output)
+    {
+        var converter = new Converter(output);
+        Console.SetOut(converter);
+    }
+
+
     [Fact]
     public void SequenceShouldIncreaseEveryInvocation()
     {
@@ -98,7 +108,41 @@ public class AuidFactoryTest
         Assert.Equal(sorted[2], id2);
         Assert.Equal(sorted[3], id1);
     }
-    
+
+
+    [Fact]
+    public void RawTimestampShouldBeOrdered()
+    {
+
+        var factory = new AuidFactory();
+
+        var id1 = factory.Timestamp();
+        Thread.Sleep(1);
+        var id2 = factory.Timestamp();
+        Thread.Sleep(1);
+        var id3 = factory.Timestamp();
+        Thread.Sleep(1);
+        var id4 = factory.Timestamp();
+
+        Assert.True(id1 != id2);
+
+        var array = new[] { id4, id3, id2, id1 };
+        var sorted = array.OrderBy(i => i).ToArray();
+        Console.WriteLine($"Unsorted: {string.Join(", ", array.Select(i => i.ToString()))}");
+        Console.WriteLine($"Sorted: {string.Join(", ", sorted.Select(i => i.ToString()))}");
+        Assert.Equal(sorted[0], id1);
+        Assert.Equal(sorted[1], id2);
+        Assert.Equal(sorted[2], id3);
+        Assert.Equal(sorted[3], id4);
+
+        sorted = array.OrderByDescending(i => i).ToArray();
+        Assert.Equal(sorted[0], id4);
+        Assert.Equal(sorted[1], id3);
+        Assert.Equal(sorted[2], id2);
+        Assert.Equal(sorted[3], id1);
+    }
+
+
     [Fact]
     public void GeneratedIdCheck()
     {
@@ -110,4 +154,33 @@ public class AuidFactoryTest
         Assert.Equal(2694U, info.FactoryId);
         Assert.Equal(new DateTime(2025, 7, 30, 20, 7, 9, 393), info.Timestamp);
     }
+
+        private class Converter(ITestOutputHelper output) : TextWriter
+    {
+        private string _textOut = string.Empty;
+        public override Encoding Encoding => Encoding.Default;
+
+        public override void WriteLine(string? message)
+        {
+            output.WriteLine(message);
+        }
+        public override void WriteLine(string format, params object?[] args)
+        {
+            output.WriteLine(format, args);
+        }
+
+        public override void Write(char value)
+        {
+            if (value == '\n')
+            {
+                output.WriteLine(_textOut);
+                _textOut = ""; 
+            }
+            else
+                _textOut += value;
+        }
+    }
+    
 }
+
+

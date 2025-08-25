@@ -165,5 +165,6 @@ namespace IB.ISplitApp.Core
     [JsonSerializable(typeof(PartyPayload[]))]
     [JsonSerializable(typeof(PartyInfo[]))]
     [JsonSerializable(typeof(BalanceInfo[]))]
+    [JsonSerializable(typeof(ActivityInfo[]))]
     internal partial class AppJsonSerializerContext : JsonSerializerContext;
 }

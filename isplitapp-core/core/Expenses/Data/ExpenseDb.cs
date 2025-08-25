@@ -32,4 +32,9 @@ public class ExpenseDb(DataOptions<ExpenseDb> options) : DataConnection(options.
     /// borrower table
     /// </summary>
     public ITable<Borrower> Borrowers => this.GetTable<Borrower>();
+
+    /// <summary>
+    /// activity_log table to track changes in parties
+    /// </summary>
+    public ITable<ActivityLog> ActivityLogs => this.GetTable<ActivityLog>();
 }

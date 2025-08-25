@@ -30,6 +30,16 @@ public static class Linq2DbConverter
                 : new Auid((long)auid.Value), 
             ConversionType.FromDatabase);
         
+        ms.SetConverter<Auid?, DataParameter>(auid => (auid == Auid.Empty || !auid.HasValue)
+                ? new DataParameter { DataType = DataType.Int64, Value = DBNull.Value }
+                : new DataParameter { Value = auid.Value.Int64 },
+            ConversionType.ToDatabase);
+        ms.SetConverter<DataParameter, Auid?>(
+            auid => auid.Value == null
+                ? null
+                : new Auid((long)auid.Value), 
+            ConversionType.FromDatabase);
+
         ms.SetConverter<long, Auid>(lid => new Auid(lid));
         ms.SetConverter<Auid, long>(auid => auid.Int64);
 
@@ -39,6 +49,12 @@ public static class Linq2DbConverter
                 sb.Append(((Auid)v).Int64);
         });
         
+        ms.SetValueToSqlConverter(typeof(Auid?), (sb, _, v) =>
+        {
+            if (((Auid?)v).HasValue && ((Auid?)v).Value != Auid.Empty)
+                sb.Append(((Auid)v).Int64);
+        });
+
         return ms;
     }
     

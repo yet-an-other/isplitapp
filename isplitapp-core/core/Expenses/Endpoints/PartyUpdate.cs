@@ -75,6 +75,17 @@ public class PartyUpdate: IEndpoint
                 .MergeAsync();
 
             await CommonQuery.EnsureDevicePartyVisibility(deviceId, partyId, db);
+            
+            // Log party update activity
+            await CommonQuery.LogActivityAsync(
+                partyId, 
+                deviceId, 
+                "PartyUpdated", 
+                $"Updated party: {party.Name}", 
+                db, 
+                auidFactory, 
+                partyId);
+            
             await db.CommitTransactionAsync();
 
             return TypedResults.NoContent();

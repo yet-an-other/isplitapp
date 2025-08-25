@@ -32,8 +32,18 @@ public class PartyCreate: IEndpoint
 
         var partyId = await CommonQuery.CreatePartyInternalAsync(deviceId, party, auidFactory, db);
         
+        // Log party creation activity
+        await CommonQuery.LogActivityAsync(
+            partyId!.Value, 
+            deviceId, 
+            "PartyCreated", 
+            $"Created party: {party.Name}", 
+            db, 
+            auidFactory, 
+            partyId);
+        
         return TypedResults.CreatedAtRoute(
-            new CreatedPartyInfo(partyId!.Value),
+            new CreatedPartyInfo(partyId.Value),
             "GetParty",
             new RouteValueDictionary { ["partyId"] = partyId.ToString() });
     };

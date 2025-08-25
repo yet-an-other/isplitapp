@@ -56,7 +56,7 @@ export function GroupEdit() {
         fetcher
     );
     useEffect(() => {
-        if (!!data) {
+        if (data) {
             setParty(data);
         }
     }, [data]);

@@ -10,6 +10,8 @@ export class DeviceSetting {
     partyIconStyle : PartyIconStyle = 'bauhaus';
     
     defaultUserName = '';
+    
+    enableActivityLog = true;
 }
 
     /**
@@ -35,10 +37,14 @@ export function useDeviceSetting() {
     const setDefaultUserName = useCallback((defaultUserName: string) => {
         setDeviceSettings(prev => ({...prev, defaultUserName}));
     }, [setDeviceSettings]);
+    
+    const setEnableActivityLog = useCallback((enableActivityLog: boolean) => {
+        setDeviceSettings(prev => ({...prev, enableActivityLog}));
+    }, [setDeviceSettings]);
 
     return useMemo(() => 
-        ({...deviceSettings, setPartyIconStyle, setDefaultUserName}),
-        [deviceSettings, setPartyIconStyle, setDefaultUserName]
+        ({...deviceSettings, setPartyIconStyle, setDefaultUserName, setEnableActivityLog}),
+        [deviceSettings, setPartyIconStyle, setDefaultUserName, setEnableActivityLog]
     );
 }
 

@@ -154,9 +154,11 @@
     "tabs": {
       "expenses": "Ausgaben",
       "balance": "Saldo",
+      "activity": "Aktivität",
       "descriptions": {
         "expenses": "Erkunden Sie hier die Ausgaben und Geldtransfers der Gruppe",
         "balance": "Hier ist der Gesamtbetrag, den jedes Mitglied der Gruppe geliehen oder verliehen hat",
+        "activity": "Zeigt die vollständige Historie aller Änderungen an dieser Gruppe an",
         "edit": "Bearbeiten Sie hier die Details und Mitglieder der Gruppe"
       }
     },
@@ -328,6 +330,10 @@
         "description": "Ihr Name wird automatisch ausgefüllt, wenn Sie neue Gruppen erstellen oder Ausgaben hinzufügen.",
         "placeholder": "Ihr Name"
       },
+      "activityLog": {
+        "label": "Aktivitätsprotokoll aktivieren",
+        "description": "Aktivitätsprotokoll-Einträge in der Benutzeroberfläche anzeigen"
+      },
       "advanced": {
         "title": "Erweitert",
         "deviceId": {
@@ -336,6 +342,22 @@
           "copied": "Geräte-ID in die Zwischenablage kopiert!"
         }
       }
+    }
+  },
+  "activityLog": {
+    "title": "Aktivitätsprotokoll",
+    "emptyState": "Noch keine Aktivitäten",
+    "disabled": "Aktivitätsprotokoll ist deaktiviert. Sie können es in den Einstellungen aktivieren.",
+    "loading": "Aktivitäten werden geladen...",
+    "error": "Fehler beim Laden der Aktivitäten",
+    "editExpense": "Bearbeiten",
+    "types": {
+      "ExpenseAdded": "Ausgabe hinzugefügt",
+      "ExpenseUpdated": "Ausgabe aktualisiert", 
+      "ExpenseDeleted": "Ausgabe gelöscht",
+      "GroupUpdated": "Gruppe aktualisiert",
+      "ParticipantAdded": "Teilnehmer hinzugefügt",
+      "ParticipantRemoved": "Teilnehmer entfernt"
     }
   },
   "footerBar": {
