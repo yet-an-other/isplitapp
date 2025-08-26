@@ -25,7 +25,7 @@ public class ActivityGetList: IEndpoint
 
         var activities = await db.ActivityLogs
             .Where(a => a.PartyId == partyId)
-            .OrderByDescending(a => a.Created)
+            .OrderByDescending(a => a.Timestamp)
             .Select(a => new ActivityInfo
             {
                 Id = a.Id,

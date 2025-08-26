@@ -11,6 +11,8 @@ import { Divider, Chip } from "@heroui/react";
 import { intlFormatDistance, format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { useDeviceSetting } from "../utils/deviceSetting";
+import { ensureDeviceId } from "../api/userApi";
+import { useEffect, useState } from "react";
 
 export function ActivityList() {
     const { party: group } = useOutletContext<{ party: PartyInfo, primaryParticipantId: string | null }>();
@@ -64,6 +66,14 @@ function ActivityListContent({ activities }: { activities: ActivityInfo[] }) {
         }
     });
 
+    const [deviceId, setDeviceId] = useState<string>('');
+
+    useEffect(() => {
+        ensureDeviceId().then(id => setDeviceId(id));
+    }, []);
+
+
+
     return (
         <div className="border-1 rounded-lg p-2">
             {activities.map((activity, i) => (
@@ -89,9 +99,11 @@ function ActivityListContent({ activities }: { activities: ActivityInfo[] }) {
                         </div>
                         <div className="flex-1 ml-3 text-sm">
                             <div className="font-medium">{activity.description}</div>
-                            <div className="text-dimmed font-mono text-xs"> 
-                                <span className="text-primary">by</span> {formatDeviceId(activity.deviceId)},&nbsp; 
-                                <span className="text-primary">at</span> {format(activity.created, 'MMM d, yyyy HH:mm')}
+                            <div className="font-mono"> 
+                                <span className="text-primary">by&nbsp;</span> 
+                                <span className={`text-xs ${activity.deviceId === deviceId ? 'text-black' : 'text-dimmed'}`}>{formatDeviceId(activity.deviceId)},&nbsp;</span>
+                                <span className="text-primary">at&nbsp;</span>
+                                <span className="text-dimmed text-xs">{format(activity.created, 'MMM d, yyyy HH:mm')}</span>
                             </div>
                         </div>
                     </div>

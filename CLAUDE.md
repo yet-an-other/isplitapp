@@ -3,17 +3,42 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Important Instructions
-- IMPORTANT: Use **codebase-navigator** subagent for search, discovery, locate specific code elements, understand code structure, or find relevant files in the codebase
-- IMPORTANT: Use **csharp-developer** subagent for working with C# code
-- IMPORTANT: Use **frontend-developer** subagent for working with frontend project
-- IMPORTANT: Use **test-automator** subagent for writing tests
-- IMPORTANT: Use **sql-pro** subagent for working with sql queries
-- IMPORTANT: Use **context-manager** subagent to orchestrate and organize subagents work
+- IMPORTANT: Use **codebase-navigator** agent for search, discovery, locate specific code elements, understand code structure, or find relevant files in the codebase
+- IMPORTANT: Use **csharp-developer** agent for working with C# code
+- IMPORTANT: Use **frontend-developer** agent for working with frontend project
+- IMPORTANT: Use **test-automator** agent for writing tests
+- IMPORTANT: Use **sql-pro** agent for working with sql queries
+- IMPORTANT: Use **context-manager** agent to orchestrate and organize agents work
 - IMPORTANT: Go to root directory, before cd to the specific project   
 - Do what has been asked; nothing more, nothing less.
 - NEVER create files unless they're absolutely necessary for achieving your goal.
 - ALWAYS prefer editing an existing file to creating a new one.
 - NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Core Principles
+
+1. **TDD methodology** as the primary development approach
+2. **Test First**: Write failing tests before any implementation
+3. **Minimal Implementation**: Write only enough code to pass tests
+4. **No Improvisation**: Don't add features or improvements not in the plan
+5. **Verify Continuously**: Run tests after every change
+6. **Write Quality focus** - clean, tested, maintainable code
+
+### Strict Rules
+1. **Never skip writing tests first**
+2. **Never modify plan scope during execution**
+3. **Never disable linting or skip tests**
+4. **Never merge with failing tests**
+5. **NEVER EVER cheat on tests (e.g., silently catching failures)**
+
+### Code Quality Checklist
+- [ ] All tests pass
+- [ ] Code coverage meets minimum (80%)
+- [ ] Linting passes without warnings
+- [ ] TypeScript compilation successful
+- [ ] No console.log statements in production code
+- [ ] Proper error handling implemented
+- [ ] Code follows project conventions
 
 ## Project Structure
 
@@ -64,25 +89,6 @@ docker build -t isplitapp .    # Build full application image
 - **SINGLE RESPONSIBILITY**: Each function does ONE thing
 - **EXPLICIT ERROR HANDLING**: No silent failures
 - **SIMPLICITY FIRST**: Remove everything non-essential
-
-### Honest Technical Assessment
-
-ALWAYS provide honest assessment of technical decisions:
-
-- If code has problems, explain the specific issues
-- If an approach has limitations, quantify them
-- If there are security risks, detail them clearly
-- If performance will degrade, provide metrics
-- If implementation is complex, justify why
-- If you chose a suboptimal solution, explain the tradeoffs
-- If you're uncertain, say so explicitly
-
-Examples of honest assessment:
-- "This will work for 1000 users but will break at 10,000 due to database bottleneck"
-- "This fix addresses the symptom but not the root cause - we'll see this bug again"
-- "This implementation is 3x more complex than needed because of legacy constraints"
-- "I'm not certain this handles all edge cases - particularly around concurrent access"
-- "This violates best practices but is necessary due to framework limitations"
 
 ### Context and Documentation
 
@@ -281,5 +287,5 @@ Uses Tailwind CSS v4 with PostCSS processing. Dark mode support is implemented v
 - **Context7** - Use to fetch updated documentation for libraries and frameworks like HeroUI, Tailwind CSS, React and others
 - **chrome-mcp** - Use to check visual changes in the frontend with the chrom browser when UI modifications are made or UI test is needed. Assume the app is running on http://localhost:5173
 - **playwright** - Use to check visual changes in the frontend with a real browser when UI modifications are made. Assume the app is running on http://localhost:5173
-- **gh** - For repository operations, PR management, and issue tracking
+- **gh** - CLI for repository operations, PR management, and issue tracking
 

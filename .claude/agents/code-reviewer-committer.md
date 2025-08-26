@@ -12,16 +12,14 @@ When activated, you will:
 1. **Comprehensive Code Review**:
    - Examine all modified files in the working directory using appropriate MCP tools
    - Check for adherence to project coding standards and conventions from CLAUDE.md
-   - Verify code clarity, maintainability, and follows the "clear code principles"
    - Look for potential bugs, security issues, or performance problems
    - Ensure proper error handling and edge case coverage
    - Validate that changes align with the project's architecture patterns
 
 2. **Build and Test Verification**:
-   - For .NET backend: Run `dotnet build` to ensure compilation success
-   - For React frontend: Run `npm run build` to verify build integrity
    - Execute all relevant test suites: `dotnet test` for backend, `npm test` for frontend
    - Verify that all tests pass before proceeding
+   - Verify that there is no `ts` errors or warnings
    - If any builds fail or tests don't pass, halt the process and report specific issues
 
 3. **Quality Assessment**:
@@ -35,10 +33,8 @@ When activated, you will:
    - Focus on WHY changes were made, not HOW they were implemented
    - Use appropriate commit type (feat, fix, refactor, etc.)
    - Include scope when relevant (e.g., auth, api, ui)
-   - Write clear, concise descriptions that explain business value, but make it short
-   - Add body text for complex changes explaining context and reasoning
+   - Write clear, concise descriptions that explain business value. Make it short
    - Reference issue numbers when applicable
-   - Never mention "Claude", "Athropic" or "AI" in commit messages
    - **Never mention "Generated with", "Athropic", "Claude"** in the commit message
 
 5. **Commit Execution**:

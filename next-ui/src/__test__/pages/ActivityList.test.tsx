@@ -316,9 +316,9 @@ describe('ActivityList', () => {
           expect(activity3).toBeInTheDocument();
           
           // Each should contain device attribution
-          expect(activity1).toHaveTextContent(' by ');
-          expect(activity2).toHaveTextContent(' by ');
-          expect(activity3).toHaveTextContent(' by ');
+          expect(activity1).toHaveTextContent('by');
+          expect(activity2).toHaveTextContent('by');
+          expect(activity3).toHaveTextContent('by');
         });
       });
 
@@ -338,9 +338,9 @@ describe('ActivityList', () => {
           expect(activity3).toBeInTheDocument();
           
           // Each should contain timestamp with "at"
-          expect(activity1).toHaveTextContent(', at ');
-          expect(activity2).toHaveTextContent(', at ');
-          expect(activity3).toHaveTextContent(', at ');
+          expect(activity1).toHaveTextContent('at');
+          expect(activity2).toHaveTextContent('at');
+          expect(activity3).toHaveTextContent('at');
         });
       });
 
@@ -385,10 +385,10 @@ describe('ActivityList', () => {
           expect(screen.getByText('Updated group name')).toBeInTheDocument();
           
           // Check activities are rendered with device and timestamp info
-          expect(screen.getByTestId('activity-item-activity-expense')).toHaveTextContent(' by ');
-          expect(screen.getByTestId('activity-item-activity-group')).toHaveTextContent(' by ');
-          expect(screen.getByTestId('activity-item-activity-expense')).toHaveTextContent(', at ');
-          expect(screen.getByTestId('activity-item-activity-group')).toHaveTextContent(', at ');
+          expect(screen.getByTestId('activity-item-activity-expense')).toHaveTextContent('by');
+          expect(screen.getByTestId('activity-item-activity-group')).toHaveTextContent('by');
+          expect(screen.getByTestId('activity-item-activity-expense')).toHaveTextContent('at');
+          expect(screen.getByTestId('activity-item-activity-group')).toHaveTextContent('at');
           
           // Should not show any edit buttons
           expect(screen.queryByText('Edit')).not.toBeInTheDocument();

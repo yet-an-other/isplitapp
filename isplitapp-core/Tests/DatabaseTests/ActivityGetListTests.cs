@@ -75,7 +75,7 @@ public class ActivityGetListTests : IClassFixture<DatabaseFixture>, IDisposable,
         Assert.NotNull(activities);
         Assert.Equal(3, activities.Length);
         
-        // Activities should be ordered by Created descending (newest first)
+        // Activities should be ordered by Timestamp descending (newest first)
         Assert.Equal("ParticipantRemoved", activities[0].ActivityType);
         Assert.Equal("ExpenseUpdated", activities[1].ActivityType);
         Assert.Equal("ExpenseAdded", activities[2].ActivityType);
@@ -237,7 +237,7 @@ public class ActivityGetListTests : IClassFixture<DatabaseFixture>, IDisposable,
     {
         await CreatePartyAsync(partyId);
         
-        // Insert activities in reverse chronological order (older activities first)
+        // Insert activities with explicit ordering by using string timestamps that sort correctly
         var baseTime = DateTime.UtcNow.AddHours(-3);
         
         await _db.InsertAsync(new ActivityLog
@@ -249,7 +249,7 @@ public class ActivityGetListTests : IClassFixture<DatabaseFixture>, IDisposable,
             EntityId = _auidFactory.NewId(),
             Description = $"Added expense: Groceries for party {partyId}",
             Created = baseTime,
-            Timestamp = _auidFactory.Timestamp()
+            Timestamp = "0000001" // Oldest timestamp
         });
 
         await _db.InsertAsync(new ActivityLog
@@ -261,7 +261,7 @@ public class ActivityGetListTests : IClassFixture<DatabaseFixture>, IDisposable,
             EntityId = _auidFactory.NewId(),
             Description = $"Updated expense: Changed amount for party {partyId}",
             Created = baseTime.AddHours(1),
-            Timestamp = _auidFactory.Timestamp()
+            Timestamp = "0000002" // Middle timestamp
         });
 
         await _db.InsertAsync(new ActivityLog
@@ -272,8 +272,8 @@ public class ActivityGetListTests : IClassFixture<DatabaseFixture>, IDisposable,
             ActivityType = "ParticipantRemoved",
             EntityId = _auidFactory.NewId(),
             Description = $"Removed participant from party {partyId}",
-            Created = baseTime.AddHours(2), // Most recent
-            Timestamp = _auidFactory.Timestamp()
+            Created = baseTime.AddHours(2),
+            Timestamp = "0000003" // Most recent timestamp
         });
     }
 
