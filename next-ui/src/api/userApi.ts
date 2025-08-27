@@ -5,7 +5,7 @@ const LS_USER_KEY = 'user-id';
 const LS_DEVICE_KEY = 'device-id';
 
 /**
- * Returns id of the current user
+ * Returns id of the current device
  *
  * @remarks
  * At first the function is check the local storage and only if user id is not there, 

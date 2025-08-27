@@ -17,6 +17,7 @@ Based on the above changes, create a single git commit.
 - Include context for future developers.
 - Reference issue numbers when applicable.
 - Commit messages should describe WHY, not HOW
+- Do not list WHAT has been done
 - IF the current branch is "main", create a new branch and commit all changes there
 - Do not mention to AI, Claude, or Anthropic in the commit message
 - Never add "Co-Authored-By" and "Claude" in the commit message

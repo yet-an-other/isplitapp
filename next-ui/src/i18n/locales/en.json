@@ -153,9 +153,11 @@
     "tabs": {
       "expenses": "Expenses",
       "balance": "Balance",
+      "activity": "Activity",
       "descriptions": {
         "expenses": "Explore the group's expenses and money transfers here",
         "balance": "Here is the total amount each member borrowed or lent to the group",
+        "activity": "View the complete history of changes made to this group",
         "edit": "Edit the group's details and members here"
       }
     },
@@ -327,6 +329,10 @@
         "description": "Your name will be automatically filled when creating new groups or adding expenses.",
         "placeholder": "Your name"
       },
+      "activityLog": {
+        "label": "Enable Activity Log",
+        "description": "Show activity log entries in the user interface"
+      },
       "advanced": {
         "title": "Advanced",
         "deviceId": {
@@ -335,6 +341,22 @@
           "copied": "Device ID copied to clipboard!"
         }
       }
+    }
+  },
+  "activityLog": {
+    "title": "Activity Log",
+    "emptyState": "No activities yet",
+    "disabled": "Activity log is disabled. You can enable it in the settings.",
+    "loading": "Loading activities...",
+    "error": "Failed to load activities",
+    "editExpense": "Edit",
+    "types": {
+      "ExpenseAdded": "Added expense",
+      "ExpenseUpdated": "Updated expense", 
+      "ExpenseDeleted": "Deleted expense",
+      "GroupUpdated": "Updated group",
+      "ParticipantAdded": "Added participant",
+      "ParticipantRemoved": "Removed participant"
     }
   },
   "footerBar": {

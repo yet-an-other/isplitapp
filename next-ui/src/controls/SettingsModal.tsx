@@ -31,7 +31,7 @@ interface SettingsModalProps {
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const {isDarkMode, toggle: toggleDarkMode } = useDarkMode();
-    const {partyIconStyle, setPartyIconStyle, defaultUserName, setDefaultUserName} = useDeviceSetting();
+    const {partyIconStyle, setPartyIconStyle, defaultUserName, setDefaultUserName, enableActivityLog, setEnableActivityLog} = useDeviceSetting();
     const { t } = useTranslation();
 
     // Handle the response from the iOS app regarding the registration for notifications
@@ -89,6 +89,19 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <br/>
 
                     <NotificationSwitch />
+                    <br/>
+
+                    <Switch
+                        isSelected={enableActivityLog}
+                        size="lg"
+                        color="primary"
+                        onChange={() => setEnableActivityLog(!enableActivityLog)}
+                    >
+                        {t('headerBar.settings.activityLog.label')}
+                    </Switch>
+                    <span className="text-xs text-dimmed -mt-1">
+                        {t('headerBar.settings.activityLog.description')}
+                    </span>
                     <br/>
 
                     <Input

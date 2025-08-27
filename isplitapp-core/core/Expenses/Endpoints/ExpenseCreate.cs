@@ -46,6 +46,17 @@ public class ExpenseCreate: IEndpoint
         });
 
         await CommonQuery.InsertBorrowersAsync(expenseId, expense, db);
+        
+        // Log expense creation activity
+        await CommonQuery.LogActivityAsync(
+            partyId, 
+            deviceId, 
+            "ExpenseAdded", 
+            $"Added expense: {expense.Title}", 
+            db, 
+            auidFactory, 
+            expenseId);
+            
         await db.CommitTransactionAsync();
 
         await notificationService.PushExpenseUpdateMessage(deviceId, expenseId, "New expense");
