@@ -7,7 +7,7 @@ import { useMemo, useState, useEffect } from "react";
 import { ParticipantInfo } from "../api/contract/ParticipantInfo";
 import { NumericFormat } from "react-number-format";
 import { ZodError, z } from "zod";
-import { createExpense, deleteExpense, fetcher, updateExpense } from "../api/expenseApi";
+import { createExpenseAndReturnId, deleteExpense, fetcher, updateExpense, uploadAttachmentsForExpense } from "../api/expenseApi";
 import { mutate } from "swr";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
 import { ProblemError } from "../api/contract/ProblemError";
@@ -16,6 +16,7 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 import { useTranslation } from "react-i18next";
+import Attachments, { type DraftAttachment } from "../controls/Attachments";
 import { usePartySetting } from "../utils/partySetting";
 
 
@@ -84,6 +85,10 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
     const [validationResult, setValidationResult] = 
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
+
+    // Local draft attachments (only when creating a new expense)
+    const [drafts, setDrafts] = useState<DraftAttachment[]>([]);
+    const [isAttaching, setIsAttaching] = useState(false);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
 
@@ -231,11 +236,29 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
 
         if (result.success) {
             try {
-                expenseId 
-                    ? await updateExpense(expenseId, expense)
-                    : await createExpense(group.id, expense);
-                await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
-                navigate(`/${group.id}/expenses`);
+                if (expenseId) {
+                    await updateExpense(expenseId, expense);
+                    await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
+                    navigate(`/${group.id}/expenses`);
+                } else {
+                    // Create first, then upload drafts via presign->PUT->finalize
+                    const newId = await createExpenseAndReturnId(group.id, expense);
+                    if (drafts.length > 0) {
+                        setIsAttaching(true);
+                        try {
+                            await uploadAttachmentsForExpense(newId, drafts.map(d => ({
+                                fileName: d.fileName,
+                                blob: d.blob,
+                                contentType: d.contentType,
+                                sizeBytes: d.sizeBytes,
+                            })));
+                        } finally {
+                            setIsAttaching(false);
+                        }
+                    }
+                    await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
+                    navigate(`/${group.id}/expenses`);
+                }
             }
             catch(e) {
                 console.error(e);
@@ -274,9 +297,32 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             </Modal>
 
 
-            <h1 className="text-2xl">{t('expenseEdit.expenseInfoSection.title')}</h1>
-            <div className="text-sm text-dimmed">{t('expenseEdit.expenseInfoSection.description')}</div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full">
+            {/* Expense Info header (standard section style) */}
+            <div className="flex items-center mt-6 mb-2">
+                <h2 className="text-2xl font-semibold whitespace-nowrap">{t('expenseEdit.expenseInfoSection.title')}</h2>
+                <div className="ml-auto flex gap-1">
+                    {expenseId ? (
+                        <Attachments kind="existing" expenseId={expenseId} mode="buttons" />
+                    ) : (
+                        <Attachments kind="draft" drafts={drafts} onChange={setDrafts} inlineButtons />
+                    )}
+                </div>
+            </div>
+            <div className="text-sm text-dimmed mb-3">{t('expenseEdit.expenseInfoSection.description')}</div>
+
+            {expenseId ? (
+                <div className="mb-4">
+                    <Attachments kind="existing" expenseId={expenseId} mode="grid" />
+                </div>
+            ) : (
+                drafts.length > 0 && (
+                    <div className="mb-4">
+                        <Attachments kind="draft" drafts={drafts} onChange={setDrafts} />
+                    </div>
+                )
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                 <Input
                     isRequired
                     autoFocus
@@ -385,7 +431,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             <div className="mt-6">
                 <div className="flex flex-row">
                     <div className="flex flex-col">
-                        <h1 className="text-2xl whitespace-nowrap">{t('expenseEdit.paidForSection.title')}</h1>
+                        <h1 className="text-2xl font-semibold whitespace-nowrap">{t('expenseEdit.paidForSection.title')}</h1>
 
                     </div>
                     <div className="flex flex-col ml-auto">
@@ -485,7 +531,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 <Button size="sm" variant="solid" color="danger" onPress={() => void handleDeleteExpense()} isDisabled={!expenseId}>
                     {t('common.buttons.delete')}
                 </Button>
-                <Button size="sm" variant="solid" color="primary" className="ml-auto" onPress={() => void handleUpdateExpense()}>
+                <Button size="sm" variant="solid" color="primary" className="ml-auto" onPress={() => void handleUpdateExpense()} isDisabled={isAttaching}>
                     {expenseId ? t('common.buttons.update') : t('common.buttons.add')}
                 </Button>
             </div>

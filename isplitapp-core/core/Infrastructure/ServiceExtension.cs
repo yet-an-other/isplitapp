@@ -21,6 +21,10 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using WebPush;
+using Amazon.S3;
+using Amazon;
+using Amazon.Runtime;
+using IB.ISplitApp.Core.Infrastructure.Attachments;
 
 namespace IB.ISplitApp.Core.Infrastructure;
 
@@ -225,5 +229,50 @@ public static class ServiceExtension
                 Credential = GoogleCredential.FromFile(fbkeyPath)
             });
         services.AddTransient<NotificationService>();
+    }
+
+    /// <summary>
+    /// Add S3 attachment storage services
+    /// </summary>
+    public static void AddAttachmentStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        var section = configuration.GetSection("S3");
+        var options = new S3Options();
+        section.Bind(options);
+        services.AddSingleton(options);
+
+        // Validate minimal required configuration early to avoid confusing runtime failures
+        if (string.IsNullOrWhiteSpace(options.Bucket))
+        {
+            throw new InvalidOperationException(
+                "S3:Bucket is not configured. Set S3:Bucket in configuration (appsettings or environment) to enable attachments upload.");
+        }
+
+        services.AddSingleton<IAmazonS3>(_ =>
+        {
+            // Use explicit credentials if provided; otherwise fall back to default chain
+            AWSCredentials credentials;
+            if (!string.IsNullOrWhiteSpace(options.AccessKey) && !string.IsNullOrWhiteSpace(options.SecretKey))
+            {
+                credentials = new BasicAWSCredentials(options.AccessKey, options.SecretKey);
+            }
+            else
+            {
+                credentials = FallbackCredentialsFactory.GetCredentials();
+            }
+
+            var config = new AmazonS3Config
+            {
+                RegionEndpoint = !string.IsNullOrWhiteSpace(options.Region) ? RegionEndpoint.GetBySystemName(options.Region) : RegionEndpoint.USEast1,
+                ForcePathStyle = options.ForcePathStyle
+            };
+            if (!string.IsNullOrWhiteSpace(options.Endpoint))
+            {
+                config.ServiceURL = options.Endpoint;
+            }
+            return new AmazonS3Client(credentials, config);
+        });
+
+        services.AddTransient<IAttachmentStorage, S3AttachmentStorage>();
     }
 }

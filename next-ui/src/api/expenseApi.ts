@@ -7,6 +7,8 @@ import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
 import { PartyInfo } from "./contract/PartyInfo";
 import { ActivityInfo } from "./contract/ActivityInfo";
 import { API_URL } from "../utils/apiConfig";
+import type { AttachmentInfo } from "./contract/AttachmentInfo";
+import type { PresignAttachmentRequest, PresignAttachmentResponse } from "./contract/PresignAttachment";
 
 /**
  * Retrieve object or list of objects from the server as a json
@@ -192,6 +194,68 @@ async function sendRequestWithDeviceId<TBody, TResponse>(method:  HttpMethod, en
         : JSON.parse(new TextDecoder().decode(buffer), parseDate) as TResponse;
 }
 
+// Attachments (V1): presign, finalize, list, delete
+
+export async function presignExpenseAttachment(
+    expenseId: string,
+    payload: PresignAttachmentRequest
+): Promise<PresignAttachmentResponse> {
+    const endpoint = `/expenses/${expenseId}/attachments/presign`;
+    return await sendRequest('POST', endpoint, payload);
+}
+
+export async function finalizeExpenseAttachment(expenseId: string, attachmentId: string): Promise<void> {
+    const endpoint = `/expenses/${expenseId}/attachments/${attachmentId}/finalize`;
+    await sendRequest('POST', endpoint);
+}
+
+export async function listExpenseAttachments(expenseId: string): Promise<AttachmentInfo[]> {
+    const endpoint = `/expenses/${expenseId}/attachments`;
+    return await sendRequest<undefined, AttachmentInfo[]>('GET', endpoint);
+}
+
+export async function deleteExpenseAttachment(expenseId: string, attachmentId: string): Promise<void> {
+    const endpoint = `/expenses/${expenseId}/attachments/${attachmentId}`;
+    await sendRequest('DELETE', endpoint);
+}
+
+// PUT upload to S3 using presigned URL
+export async function uploadToPresignedUrl(url: string, headers: Record<string, string>, data: Blob | ArrayBuffer | Uint8Array): Promise<void> {
+    try {
+        // Ensure Content-Length if possible; some S3 providers are strict
+        const extraHeaders: Record<string, string> = { ...headers };
+        if (data instanceof Blob) {
+            extraHeaders['Content-Length'] = String(data.size);
+        } else if (data instanceof ArrayBuffer) {
+            extraHeaders['Content-Length'] = String(data.byteLength);
+        } else if (data instanceof Uint8Array) {
+            extraHeaders['Content-Length'] = String(data.byteLength);
+        }
+        const request = new Request(url, {
+            method: 'PUT',
+            headers: extraHeaders,
+            body: data as BodyInit,
+        });
+        const res = await fetch(request);
+        if (!res.ok) {
+            const text = await res.text().catch(() => '');
+            // Surface key headers often required for debugging CORS
+            const corsAllowOrigin = res.headers.get('access-control-allow-origin');
+            const corsExposeHeaders = res.headers.get('access-control-expose-headers');
+            throw new Error(
+                `Upload failed: ${res.status} ${res.statusText}. Body: ${text || '<empty>'}. ` +
+                `CORS allow-origin: ${corsAllowOrigin ?? '<none>'}, expose-headers: ${corsExposeHeaders ?? '<none>'}`
+            );
+        }
+    } catch (err) {
+        // Most common runtime error is TypeError: Failed to fetch (CORS/Network)
+        if (err instanceof TypeError) {
+            throw new Error(`Upload network error (likely CORS or blocked by browser): ${String(err.message)}. URL: ${url}`);
+        }
+        throw err;
+    }
+}
+
 const datePattern = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/
 
 const parseDate = (_: string, value: string) => {
@@ -202,4 +266,47 @@ const parseDate = (_: string, value: string) => {
         return new Date(value);
     }
     return value;
+}
+
+/**
+ * Create an expense and return the new expenseId from the Location header
+ * @param partyId party id
+ * @param expensePayload new expense data
+ * @returns new expense id
+ */
+export async function createExpenseAndReturnId(partyId: string, expensePayload: ExpensePayload): Promise<string> {
+  const deviceId = await ensureDeviceId();
+  const endpoint = `/parties/${partyId}/expenses`;
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Device-Id': deviceId,
+    },
+    body: JSON.stringify(expensePayload),
+  } as const;
+  const res = await fetch(`${API_URL}${endpoint}`, requestOptions);
+  if (!res.ok) {
+    const errorJson = await res.json().catch(() => ({}));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    throw new ProblemError(errorJson as any);
+  }
+  const location = res.headers.get('Location');
+  if (!location) throw new Error('Create expense: Location header is missing');
+  const m = /\/expenses\/(0[\w]{10})/.exec(location);
+  if (!m) throw new Error(`Create expense: unable to parse expenseId from Location: ${location}`);
+  return m[1];
+}
+
+export type BlobToAttach = { fileName: string; blob: Blob; contentType: string; sizeBytes: number };
+export async function uploadAttachmentsForExpense(expenseId: string, items: BlobToAttach[]): Promise<void> {
+  for (const it of items) {
+    const presigned = await presignExpenseAttachment(expenseId, {
+      fileName: it.fileName,
+      contentType: it.contentType,
+      expectedSizeBytes: it.sizeBytes,
+    });
+    await uploadToPresignedUrl(presigned.uploadUrl, presigned.headers, it.blob);
+    await finalizeExpenseAttachment(expenseId, presigned.attachmentId);
+  }
 }

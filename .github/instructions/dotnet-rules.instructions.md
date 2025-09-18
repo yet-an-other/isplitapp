@@ -56,15 +56,9 @@ applyTo: '**/*.cs'
   - Implement background tasks using IHostedService or BackgroundService.
 
   ## Testing
-  - Write unit tests using xUnit, NUnit, or MSTest.
-  - Use Moq or NSubstitute for mocking dependencies.
+  - Write unit tests using xUnit.
+  - Use Moq for mocking dependencies.
   - Implement integration tests for API endpoints.
-
-  ## Security
-  - Use Authentication and Authorization middleware.
-  - Implement JWT authentication for stateless API authentication.
-  - Use HTTPS and enforce SSL.
-  - Implement proper CORS policies.
 
   ## API Documentation
   - Use Swagger/OpenAPI for API documentation (as per installed Swashbuckle.AspNetCore package).
