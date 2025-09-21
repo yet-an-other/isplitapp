@@ -2,6 +2,7 @@ import { ensureDeviceId } from "./userApi";
 import { PartyPayload } from "./contract/PartyPayload";
 import { ProblemError } from "./contract/ProblemError";
 import { ExpensePayload } from "./contract/ExpensePayload";
+import type { ExpenseCreateInfo } from "./contract/ExpenseCreateInfo";
 import { PartySettingsPayload } from "./contract/PartySettingsPayload";
 import { IosSubscriptionPayload } from "./contract/IosSubscriptionPayload";
 import { PartyInfo } from "./contract/PartyInfo";
@@ -51,9 +52,9 @@ export async function updatePartySetings(partyId: string, partySettingsPayload: 
  * @param partyId party id
  * @param expensePayload new party data
  */
-export async function createExpense(partyId: string, expensePayload: ExpensePayload) {
-    const endpoint = `/parties/${partyId}/expenses`
-    await sendRequest('POST', endpoint, expensePayload);
+export async function createExpense(partyId: string, expensePayload: ExpensePayload): Promise<ExpenseCreateInfo> {
+    const endpoint = `/parties/${partyId}/expenses`;
+    return await sendRequest('POST', endpoint, expensePayload);
 }
 
 /**
@@ -274,31 +275,9 @@ const parseDate = (_: string, value: string) => {
  * @param expensePayload new expense data
  * @returns new expense id
  */
-export async function createExpenseAndReturnId(partyId: string, expensePayload: ExpensePayload): Promise<string> {
-  const deviceId = await ensureDeviceId();
-  const endpoint = `/parties/${partyId}/expenses`;
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Device-Id': deviceId,
-    },
-    body: JSON.stringify(expensePayload),
-  } as const;
-  const res = await fetch(`${API_URL}${endpoint}`, requestOptions);
-  if (!res.ok) {
-    const errorJson = await res.json().catch(() => ({}));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    throw new ProblemError(errorJson as any);
-  }
-  const location = res.headers.get('Location');
-  if (!location) throw new Error('Create expense: Location header is missing');
-  const m = /\/expenses\/(0[\w]{10})/.exec(location);
-  if (!m) throw new Error(`Create expense: unable to parse expenseId from Location: ${location}`);
-  return m[1];
-}
+// Removed createExpenseAndReturnId, createExpense now returns ExpenseInfo directly
 
-export type BlobToAttach = { fileName: string; blob: Blob; contentType: string; sizeBytes: number };
+export interface BlobToAttach { fileName: string; blob: Blob; contentType: string; sizeBytes: number }
 export async function uploadAttachmentsForExpense(expenseId: string, items: BlobToAttach[]): Promise<void> {
   for (const it of items) {
     const presigned = await presignExpenseAttachment(expenseId, {

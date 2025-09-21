@@ -49,7 +49,9 @@
       "mcp__chrome-mcp__chrome_screenshot",
       "mcp__playwright__browser_resize",
       "Bash(dotnet run:*)",
-      "mcp__playwright__browser_console_messages"
+      "mcp__playwright__browser_console_messages",
+      "Bash(cat:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

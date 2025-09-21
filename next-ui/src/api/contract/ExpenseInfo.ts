@@ -22,4 +22,7 @@ export class ExpenseInfo {
     updateTimestamp = "zzzzzzz"
     
     borrowers: BorrowerInfo[] = [];
+
+    // Number of attachments (receipt images) associated with the expense
+    attachmentCount = 0;
 }

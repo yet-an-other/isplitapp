@@ -1,9 +1,8 @@
 {
   "about": {
-    "title": "Share Expenses Effortlessly",
     "titleParts": {
       "share": "Share",
-      "expenses": "Expenses", 
+      "expenses": "Expenses",
       "effortlessly": "Effortlessly"
     },
     "subtitle": "Intuitive, Clean, and Completely Free. No Ads, Ever.",
@@ -20,7 +19,7 @@
         "description": "Start splitting expenses immediately with zero friction.<br/>No account creation, app downloads, or verification codes needed.",
         "stepsTitle": "It's as simple as 1, 2, 3:",
         "step1": "Create a group and add participants",
-        "step2": "Log your shared expenses", 
+        "step2": "Log your shared expenses",
         "step3": "Share the group link with friends"
       },
       "noAds": {
@@ -53,6 +52,7 @@
         "short": "Install iSplit.app directly on your device for a native app experience",
         "description": "Transform iSplit.app into a native-like application on your device, complete with push notifications and offline capabilities.",
         "instructions": {
+          "step1": "Open https://isplit.app in your mobile browser",
           "step2": "Tap the share button in your browser",
           "step3": "Select \"Add to Home Screen\" to install"
         }
@@ -72,7 +72,7 @@
       "owes": "owes",
       "addReimbursement": "Add<br/>Reimbursement"
     }
-  },    
+  },
   "common": {
     "appName": "groups",
     "buttons": {
@@ -80,8 +80,6 @@
       "delete": "Delete",
       "add": "Add",
       "update": "Update",
-      "create": "Create",
-      "save": "Save",
       "unfollow": "Unfollow"
     },
     "errors": {
@@ -90,7 +88,9 @@
       "unauthorized": "You aren't authorized to see this.",
       "notFound": "This page doesn't exist!",
       "tryAgainLater": "Something went wrong."
-    }
+    },
+    "close": "Close",
+    "loading": "Loading..."
   },
   "notFound": {
     "title": "Not Found"
@@ -102,13 +102,12 @@
       "ariaLabel": "Groups"
     },
     "archive": {
-      "title": "Archive", 
+      "title": "Archive",
       "subtitle": "Archived groups",
       "ariaLabel": "Archive"
     }
   },
   "groupEdit": {
-    "defaultNames": ["Alice", "Bob"],
     "errors": {
       "saveFailed": "Failed to save the group. Please try again later."
     },
@@ -147,6 +146,10 @@
       "updateGroup": "Update Group",
       "createGroup": "Create Group",
       "addParticipant": "Add Participant"
+    },
+    "defaultNames": {
+      "0": "Alice",
+      "1": "Bob"
     }
   },
   "group": {
@@ -160,9 +163,6 @@
         "activity": "View the complete history of changes made to this group",
         "edit": "Edit the group's details and members here"
       }
-    },
-    "navigation": {
-      "toGroupList": "To Group List"
     }
   },
   "expenseList": {
@@ -229,8 +229,10 @@
         "tooLarge": "Could not compress the image below 450 KB. Try a smaller photo.",
         "uploadFailed": "Failed to upload receipt. Please try again.",
         "deleteFailed": "Failed to delete receipt.",
-        "loadFailed": "Failed to load attachments."
-      }
+        "loadFailed": "Failed to load attachments.",
+        "processingFailed": "Failed to process image. Please try again."
+      },
+      "takePhoto": "Take photo"
     },
     "paidForSection": {
       "title": "Paid For",
@@ -240,7 +242,7 @@
         "label": "Split by",
         "options": {
           "evenly": "Evenly",
-          "share": "By Share", 
+          "share": "By Share",
           "percentage": "By Percentage",
           "amount": "By Amount"
         }
@@ -255,7 +257,7 @@
       "noGroupsFound": "No groups found for the specified Device ID",
       "importFailed": "Failed to import groups. Please check the Device ID and try again."
     },
-    "success": {
+      "success": {
       "importSuccess": "Successfully imported {{count}} group{{plural}}"
     },
     "addByLinkModal": {
@@ -354,22 +356,16 @@
     }
   },
   "activityLog": {
-    "title": "Activity Log",
     "emptyState": "No activities yet",
-    "disabled": "Activity log is disabled. You can enable it in the settings.",
-    "loading": "Loading activities...",
-    "error": "Failed to load activities",
-    "editExpense": "Edit",
-    "types": {
-      "ExpenseAdded": "Added expense",
-      "ExpenseUpdated": "Updated expense", 
-      "ExpenseDeleted": "Deleted expense",
-      "GroupUpdated": "Updated group",
-      "ParticipantAdded": "Added participant",
-      "ParticipantRemoved": "Removed participant"
-    }
+    "disabled": "Activity log is disabled. You can enable it in the settings."
   },
   "footerBar": {
     "appName": "iSplitApp"
+  },
+  "attachments": {
+    "nextImage": "Next image",
+    "noImages": "No images to display",
+    "previousImage": "Previous image",
+    "uploaded": "Receipt uploaded"
   }
 }

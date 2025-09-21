@@ -7,7 +7,7 @@ import { useMemo, useState, useEffect } from "react";
 import { ParticipantInfo } from "../api/contract/ParticipantInfo";
 import { NumericFormat } from "react-number-format";
 import { ZodError, z } from "zod";
-import { createExpenseAndReturnId, deleteExpense, fetcher, updateExpense, uploadAttachmentsForExpense } from "../api/expenseApi";
+import { createExpense, deleteExpense, fetcher, updateExpense, uploadAttachmentsForExpense } from "../api/expenseApi";
 import { mutate } from "swr";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
 import { ProblemError } from "../api/contract/ProblemError";
@@ -16,7 +16,8 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 import { useTranslation } from "react-i18next";
-import Attachments, { type DraftAttachment } from "../controls/Attachments";
+import AttachmentButtons, { type Attachment } from "../controls/AttachmentButtons";
+import AttachmentGrid from "../controls/AttachmentGrid";
 import { usePartySetting } from "../utils/partySetting";
 
 
@@ -86,8 +87,8 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
 
-    // Local draft attachments (only when creating a new expense)
-    const [drafts, setDrafts] = useState<DraftAttachment[]>([]);
+    // Unified attachment state
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
     const [isAttaching, setIsAttaching] = useState(false);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
@@ -229,43 +230,53 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
         }
     }
 
+    // Helper to upload draft attachments after creation
+    const uploadDraftAttachments = async (targetExpenseId: string, drafts: Attachment[]) => {
+        if (drafts.length === 0) return;
+        setIsAttaching(true);
+        try {
+            const attachmentData = await Promise.all(
+                drafts.map(async (draft) => {
+                    const response = await fetch(draft.url);
+                    const blob = await response.blob();
+                    return {
+                        fileName: draft.fileName,
+                        blob,
+                        contentType: blob.type || 'image/jpeg',
+                        sizeBytes: draft.sizeBytes,
+                    };
+                })
+            );
+            await uploadAttachmentsForExpense(targetExpenseId, attachmentData);
+        } finally {
+            setIsAttaching(false);
+        }
+    };
+
     const handleUpdateExpense = async () => {
         const result = ExpensePayloadSchema.safeParse(expense);
         setValidationResult(result);
         setIsShowErrors(true);
+        if (!result.success) return; // Early exit on validation failure
 
-        if (result.success) {
-            try {
-                if (expenseId) {
-                    await updateExpense(expenseId, expense);
-                    await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
-                    navigate(`/${group.id}/expenses`);
-                } else {
-                    // Create first, then upload drafts via presign->PUT->finalize
-                    const newId = await createExpenseAndReturnId(group.id, expense);
-                    if (drafts.length > 0) {
-                        setIsAttaching(true);
-                        try {
-                            await uploadAttachmentsForExpense(newId, drafts.map(d => ({
-                                fileName: d.fileName,
-                                blob: d.blob,
-                                contentType: d.contentType,
-                                sizeBytes: d.sizeBytes,
-                            })));
-                        } finally {
-                            setIsAttaching(false);
-                        }
-                    }
-                    await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
-                    navigate(`/${group.id}/expenses`);
-                }
+        try {
+            let targetId = expenseId; // existing id or will be set after creation
+            if (targetId) {
+                await updateExpense(targetId, expense);
+            } else {
+                const created = await createExpense(group.id, expense);
+                targetId = created.expenseId;
+                const draftAttachments = attachments.filter(a => a.type === 'draft');
+                await uploadDraftAttachments(targetId, draftAttachments);
             }
-            catch(e) {
-                console.error(e);
-                alertError(t('expenseEdit.errors.saveFailed'))
-            }
+
+            await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
+            navigate(`/${group.id}/expenses`);
+        } catch (e) {
+            console.error(e);
+            alertError(t('expenseEdit.errors.saveFailed'));
         }
-    }
+    };
 
     return (
         <div className="mt-4">
@@ -301,25 +312,24 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             <div className="flex items-center mt-6 mb-2">
                 <h2 className="text-2xl font-semibold whitespace-nowrap">{t('expenseEdit.expenseInfoSection.title')}</h2>
                 <div className="ml-auto flex gap-1">
-                    {expenseId ? (
-                        <Attachments kind="existing" expenseId={expenseId} mode="buttons" />
-                    ) : (
-                        <Attachments kind="draft" drafts={drafts} onChange={setDrafts} inlineButtons />
-                    )}
+                    <AttachmentButtons
+                        expenseId={expenseId}
+                        attachments={attachments}
+                        onAttachmentsChange={setAttachments}
+                        max={3}
+                    />
                 </div>
             </div>
             <div className="text-sm text-dimmed mb-3">{t('expenseEdit.expenseInfoSection.description')}</div>
 
-            {expenseId ? (
+            {attachments.length > 0 && (
                 <div className="mb-4">
-                    <Attachments kind="existing" expenseId={expenseId} mode="grid" />
+                    <AttachmentGrid
+                        attachments={attachments}
+                        onAttachmentsChange={setAttachments}
+                        expenseId={expenseId}
+                    />
                 </div>
-            ) : (
-                drafts.length > 0 && (
-                    <div className="mb-4">
-                        <Attachments kind="draft" drafts={drafts} onChange={setDrafts} />
-                    </div>
-                )
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">

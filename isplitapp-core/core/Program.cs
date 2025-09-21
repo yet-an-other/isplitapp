@@ -167,6 +167,7 @@ namespace IB.ISplitApp.Core
     [JsonSerializable(typeof(DeviceInfo))]
     [JsonSerializable(typeof(ExpensePayload[]))]
     [JsonSerializable(typeof(ExpenseInfo[]))]
+    [JsonSerializable(typeof(ExpenseCreateInfo))]
     [JsonSerializable(typeof(PartyPayload[]))]
     [JsonSerializable(typeof(PartyInfo[]))]
     [JsonSerializable(typeof(BalanceInfo[]))]

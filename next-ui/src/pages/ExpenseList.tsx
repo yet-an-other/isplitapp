@@ -1,13 +1,15 @@
-import { Button, Chip, Divider, Link, Switch } from "@heroui/react";
+import { Button, Chip, Divider, Link, Switch, Badge } from "@heroui/react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { PartyInfo } from "../api/contract/PartyInfo";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
-import useSWR from "swr";
 import { ProblemError } from "../api/contract/ProblemError";
 import { fetcher } from "../api/expenseApi";
 import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
-import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon } from "../icons";
+import { EditIcon, PlusIcon, ReimbursementIcon, SpendIcon, PaperclipIcon } from "../icons";
+import ImageModal from "../controls/ImageModal";
+import useSWR from "swr";
+import { listExpenseAttachments } from "../api/expenseApi";
 import { useState } from "react";
 import { usePartySetting } from "../utils/partySetting";
 import { intlFormatDistance, format } from "date-fns";
@@ -24,13 +26,13 @@ export function ExpenseList() {
     const [ lastViewedTmp ] = useState(lastViewed);
 
     const { data: expenses, error, isLoading } = useSWR<ExpenseInfo[], ProblemError>(
-        `/parties/${group.id}/expenses`, 
-        fetcher, 
+        `/parties/${group.id}/expenses`,
+        fetcher,
         {
-            onSuccess: (data) => {
+            onSuccess: (data: ExpenseInfo[]) => {
                 if (data && data.length > 0) {
                     const lastExpense = data
-                        .reduce((acc, cur) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur)
+                        .reduce((acc: ExpenseInfo, cur: ExpenseInfo) => acc.updateTimestamp > cur.updateTimestamp ? acc : cur)
                         .updateTimestamp;
                     setLastViewed(lastExpense);
                 }
@@ -110,6 +112,34 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
             }
         );
 
+    const [openExpenseId, setOpenExpenseId] = useState<string | null>(null);
+    // Lazy fetch attachments when modal open
+    const shouldFetch = !!openExpenseId;
+    const { data: attachmentInfos, isLoading: attachmentsLoading } = useSWR(
+        shouldFetch ? ["attachments", openExpenseId] : null,
+        () => listExpenseAttachments(openExpenseId!)
+    );
+    const mappedAttachments = (attachmentInfos || []).map(a => ({
+        id: a.attachmentId,
+        fileName: a.fileName ?? 'receipt',
+        url: a.url,
+        sizeBytes: a.sizeBytes,
+        type: 'server' as const
+    }));
+    const handleOpenAttachments = (expenseId: string) => {
+        setOpenExpenseId(expenseId);
+    };
+    const handleKeyOpen: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const id = (e.currentTarget as HTMLDivElement).dataset.expenseId;
+            if (id) handleOpenAttachments(id);
+        }
+    };
+    const handleCloseModal = () => {
+        setOpenExpenseId(null);
+    };
+
     return (
         <div className="border-1 rounded-lg p-2 mt-10">
             {expenses
@@ -137,19 +167,46 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                                 : <SpendIcon className="h-5 w-5 stroke-[1px] text-dimmed mr-2" />
                             }
                         </div>
-                        <div className="text-md font-semibold">{expense.title}</div>
-                        <Button 
+                        <div className="text-md font-semibold flex items-center">
+                            <span>{expense.title}</span>
+                        </div>
+                        <div className="flex items-center ml-auto gap-1">
+                                {expense.attachmentCount > 0 && (
+                                    <div
+                                        role="button"
+                                        tabIndex={0}
+                                        data-expense-id={expense.id}
+                                        onKeyDown={handleKeyOpen}
+                                        onClick={() => handleOpenAttachments(expense.id)}
+                                        aria-label={t('expenseList.attachments.indicatorAria', { count: expense.attachmentCount })}
+                                        className="flex items-center mt-1 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm"
+                                    >
+                                        <Badge 
+                                            content={expense.attachmentCount}
+                                            color="primary"
+                                            size="sm"
+                                            variant="flat"
+                                            placement="top-left"
+                                            showOutline={false}
+                                            className="mt-1"
+                                        >
+                                            <PaperclipIcon className="w-6 h-6 text-dimmed mt-2 mr-1" />
+                                        </Badge>
+                                    </div>
+                                )}
+                            <Button 
                             isIconOnly
                             variant="flat"
                             size="sm"
                             radius="sm"
                             color="primary"
-                            className="float-right ml-auto bg-primary-50"
+                            className="bg-primary-50"
                             as="a" 
                             href={`/${group.id}/expenses/${expense.id}/edit`}
                         >
                             <EditIcon className="w-5 h-5 stroke-2"/>
-                        </Button>
+                            </Button>
+                        </div>
                     </div>
 
                     <div className="flex flex-row mt-1">
@@ -219,6 +276,12 @@ const FullList = ({ group, expenses, lastViewed, isShowReimbursement }:
                     </div>
                 </div>
             )}
+            <ImageModal
+                isOpen={!!openExpenseId}
+                onClose={handleCloseModal}
+                attachments={mappedAttachments}
+                isLoading={attachmentsLoading}
+            />
         </div>
     )
 }

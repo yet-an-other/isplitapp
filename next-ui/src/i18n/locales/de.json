@@ -1,6 +1,5 @@
 {
   "about": {
-    "title": "Ausgaben Mühelos Teilen",
     "titleParts": {
       "share": "Teilen",
       "expenses": "Ausgaben",
@@ -30,7 +29,7 @@
       },
       "visualBalances": {
         "title": "Visuelle Einblicke",
-        "short": "Schulden und Guthaben mit Diagrammen visualisieren",
+        "short": "Schulden und Guthaben mit Diagrammen visualisieren",       
         "description": {
           "charts": "Visualisieren Sie Schulden und Guthaben auf einen Blick mit klaren Diagrammen",
           "suggestions": "Erhalten Sie intelligente Erstattungsvorschläge zur Minimierung von Transaktionen",
@@ -81,8 +80,6 @@
       "delete": "Löschen",
       "add": "Hinzufügen",
       "update": "Aktualisieren",
-      "create": "Erstellen",
-      "save": "Speichern",
       "unfollow": "Entfolgen"
     },
     "errors": {
@@ -91,7 +88,9 @@
       "unauthorized": "Sie sind nicht berechtigt, dies zu sehen.",
       "notFound": "Diese Seite existiert nicht!",
       "tryAgainLater": "Etwas ist schief gelaufen."
-    }
+    },
+    "close": "Schließen",
+    "loading": "Lädt..."
   },
   "notFound": {
     "title": "Nicht Gefunden"
@@ -109,7 +108,6 @@
     }
   },
   "groupEdit": {
-    "defaultNames": ["Anna", "Ben"],
     "errors": {
       "saveFailed": "Gruppe konnte nicht gespeichert werden. Bitte versuchen Sie es später erneut."
     },
@@ -148,6 +146,10 @@
       "updateGroup": "Gruppe Aktualisieren",
       "createGroup": "Gruppe Erstellen",
       "addParticipant": "Teilnehmer Hinzufügen"
+    },
+    "defaultNames": {
+      "0": "Anna",
+      "1": "Ben"
     }
   },
   "group": {
@@ -161,9 +163,6 @@
         "activity": "Zeigt die vollständige Historie aller Änderungen an dieser Gruppe an",
         "edit": "Bearbeiten Sie hier die Details und Mitglieder der Gruppe"
       }
-    },
-    "navigation": {
-      "toGroupList": "Zur Gruppenliste"
     }
   },
   "expenseList": {
@@ -237,6 +236,18 @@
         }
       },
       "participantsLabel": "Wählen Sie Teilnehmer aus, die diese Ausgabe teilen werden"
+    },
+    "receipts": {
+      "addButton": "Beleg hinzufügen",
+      "uploaded": "Beleg hochgeladen",
+      "errors": {
+        "tooLarge": "Das Bild konnte nicht unter 450 KB komprimiert werden. Versuchen Sie ein kleineres Foto.",
+        "uploadFailed": "Fehler beim Hochladen des Belegs. Bitte versuchen Sie es erneut.",
+        "deleteFailed": "Fehler beim Löschen des Belegs.",
+        "loadFailed": "Fehler beim Laden der Anhänge.",
+        "processingFailed": "Fehler beim Verarbeiten des Bildes. Bitte versuchen Sie es erneut."
+      },
+      "takePhoto": "Foto aufnehmen"
     }
   },
   "createGroupMenu": {
@@ -345,22 +356,16 @@
     }
   },
   "activityLog": {
-    "title": "Aktivitätsprotokoll",
     "emptyState": "Noch keine Aktivitäten",
-    "disabled": "Aktivitätsprotokoll ist deaktiviert. Sie können es in den Einstellungen aktivieren.",
-    "loading": "Aktivitäten werden geladen...",
-    "error": "Fehler beim Laden der Aktivitäten",
-    "editExpense": "Bearbeiten",
-    "types": {
-      "ExpenseAdded": "Ausgabe hinzugefügt",
-      "ExpenseUpdated": "Ausgabe aktualisiert", 
-      "ExpenseDeleted": "Ausgabe gelöscht",
-      "GroupUpdated": "Gruppe aktualisiert",
-      "ParticipantAdded": "Teilnehmer hinzugefügt",
-      "ParticipantRemoved": "Teilnehmer entfernt"
-    }
+    "disabled": "Aktivitätsprotokoll ist deaktiviert. Sie können es in den Einstellungen aktivieren."
   },
   "footerBar": {
     "appName": "iSplitApp"
+  },
+  "attachments": {
+    "nextImage": "Nächstes Bild",
+    "noImages": "Keine Bilder anzuzeigen",
+    "previousImage": "Vorheriges Bild",
+    "uploaded": "Beleg hochgeladen"
   }
 }

@@ -26,7 +26,7 @@ function mockFetchOnce(status: number, body?: unknown, headers?: Record<string, 
 }
 
 function expectLastFetch(method: string, urlEndsWith: string, hasDeviceHeader = true, contentType?: string) {
-  const calls = (globalThis.fetch as any).mock.calls;
+  const calls = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock.calls;
   const last = calls[calls.length - 1] as [Request | string | URL, RequestInit?];
   const input = last[0];
   const init = last[1] ?? {};
@@ -118,7 +118,7 @@ describe('expense attachment API', () => {
     const blob = new Blob(['data'], { type: 'image/jpeg' });
     await uploadToPresignedUrl('https://s3.test/put', { 'Content-Type': 'image/jpeg' }, blob);
 
-    const calls = (globalThis.fetch as any).mock.calls;
+    const calls = (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mock.calls;
     const last = calls[calls.length - 1] as [Request | string | URL, RequestInit?];
     const input = last[0];
     const req = input as Request;

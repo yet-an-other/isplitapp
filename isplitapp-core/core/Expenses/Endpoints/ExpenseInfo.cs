@@ -44,4 +44,9 @@ public record ExpenseInfo
     public BorrowerInfo[] Borrowers { get; set; } = [];
     
     public SplitMode SplitMode { get; init; } = SplitMode.Evenly;
+
+    /// <summary>
+    /// Number of attachments linked to the expense
+    /// </summary>
+    public int AttachmentCount { get; init; }
 }

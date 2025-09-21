@@ -10,7 +10,7 @@ vi.mock('./src/api/userApi', () => ({
 
 // Mock window.scrollTo
 Object.defineProperty(window, 'scrollTo', {
-  value: () => {},
+  value: () => { /* mock scrollTo for tests */ },
   writable: true
 });
 

@@ -52,7 +52,8 @@ public class ExpenseGetList: IEndpoint
                             .Where(p => p.Id == b.ParticipantId)
                             .Select(p => p.Name)
                             .Single()
-                    }).ToArray()
+                    }).ToArray(),
+                AttachmentCount = db.ExpenseAttachments.Count(a => a.ExpenseId == e.Id)
             }).ToArrayAsync();
 
         return TypedResults.Ok(expenses);

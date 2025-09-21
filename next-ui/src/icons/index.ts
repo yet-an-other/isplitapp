@@ -36,4 +36,7 @@ export * from "./PasteIcon"
 export * from "./UserStarIcon"
 export * from "./CloseIcon"
 export * from "./CameraAddIcon"
-export * from "./AttachmentAddIcon"
+export * from "./PaperclipIcon" 
+export * from "./ChevronLeftIcon"
+export * from "./ChevronRightIcon"
+

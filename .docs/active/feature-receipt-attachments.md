@@ -339,8 +339,6 @@ Backend guardrails:
   - [x] Ensure FK to `expense.id`
   - [ ] Run migration locally
   - [ ] Add/extend test in `Tests/MigrationRunnerTest.cs`
-  - [ ] Draft schema for `draft_attachment` with TTL support (expires_at)
-  - [ ] Add indexes for (device_id, party_id) and (expires_at)
   - [ ] Add constraint ≤ 3 per device+party
 
 2) S3 storage service
@@ -352,7 +350,7 @@ Backend guardrails:
   - [x] Implement HeadObject and DeleteObject
   - [x] Register service in DI (`ServiceExtension`)
   - [x] Implement server-side copy (for future promotion)
-  - [ ] Add cleanup method to delete expired draft objects (V2)
+
 
 3) Backend endpoints
   - [x] Add folder `core/Expenses/Endpoints/Attachments`
@@ -365,12 +363,6 @@ Backend guardrails:
   - [x] Use transactions where needed; update DB rows
   - [x] Activity log: Added/Removed
   - [x] Notifications via `NotificationService`
-   - [ ] Implement draft endpoints under party scope:
-     - [ ] Presign draft: `POST /parties/{partyId}/expenses/drafts/attachments/presign`
-     - [ ] Finalize draft: `POST /parties/{partyId}/expenses/drafts/attachments/{draftId}/finalize`
-     - [ ] List drafts: `GET /parties/{partyId}/expenses/drafts/attachments`
-     - [ ] Delete draft: `DELETE /parties/{partyId}/expenses/drafts/attachments/{draftId}`
-   - [ ] Wire expense creation to promote drafts to real attachments (transactional copy + insert)
 
 4) Front-end API additions
   - [x] Add `presignExpenseAttachment` in `src/api/expenseApi.ts`
@@ -379,12 +371,6 @@ Backend guardrails:
   - [x] Add `deleteExpenseAttachment` in `src/api/expenseApi.ts`
   - [x] Implement PUT upload to S3 using presigned URL and returned headers (Content-Type)
   - [ ] Add error mapping for presign expiry and size errors
-   - [ ] Add draft endpoints:
-     - [ ] `presignDraftExpenseAttachment(partyId, payload)`
-     - [ ] `finalizeDraftExpenseAttachment(partyId, draftId)`
-     - [ ] `listDraftExpenseAttachments(partyId)`
-     - [ ] `deleteDraftExpenseAttachment(partyId, draftId)`
-   - [ ] Add `promoteDraftAttachments(partyId, expenseId)` helper to trigger promotion after create
 
 5) Client-side compression utility
   - [x] Create `src/utils/imageCompression.ts`
@@ -394,16 +380,11 @@ Backend guardrails:
   - [x] Unit tests with deterministic mocks (no large fixtures needed)
 
 6) UI changes
-  - [ ] Expense Create/Edit: add “Receipts” section and grid (max 3)
-  - [ ] Implement Add button: file picker (accept image/*)
-  - [ ] On add (new expense): compress -> draft presign -> POST to S3 -> finalize -> refresh draft list
-  - [ ] On add (existing expense): compress -> presign -> POST to S3 -> finalize -> refresh list
-  - [ ] Show thumbnails with delete and size label
-  - [ ] Expense View: thumbnails + full-size modal
+  - [x] Expense View: thumbnails + full-size modal
   - [ ] Expense List: show paperclip/preview indicator
   - [ ] Add i18n strings (labels, errors)
   - [ ] Ensure accessibility (alt text, keyboard)
-  - [ ] On save (creating expense): call create expense -> on success call promoteDraftAttachments -> refresh attachments
+
 
 7) Telemetry & logs
   - [ ] Add structured logs for presign/finalize/list/delete
@@ -417,66 +398,6 @@ Backend guardrails:
   - [ ] Delete an attachment and confirm removal in UI and S3
   - [ ] Confirm activity log and push notifications
   - [ ] Start a new expense, add drafts, abandon; confirm drafts are visible when returning (same device) within TTL and auto-clean after TTL
-
----
-
-## V1 Simplified Strategy (Recommended to start)
-
-Upload images only after the user presses Create and the expenseId exists. This avoids the draft flow entirely for V1 and reduces surface area. Users can still pick images locally before pressing Create; actual uploads happen right after the expense is created.
-
-Pros:
-- Simpler backend: no `draft_attachment` table, no promotion logic, no TTL cleanup.
-- Fewer endpoints to implement initially.
-- Clear failure handling: if expense creation fails, no orphaned uploads.
-
-Cons:
-- Slightly longer post-create wait as uploads happen after expense creation.
-- If users navigate away during upload, attachments won’t be added (expense remains text-only).
-
-V1 scope:
-- Implement only expense-based attachment endpoints (presign/list/finalize/delete) and UI that triggers uploads post-create.
-- Keep draft flow in the plan as V2 enhancement if you want earlier image selection and resilience if users abandon mid-way.
-
-V1 Checklist
-- [ ] Backend: implement expense attachment endpoints (no drafts)
-- [ ] Front-end: on Create success, for each selected image -> compress -> presign -> POST -> finalize -> refresh
-- [ ] Front-end: show progress UI; allow cancel/skip
-- [ ] Enforce 3 attachments and 500 KB limit with compression before presign
-- [ ] Tests: happy path and error handling for post-create uploads
-- [ ] Document V2 draft flow as future improvement
-
-### V1 Flow Diagram
-
-```mermaid
-sequenceDiagram
-  participant U as User
-  participant FE as Front-End (next-ui)
-  participant API as Backend API
-  participant S3 as S3
-
-  U->>FE: Fill expense form + select images (local only)
-  U->>FE: Click Create
-  FE->>API: POST /parties/{partyId}/expenses (JSON)
-  API-->>FE: 201 Created { expenseId }
-
-  loop For each selected image
-    FE->>FE: Compress to ≤ ~450 KB (WebP/JPEG)
-    FE->>API: POST /expenses/{expenseId}/attachments/presign
-    API-->>FE: { uploadUrl, fields, attachmentId }
-    FE->>S3: multipart/form-data POST (uploadUrl + fields + file)
-    S3-->>FE: 204 No Content (or 201)
-    FE->>API: POST /expenses/{expenseId}/attachments/{attachmentId}/finalize
-    API-->>FE: 204 No Content
-  end
-
-  FE->>API: GET /expenses/{expenseId}/attachments
-  API-->>FE: [ { url, contentType, ... } ]
-  FE->>U: Show thumbnails
-
-  alt Any step fails
-    FE->>U: Show error (retry/cancel)
-  end
-```
 
 ---
 

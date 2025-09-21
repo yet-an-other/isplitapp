@@ -452,12 +452,12 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         //
         var ep = new ExpenseCreate();
         var postExpense = await (ep.Endpoint.DynamicInvoke(
-            _auidFactory.NewId().ToString(), actualPartyId.ToString(), expense, _validator, _auidFactory, _ns, _db) as Task<CreatedAtRoute>)!;          
-        
+            _auidFactory.NewId().ToString(), actualPartyId.ToString(), expense, _validator, _auidFactory, _ns, _db) as Task<Created<ExpenseCreateInfo>>)!;
+
         // Assert
         //
-        Assert.IsType<CreatedAtRoute>(postExpense);
-        var postExpenseId = postExpense.RouteValues["expenseId"];
+        Assert.IsType<Created<ExpenseCreateInfo>>(postExpense);
+        var postExpenseId = postExpense.Value!.ExpenseId;
 
         var newExpense = _db.Expenses.Single(e => e.Id == Auid.FromString(postExpenseId!.ToString()!));
         Assert.Equal("payment", newExpense.Title);
@@ -523,18 +523,18 @@ public class ExpenseCommandTest: IClassFixture<DatabaseFixture>, IDisposable, IA
         //
         var ep = new ExpenseCreate();
         var postExpense = await (ep.Endpoint.DynamicInvoke(
-            _auidFactory.NewId().ToString(), actualPartyId.ToString(), expense, _validator, _auidFactory, _ns, _db) as Task<CreatedAtRoute>)!;  
-        
+            _auidFactory.NewId().ToString(), actualPartyId.ToString(), expense, _validator, _auidFactory, _ns, _db) as Task<Created<ExpenseCreateInfo>>)!;
+
         // Assert
         //
-        Assert.IsType<CreatedAtRoute>(postExpense);
-        var postExpenseId = postExpense.RouteValues["expenseId"];
+        Assert.IsType<Created<ExpenseCreateInfo>>(postExpense);
+        var postExpenseId = postExpense.Value!.ExpenseId;
 
-        var newExpense = _db.Expenses.Single(e => e.Id == Auid.FromString(postExpenseId!.ToString()!));
+        var newExpense = _db.Expenses.Single(e => e.Id == postExpenseId);
         Assert.Equal("payment", newExpense.Title);
 
         var newBorrowers = _db.Borrowers
-            .Where(b => b.ExpenseId ==  Auid.FromString(postExpenseId!.ToString()!))
+            .Where(b => b.ExpenseId == postExpenseId)
             .ToArray();
         Assert.Collection(newBorrowers, 
             b => Assert.Equal(3334, b.MuAmount),
