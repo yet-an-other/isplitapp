@@ -37,4 +37,9 @@ public class ExpenseDb(DataOptions<ExpenseDb> options) : DataConnection(options.
     /// activity_log table to track changes in parties
     /// </summary>
     public ITable<ActivityLog> ActivityLogs => this.GetTable<ActivityLog>();
+
+    /// <summary>
+    /// expense_attachment table
+    /// </summary>
+    public ITable<ExpenseAttachment> ExpenseAttachments => this.GetTable<ExpenseAttachment>();
 }

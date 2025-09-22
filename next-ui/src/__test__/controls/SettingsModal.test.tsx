@@ -110,8 +110,8 @@ Object.defineProperty(window, 'Notification', {
 interface MockWindow extends Window {
   webkit?: {
     messageHandlers?: {
-      toggleNotification?: { postMessage: (msg: any) => void };
-      checkPermission?: { postMessage: (msg: any) => void };
+      toggleNotification?: { postMessage: (msg: unknown) => void };
+      checkPermission?: { postMessage: (msg: unknown) => void };
     };
   };
 }
@@ -130,12 +130,12 @@ describe('SettingsModal', () => {
     onClose: vi.fn(),
   };
 
-  let mockUseDarkMode: any;
-  let mockUseDeviceSetting: any;
-  let mockUseAlerts: any;
-  let mockNotification: any;
-  let mockUserApi: any;
-  let mockI18n: any;
+  let mockUseDarkMode: ReturnType<typeof vi.fn>;
+  let mockUseDeviceSetting: ReturnType<typeof vi.fn>;
+  let mockUseAlerts: ReturnType<typeof vi.fn>;
+  let mockNotification: { getSubscription: ReturnType<typeof vi.fn>; subscribeForWebPush: ReturnType<typeof vi.fn>; unsubscribeWebPush: ReturnType<typeof vi.fn>; subscribeForIosPush: ReturnType<typeof vi.fn> };
+  let mockUserApi: { ensureDeviceId: ReturnType<typeof vi.fn> };
+  let mockI18n: { changeLanguage: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -450,7 +450,7 @@ describe('SettingsModal', () => {
     });
 
     it('unsubscribes when notification is already enabled', async () => {
-      mockNotification.getSubscription.mockResolvedValue({ endpoint: 'test' } as any);
+      mockNotification.getSubscription.mockResolvedValue({ endpoint: 'test' } as PushSubscription);
 
       render(
         <TestWrapper>
@@ -513,7 +513,7 @@ describe('SettingsModal', () => {
   describe('Device ID Section', () => {
     it('shows loading state initially', async () => {
       // Mock ensureDeviceId to never resolve to show loading state
-      mockUserApi.ensureDeviceId.mockReturnValue(new Promise(() => {}));
+      mockUserApi.ensureDeviceId.mockReturnValue(new Promise(() => { /* never resolve to show loading */ }));
       
       render(
         <TestWrapper>
@@ -585,7 +585,7 @@ describe('SettingsModal', () => {
     });
 
     it('handles clipboard copy failure gracefully', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { /* suppress console output in tests */ });
       navigator.clipboard.writeText = vi.fn(() => Promise.reject(new Error('Clipboard failed')));
 
       render(
@@ -616,7 +616,7 @@ describe('SettingsModal', () => {
     });
 
     it('disables copy button when device ID is not loaded', async () => {
-      mockUserApi.ensureDeviceId.mockReturnValue(new Promise(() => {})); // Never resolves
+      mockUserApi.ensureDeviceId.mockReturnValue(new Promise(() => { /* never resolve to show loading */ })); // Never resolves
 
       render(
         <TestWrapper>
@@ -669,7 +669,7 @@ describe('SettingsModal', () => {
     });
 
     it('handles iOS permission denied status', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { /* suppress console output in tests */ });
 
       render(
         <TestWrapper>
@@ -699,7 +699,7 @@ describe('SettingsModal', () => {
     });
 
     it('handles iOS registration success events', async () => {
-      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => { /* suppress console output in tests */ });
 
       render(
         <TestWrapper>
@@ -725,7 +725,7 @@ describe('SettingsModal', () => {
     });
 
     it('handles iOS registration failure events', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { /* suppress console output in tests */ });
 
       render(
         <TestWrapper>

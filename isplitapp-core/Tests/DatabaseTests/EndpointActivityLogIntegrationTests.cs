@@ -154,20 +154,18 @@ public class EndpointActivityLogIntegrationTests : IClassFixture<DatabaseFixture
         // Act
         var result = await (endpoint.Endpoint.DynamicInvoke(
             deviceId.ToString(),
-            partyId.ToString(), 
-            expensePayload, 
-            _validator, 
+            partyId.ToString(),
+            expensePayload,
+            _validator,
             _auidFactory,
             _ns,
-            _db) as Task<CreatedAtRoute>)!;
+            _db) as Task<Created<ExpenseCreateInfo>>)!;
 
         // Assert - Expense should be created
-        Assert.IsType<CreatedAtRoute>(result);
+        Assert.IsType<Created<ExpenseCreateInfo>>(result);
 
-        // Extract expense ID from route values
-        var routeValues = (IDictionary<string, object?>)result.RouteValues!;
-        var expenseIdString = routeValues["expenseId"]!.ToString()!;
-        var expenseId = Auid.FromString(expenseIdString);
+        // Extract expense ID from the response value
+        var expenseId = result.Value!.ExpenseId;
 
         // Assert - Activity should be logged
         var activities = await _db.ActivityLogs
@@ -434,12 +432,12 @@ public class EndpointActivityLogIntegrationTests : IClassFixture<DatabaseFixture
         // Act - Create first expense
         await (expenseCreateEndpoint.Endpoint.DynamicInvoke(
             deviceId.ToString(),
-            partyId.ToString(), 
-            expensePayload, 
-            _validator, 
+            partyId.ToString(),
+            expensePayload,
+            _validator,
             _auidFactory,
             _ns,
-            _db) as Task<CreatedAtRoute>)!;
+            _db) as Task<Created<ExpenseCreateInfo>>)!;
 
         Thread.Sleep(1); // Ensure different timestamps
 
@@ -458,12 +456,12 @@ public class EndpointActivityLogIntegrationTests : IClassFixture<DatabaseFixture
         };
         await (expenseCreateEndpoint.Endpoint.DynamicInvoke(
             deviceId.ToString(),
-            partyId.ToString(), 
-            secondExpensePayload, 
-            _validator, 
+            partyId.ToString(),
+            secondExpensePayload,
+            _validator,
             _auidFactory,
             _ns,
-            _db) as Task<CreatedAtRoute>)!;
+            _db) as Task<Created<ExpenseCreateInfo>>)!;
 
         // Assert - Activities should be logged in chronological order
         var activities = await _db.ActivityLogs

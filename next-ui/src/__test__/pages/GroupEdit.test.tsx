@@ -66,7 +66,7 @@ vi.mock('../../api/expenseApi', () => ({
 }));
 
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom') as any;
+  const actual = await vi.importActual('react-router-dom') as Record<string, unknown>;
   return {
     ...actual,
     MemoryRouter: actual.MemoryRouter,

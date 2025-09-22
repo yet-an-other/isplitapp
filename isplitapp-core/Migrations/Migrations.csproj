@@ -39,6 +39,8 @@
       <EmbeddedResource Include="SqlMigrations\v6-Up.sql" />
       <EmbeddedResource Include="SqlMigrations\v7-Down.sql" />
       <EmbeddedResource Include="SqlMigrations\v7-Up.sql" />
+  <EmbeddedResource Include="SqlMigrations\v8-Down.sql" />
+  <EmbeddedResource Include="SqlMigrations\v8-Up.sql" />
     </ItemGroup>
 
 </Project>

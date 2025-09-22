@@ -127,15 +127,14 @@ public class SplitTest: IClassFixture<DatabaseFixture>, IDisposable, IAsyncDispo
         var endpointGet = new ExpenseGet();
 
         var updateResult = await (endpointPut.Endpoint.DynamicInvoke(_auidFactory.NewId().ToString(), actualPartyId.ToString(), expense,
-            _validator, _auidFactory, _ns, _db) as Task<CreatedAtRoute>)!;
-        
-
-        Assert.IsType<CreatedAtRoute>(updateResult);
-        var route = (CreatedAtRoute) updateResult;
-        route.RouteValues.TryGetValue("expenseId", out var id);
+            _validator, _auidFactory, _ns, _db) as Task<Created<ExpenseCreateInfo>>)!;
 
 
-        var result = await (endpointGet.Endpoint.DynamicInvoke(id, _validator, _db) as Task<Results<Ok<ExpenseInfo>, NotFound>>)!;
+        Assert.IsType<Created<ExpenseCreateInfo>>(updateResult);
+        var id = updateResult.Value!.ExpenseId;
+
+
+        var result = await (endpointGet.Endpoint.DynamicInvoke(id.ToString(), _validator, _db) as Task<Results<Ok<ExpenseInfo>, NotFound>>)!;
         
         // Assert
         //

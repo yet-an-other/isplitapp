@@ -85,6 +85,7 @@ describe('generateReport', () => {
       { participantId: 'participant-2', participantName: 'Bob', amount: 20.00, share: 1, percent: 33.33 },
       { participantId: 'participant-3', participantName: 'Charlie', amount: 20.00, share: 1, percent: 33.33 },
     ],
+    attachmentCount: 0,
     ...overrides,
   });
 
@@ -436,7 +437,7 @@ describe('generateReport', () => {
     it('handles null/undefined dates', async () => {
       const mockParty = createMockParty();
       const mockExpenses = [createMockExpense({
-        date: null as any,
+        date: null as unknown as Date,
       })];
 
       mockFetcher

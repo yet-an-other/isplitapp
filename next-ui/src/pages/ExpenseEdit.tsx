@@ -7,7 +7,7 @@ import { useMemo, useState, useEffect } from "react";
 import { ParticipantInfo } from "../api/contract/ParticipantInfo";
 import { NumericFormat } from "react-number-format";
 import { ZodError, z } from "zod";
-import { createExpense, deleteExpense, fetcher, updateExpense } from "../api/expenseApi";
+import { createExpense, deleteExpense, fetcher, updateExpense, uploadAttachmentsForExpense } from "../api/expenseApi";
 import { mutate } from "swr";
 import { ExpenseInfo } from "../api/contract/ExpenseInfo";
 import { ProblemError } from "../api/contract/ProblemError";
@@ -16,6 +16,8 @@ import { ErrorCard } from "../controls/ErrorCard";
 import { CardSkeleton } from "../controls/CardSkeleton";
 import { useHeroUIAlerts as useAlerts } from "../utils/useHeroUIAlerts";
 import { useTranslation } from "react-i18next";
+import AttachmentButtons, { type Attachment } from "../controls/AttachmentButtons";
+import AttachmentGrid from "../controls/AttachmentGrid";
 import { usePartySetting } from "../utils/partySetting";
 
 
@@ -84,6 +86,10 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
     const [validationResult, setValidationResult] = 
         useState<{ success: true; data: z.infer<typeof ExpensePayloadSchema> } | { success: false; error: ZodError; }>();
     const [isShowErrors, setIsShowErrors] = useState(false);
+
+    // Unified attachment state
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
+    const [isAttaching, setIsAttaching] = useState(false);
 
     const handleOnChange = ({name, value}: {name: string, value: string}) => {
 
@@ -224,25 +230,53 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
         }
     }
 
+    // Helper to upload draft attachments after creation
+    const uploadDraftAttachments = async (targetExpenseId: string, drafts: Attachment[]) => {
+        if (drafts.length === 0) return;
+        setIsAttaching(true);
+        try {
+            const attachmentData = await Promise.all(
+                drafts.map(async (draft) => {
+                    const response = await fetch(draft.url);
+                    const blob = await response.blob();
+                    return {
+                        fileName: draft.fileName,
+                        blob,
+                        contentType: blob.type || 'image/jpeg',
+                        sizeBytes: draft.sizeBytes,
+                    };
+                })
+            );
+            await uploadAttachmentsForExpense(targetExpenseId, attachmentData);
+        } finally {
+            setIsAttaching(false);
+        }
+    };
+
     const handleUpdateExpense = async () => {
         const result = ExpensePayloadSchema.safeParse(expense);
         setValidationResult(result);
         setIsShowErrors(true);
+        if (!result.success) return; // Early exit on validation failure
 
-        if (result.success) {
-            try {
-                expenseId 
-                    ? await updateExpense(expenseId, expense)
-                    : await createExpense(group.id, expense);
-                await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
-                navigate(`/${group.id}/expenses`);
+        try {
+            let targetId = expenseId; // existing id or will be set after creation
+            if (targetId) {
+                await updateExpense(targetId, expense);
+            } else {
+                const created = await createExpense(group.id, expense);
+                targetId = created.expenseId;
+                const draftAttachments = attachments.filter(a => a.type === 'draft');
+                await uploadDraftAttachments(targetId, draftAttachments);
             }
-            catch(e) {
-                console.error(e);
-                alertError(t('expenseEdit.errors.saveFailed'))
-            }
+
+            await mutate(key => typeof key === 'string' && key.startsWith(`/parties/${group.id}`));
+            navigate(`/${group.id}/expenses`);
+        } catch (e) {
+            console.error(e);
+            alertError(t('expenseEdit.errors.saveFailed'));
         }
-    }
+    };
 
     return (
         <div className="mt-4">
@@ -274,9 +308,31 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             </Modal>
 
 
-            <h1 className="text-2xl">{t('expenseEdit.expenseInfoSection.title')}</h1>
-            <div className="text-sm text-dimmed">{t('expenseEdit.expenseInfoSection.description')}</div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 w-full">
+            {/* Expense Info header (standard section style) */}
+            <div className="flex items-center mt-6 mb-2">
+                <h2 className="text-2xl font-semibold whitespace-nowrap">{t('expenseEdit.expenseInfoSection.title')}</h2>
+                <div className="ml-auto flex gap-1">
+                    <AttachmentButtons
+                        expenseId={expenseId}
+                        attachments={attachments}
+                        onAttachmentsChange={setAttachments}
+                        max={3}
+                    />
+                </div>
+            </div>
+            <div className="text-sm text-dimmed mb-3">{t('expenseEdit.expenseInfoSection.description')}</div>
+
+            {attachments.length > 0 && (
+                <div className="mb-4">
+                    <AttachmentGrid
+                        attachments={attachments}
+                        onAttachmentsChange={setAttachments}
+                        expenseId={expenseId}
+                    />
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                 <Input
                     isRequired
                     autoFocus
@@ -385,7 +441,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
             <div className="mt-6">
                 <div className="flex flex-row">
                     <div className="flex flex-col">
-                        <h1 className="text-2xl whitespace-nowrap">{t('expenseEdit.paidForSection.title')}</h1>
+                        <h1 className="text-2xl font-semibold whitespace-nowrap">{t('expenseEdit.paidForSection.title')}</h1>
 
                     </div>
                     <div className="flex flex-col ml-auto">
@@ -485,7 +541,7 @@ function ExpenseEditForm ({ group, expenseId, defaultExpense }: {group: PartyInf
                 <Button size="sm" variant="solid" color="danger" onPress={() => void handleDeleteExpense()} isDisabled={!expenseId}>
                     {t('common.buttons.delete')}
                 </Button>
-                <Button size="sm" variant="solid" color="primary" className="ml-auto" onPress={() => void handleUpdateExpense()}>
+                <Button size="sm" variant="solid" color="primary" className="ml-auto" onPress={() => void handleUpdateExpense()} isDisabled={isAttaching}>
                     {expenseId ? t('common.buttons.update') : t('common.buttons.add')}
                 </Button>
             </div>

@@ -32,6 +32,7 @@ public class ExpenseCreate: IEndpoint
 
         await db.BeginTransactionAsync();
         var expenseId = auidFactory.NewId();
+        var timestamp = auidFactory.Timestamp();
         await db.InsertAsync(new Expense
         {
             Id = expenseId,
@@ -42,7 +43,7 @@ public class ExpenseCreate: IEndpoint
             IsReimbursement = expense.IsReimbursement,
             LenderId = expense.LenderId,
             SplitMode = expense.SplitMode,
-            Timestamp = auidFactory.Timestamp()
+            Timestamp = timestamp
         });
 
         await CommonQuery.InsertBorrowersAsync(expenseId, expense, db);
@@ -61,8 +62,10 @@ public class ExpenseCreate: IEndpoint
 
         await notificationService.PushExpenseUpdateMessage(deviceId, expenseId, "New expense");
 
-        return TypedResults.CreatedAtRoute(
-            "GetExpense",
-            new RouteValueDictionary { ["expenseId"] = expenseId.ToString() });
+        return TypedResults.Created($"/expenses/{expenseId}", new ExpenseCreateInfo
+        {
+            ExpenseId = expenseId,
+            Timestamp = timestamp
+        });
     };
 }

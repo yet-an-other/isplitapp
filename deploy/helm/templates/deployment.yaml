@@ -76,6 +76,17 @@ spec:
                   name: isplitapp
                   key: vapidPrivateKey
 
+            - name: S3__AccessKey
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: s3AccessKey
+            - name: S3__SecretKey
+              valueFrom:
+                secretKeyRef:
+                  name: isplitapp
+                  key: s3SecretKey
+
             - name: VITE_API_URL
               value: "https://{{ .Values.apiDomain }}"
 

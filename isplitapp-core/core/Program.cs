@@ -63,6 +63,10 @@ builder.Services.AddLinq2Db(connectionString);
 //
 builder.Services.AddFirebase(builder.Configuration);
 
+// Add attachment storage (S3)
+//
+builder.Services.AddAttachmentStorage(builder.Configuration);
+
 // Add validation objects
 //
 builder.Services.AddTransient<IValidator<PartyPayload>, PartyRequestValidator>();
@@ -81,7 +85,8 @@ builder.Services.AddCors(options =>
         .WithOrigins(allowedOrigins)
         .AllowCredentials()
         .AllowAnyMethod()
-        .AllowAnyHeader()        
+    .AllowAnyHeader()        
+    .WithExposedHeaders("Location")
         .SetPreflightMaxAge(TimeSpan.FromDays(20)));
 });
 
@@ -162,6 +167,7 @@ namespace IB.ISplitApp.Core
     [JsonSerializable(typeof(DeviceInfo))]
     [JsonSerializable(typeof(ExpensePayload[]))]
     [JsonSerializable(typeof(ExpenseInfo[]))]
+    [JsonSerializable(typeof(ExpenseCreateInfo))]
     [JsonSerializable(typeof(PartyPayload[]))]
     [JsonSerializable(typeof(PartyInfo[]))]
     [JsonSerializable(typeof(BalanceInfo[]))]
