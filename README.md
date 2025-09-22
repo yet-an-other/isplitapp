@@ -23,7 +23,6 @@ iOS users may also install a native version from the store https://apps.apple.co
 Work in progress on...
   - [ ] Preffered reimbursements
   - [ ] Offline mode
-  - [ ] Add Deutsch and Russian UI
   - [ ] Default User for a group
 
 ### Features
@@ -38,7 +37,7 @@ Work in progress on...
   - [x] iOS application
   - [x] REST API and CSV download
   - [x] Add support for multiple UI languages
-
+  - [x] Attach receed
 
 
 Feel free to join, use and contribute!
