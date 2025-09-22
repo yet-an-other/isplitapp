@@ -27,7 +27,7 @@ export function useFileProcessor(options: UseFileProcessorOptions = {}) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const {
-    maxSizeBytes = 450 * 1024,
+    maxSizeBytes = 1024 * 1024,
     onError = (error) => alertError(error),
     onTooLarge = (_fileName) => alertError(t('expenseEdit.receipts.errors.tooLarge'))
   } = options;

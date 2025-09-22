@@ -9,6 +9,7 @@ namespace IB.ISplitApp.Core.Expenses.Endpoints.Attachments;
 
 public class ExpenseAttachmentPresign : IEndpoint
 {
+    private const int MaxAttachmentSize = 1024 * 1024;
     public string PathPattern => "/expenses/{expenseId}/attachments/presign";
     public string Method => "POST";
     public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => builder.WithName("PresignExpenseAttachment");
@@ -35,9 +36,9 @@ public class ExpenseAttachmentPresign : IEndpoint
         {
             return Results.BadRequest(new { error = "invalid_content_type", allowed });
         }
-        if (request.ExpectedSizeBytes is <= 0 or > 512000)
+        if (request.ExpectedSizeBytes is <= 0 or > MaxAttachmentSize)
         {
-            return Results.BadRequest(new { error = "invalid_size", max = 512000 });
+            return Results.BadRequest(new { error = "invalid_size", max = MaxAttachmentSize });
         }
 
         // Ensure expense exists and get partyId for activity later
@@ -67,13 +68,13 @@ public class ExpenseAttachmentPresign : IEndpoint
             ExpenseId = expenseId,
             FileName = request.FileName,
             ContentType = request.ContentType,
-            SizeBytes = Math.Min(request.ExpectedSizeBytes, 512000),
+            SizeBytes = Math.Min(request.ExpectedSizeBytes, MaxAttachmentSize),
             S3Key = s3Key,
             CreatedAt = DateTime.UtcNow
         }, token: ct);
 
         var expiry = TimeSpan.FromMinutes(5);
-        var presigned = storage.CreatePresignedPost(s3Key, request.ContentType, 512000, expiry);
+        var presigned = storage.CreatePresignedPost(s3Key, request.ContentType, MaxAttachmentSize, expiry);
 
         logger.LogInformation("Presigned upload for expense {ExpenseId} attachment {AttachmentId}", expenseId, attachmentId);
 
@@ -81,7 +82,7 @@ public class ExpenseAttachmentPresign : IEndpoint
             attachmentId,
             presigned.Url,
             presigned.Fields,
-            512000,
+            MaxAttachmentSize,
             presigned.ExpiresAt));
     };
 }

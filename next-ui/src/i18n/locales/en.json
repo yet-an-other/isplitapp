@@ -226,7 +226,7 @@
       "addButton": "Add receipt",
       "uploaded": "Receipt uploaded",
       "errors": {
-        "tooLarge": "Could not compress the image below 450 KB. Try a smaller photo.",
+        "tooLarge": "Could not compress the image below 1 MB. Try a smaller photo.",
         "uploadFailed": "Failed to upload receipt. Please try again.",
         "deleteFailed": "Failed to delete receipt.",
         "loadFailed": "Failed to load attachments.",
