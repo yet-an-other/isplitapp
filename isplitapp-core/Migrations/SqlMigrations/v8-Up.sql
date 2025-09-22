@@ -16,9 +16,3 @@ CREATE TABLE IF NOT EXISTS expense_attachment (
 CREATE UNIQUE INDEX IF NOT EXISTS ix_expense_attachment_s3_key ON expense_attachment(s3_key);
 CREATE INDEX IF NOT EXISTS ix_expense_attachment_expense_id ON expense_attachment(expense_id);
 
--- Enforce server-side max size (500 KB)
-ALTER TABLE expense_attachment
-    ADD CONSTRAINT chk_expense_attachment_size CHECK (size_bytes <= 512000);
-
-
--- V1 scope intentionally excludes draft_attachment; add later in V9 if needed

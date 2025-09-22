@@ -10,6 +10,8 @@ namespace IB.ISplitApp.Core.Expenses.Endpoints.Attachments;
 
 public class ExpenseAttachmentFinalize : IEndpoint
 {
+    private const int MaxAttachmentSize = 1024 * 1024;
+
     public string PathPattern => "/expenses/{expenseId}/attachments/{attachmentId}/finalize";
     public string Method => "POST";
     public RouteHandlerBuilder Build(RouteHandlerBuilder builder) => builder.WithName("FinalizeExpenseAttachment");
@@ -47,12 +49,13 @@ public class ExpenseAttachmentFinalize : IEndpoint
         {
             return Results.BadRequest(new { error = "upload_not_found" });
         }
-        if (head.Size is null or > 512000)
+        if (head.Size is null or > MaxAttachmentSize)
         {
             // too large: cleanup object and row
+            logger.LogDebug("Attachment {AttachmentId} for expense {ExpenseId} is too large ({Size}), deleting", attachmentId, expenseId, head.Size);
             await storage.DeleteAsync(record.S3Key, ct);
             await db.ExpenseAttachments.DeleteAsync(x => x.Id == attachmentId, token: ct);
-            return Results.BadRequest(new { error = "file_too_large", max = 512000 });
+            return Results.BadRequest(new { error = "file_too_large", max = MaxAttachmentSize });
         }
 
         // Update metadata
