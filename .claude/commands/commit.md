@@ -14,7 +14,6 @@ description: Create a git commit
 
 Based on the above changes, create a single git commit.
 - Be short but provide the essence of changes. 
-- Include context for future developers.
 - Reference issue numbers when applicable.
 - Commit messages should describe WHY, not HOW
 - Do not list WHAT has been done

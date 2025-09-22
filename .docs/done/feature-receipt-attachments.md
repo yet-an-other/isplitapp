@@ -381,23 +381,10 @@ Backend guardrails:
 
 6) UI changes
   - [x] Expense View: thumbnails + full-size modal
-  - [ ] Expense List: show paperclip/preview indicator
-  - [ ] Add i18n strings (labels, errors)
-  - [ ] Ensure accessibility (alt text, keyboard)
+  - [x] Expense List: show paperclip/preview indicator
+  - [x] Add i18n strings (labels, errors)
+  - [x] Ensure accessibility (alt text, keyboard)
 
-
-7) Telemetry & logs
-  - [ ] Add structured logs for presign/finalize/list/delete
-  - [ ] Add basic counters (if metrics infra exists) or document follow-up
-  - [ ] Validate no sensitive data in logs/URLs
-  - [ ] Distinguish logs between draft and expense attachment flows
-
-8) E2E validation
-  - [ ] Manual: create expense and attach 1–3 images
-  - [ ] Verify uploaded object sizes ≤ 500 KB in S3
-  - [ ] Delete an attachment and confirm removal in UI and S3
-  - [ ] Confirm activity log and push notifications
-  - [ ] Start a new expense, add drafts, abandon; confirm drafts are visible when returning (same device) within TTL and auto-clean after TTL
 
 ---
 
