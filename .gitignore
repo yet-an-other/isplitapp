@@ -429,3 +429,4 @@ fabric.properties
 *.local
 dist/
 secret/
+.pi/
